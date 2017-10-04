@@ -44,7 +44,10 @@ private List<WebElement> friendNames;
 The step status is returned via `params["status"]` entry, the step result (if any) is returned via `params["result"]`
 
 ### Adding jProtractor
-![TestCase.xls](https://github.com/sergueik/keyword_driven_framework/master/images/testcase_protractor.png)
+
+One can explore additional selectors with Protractor.
+
+![TestCase.xls](https://github.com/sergueik/keyword_driven_framework/blob/master/images/testcase_protractor.png)
 
 [jProtractor](https://github.com/sergueik/jProtractor) is not available in maven central, therefore to use it with framework one needs do build it from source and
 install it into current user's `.m2` repo:
