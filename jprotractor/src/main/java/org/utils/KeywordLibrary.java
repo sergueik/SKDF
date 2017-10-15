@@ -37,9 +37,7 @@ public class KeywordLibrary {
 	public WebDriverWait wait;
 	public Actions actions;
 	private NgWebDriver ngDriver;
-	private NgBy ngBy;
 	private WebElement element;
-	private NgWebElement ng_element;
 	Properties objectRepo;
 	String status;
 	String result;
@@ -632,7 +630,7 @@ public class KeywordLibrary {
 			repeatereElement
 			selectedOption
 			selectedRepeaterOption
-			are unlikely to be useful 			 
+			are unlikely to be useful here
 			*/
 			case "text":
 				// Option 1: construct xpath selector

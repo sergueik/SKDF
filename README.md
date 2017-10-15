@@ -29,7 +29,7 @@ try {
   System.out.println(keyword + " call method: " + methodName + " with "
 			+ String.join(",", params.values()));
   // for static methods
-  _method.invoke(null, params); 
+  _method.invoke(null, params);
   // or when using instances methods
   Object _object = _class.newInstance();
   _method.invoke(_object, params);
@@ -45,7 +45,7 @@ The step status is returned via `params["status"]` entry, the step result (if an
 
 ### Adding jProtractor
 
-One can explore additional selectors with Protractor.
+One can explore additional selectors with jProtractor.
 
 ![TestCase.xls](https://github.com/sergueik/keyword_driven_framework/blob/master/images/testcase_protractor.png)
 
@@ -66,7 +66,6 @@ This will add about 10 AngularJS-specific `NgBy` locators:
 
 ![NgBy methods](https://github.com/sergueik/keyword_driven_framework/blob/master/images/ngby_methods.png)
 
-
 * `options`
 * `input`
 * `selectedOption`
@@ -80,6 +79,29 @@ This will add about 10 AngularJS-specific `NgBy` locators:
 * `cssContainingText`
 * `selectedRepeaterOption`
 * `partialButtonText`
+
+### Adding ngWebDriver
+
+Another implementation of Protractor selectors is [ngWebDriver](https://github.com/paul-hammant/ngWebDriver). Most Protractor-specific locators are the same (the class is `ByAngular`):
+
+* `options`
+* `repeater`
+* `model`
+* `binding`
+* `buttonText`
+* `cssContainingText`
+* `partialButtonText`
+
+Few method signatures of are different.  Implementation of the correspondent keyword methods is currently WIP
+
+* `repeaterCell`
+* `repeaterRow`
+* `repeaterColumn`
+
+Some methods do not exist in ngWebDriver:
+
+* `selectedOption`
+* `selectedRepeaterOption`
 
 ### See Also
 
