@@ -92,13 +92,25 @@ Another implementation of Protractor selectors is [ngWebDriver](https://github.c
 * `cssContainingText`
 * `partialButtonText`
 
-Few method signatures of are different.  Implementation of the correspondent keyword methods is currently WIP
+Few method signatures of are different:
 
 * `repeaterCell`
 * `repeaterRow`
 * `repeaterColumn`
 
-Some methods do not exist in ngWebDriver:
+The implementation of the correspondent keyword methods is through chaining the
+ngWebDriver methods e.g.
+
+```java
+case "repeaterColumn":
+  ngDriver.waitForAngularRequestsToFinish();
+  ByAngularRepeater _elementRepeater = ByAngular.repeater(selectorValue);
+  ByAngularRepeaterColumn _elementRepeaterColumn = _elementRepeater.column(selectorColumn);
+  _element = driver.findElement(_elementRepeaterColumn);
+  return _element;
+
+```
+Some methods are unique to jProtracror, they do not exist in ngWebDriver:
 
 * `selectedOption`
 * `selectedRepeaterOption`

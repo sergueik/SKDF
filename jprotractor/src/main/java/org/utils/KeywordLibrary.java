@@ -148,6 +148,8 @@ public class KeywordLibrary {
 				methodTable.put(methodName, methodName);
 			}
 		}
+		/*
+		// optional: list all methods
 		try {
 			Class<?> _locatorHelper = Class.forName("org.openqa.selenium.By");
 			Method[] _locatorMethods = _locatorHelper.getMethods();
@@ -157,6 +159,9 @@ public class KeywordLibrary {
 			}
 		} catch (ClassNotFoundException | SecurityException e) {
 		}
+		*/
+		/*
+		// optional: list all methods
 		try {
 			Class<?> _locatorHelper = Class.forName("com.jprotractor.NgBy");
 			Method[] _locatorMethods = _locatorHelper.getMethods();
@@ -167,8 +172,10 @@ public class KeywordLibrary {
 		} catch (ClassNotFoundException | SecurityException e) {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
+		*/
 		try {
-			locatorTable.put("class", By.class.getMethod("class", String.class));
+			locatorTable.put("className",
+					By.class.getMethod("className", String.class));
 			locatorTable.put("css", By.class.getMethod("cssSelector", String.class));
 			locatorTable.put("id", By.class.getMethod("id", String.class));
 			locatorTable.put("linkText",
@@ -194,6 +201,7 @@ public class KeywordLibrary {
 					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
 			locatorTable.put("repeaterElement", NgBy.class.getMethod(
 					"repeaterElement", String.class, Integer.class, String.class));
+			// NOTE: plural in the method name
 			locatorTable.put("repeaterRows",
 					NgBy.class.getMethod("repeaterRows", String.class, Integer.class));
 			locatorTable.put("selectedOption",
@@ -484,65 +492,87 @@ public class KeywordLibrary {
 		WebElement _element = null;
 		try {
 			switch (selectorType) {
+
 			case "binding":
 				_element = ngDriver.findElement(NgBy.binding(selectorValue));
 				break;
+
 			case "buttontext":
 				_element = ngDriver.findElement(NgBy.buttonText(selectorValue));
 				break;
+
+			case "className":
+				_element = driver.findElement(By.className(selectorValue));
+				break;
+
 			case "css":
 				_element = driver.findElement(By.cssSelector(selectorValue));
 				break;
+
 			case "cssContainingText":
 				_element = ngDriver.findElement(
 						NgBy.cssContainingText(selectorValue, selectorContainedText));
 				break;
+
 			case "cssSelector":
 				_element = driver.findElement(By.cssSelector(selectorValue));
 				break;
+
 			case "id":
 				_element = driver.findElement(By.id(selectorValue));
 				break;
+
 			case "model":
 				_element = ngDriver.findElement(NgBy.model(selectorValue));
 				break;
+
 			case "linkText":
 				_element = driver.findElement(By.linkText(selectorValue));
 				break;
+
 			case "name":
 				_element = driver.findElement(By.name(selectorValue));
 				break;
+
 			case "options":
 				_element = ngDriver.findElement(NgBy.options(selectorValue));
 				break;
+
 			case "partialLinkText":
 				_element = driver.findElement(By.partialLinkText(selectorValue));
 				break;
+
 			case "repeater":
 				_element = ngDriver.findElement(NgBy.repeater(selectorValue));
 				break;
+
 			case "repeaterColumn":
 				_element = ngDriver
 						.findElement(NgBy.repeaterColumn(selectorValue, selectorColumn));
 				break;
+
 			case "repeatereElement":
 				_element = ngDriver.findElement(NgBy.repeaterElement(selectorValue,
 						Integer.parseInt(selectorRow), selectorColumn));
 				break;
+
 			case "repeaterRows":
 				_element = ngDriver.findElement(
 						NgBy.repeaterRows(selectorValue, Integer.parseInt(selectorRow)));
 				break;
+
+			// unique to jProtracror and old Protractor JS
 			case "selectedOption":
 				_element = ngDriver.findElement(NgBy.selectedOption(selectorValue));
 				break;
+
 			case "selectedRepeaterOption":
 				_element = ngDriver
 						.findElement(NgBy.selectedRepeaterOption(selectorValue));
 				break;
-			case "text":
 
-				// Option 1: construct xpath selector
+			case "text":
+				// Option 1: construct XPath selector
 				Map<String, String> amendedParams = new HashMap<>();
 				String amendedSelectorValue = String.format(
 						"//%s[contains(normalize-space(text()),'%s')]",
@@ -551,7 +581,6 @@ public class KeywordLibrary {
 				amendedParams.put("param1", "xpath");
 				amendedParams.put("param2", amendedSelectorValue);
 				_element = _findElement(amendedParams);
-
 				// Option 2: use Java streams for filtering
 				if (selectorTagName != null && _element == null) {
 					_element = driver.findElements(By.tagName(selectorTagName)).stream()
@@ -588,40 +617,56 @@ public class KeywordLibrary {
 		List<WebElement> _elements = new ArrayList<>();
 		try {
 			switch (selectorType) {
+
 			case "binding":
 				_elements = ngDriver.findElements(NgBy.binding(selectorValue));
 				break;
+
 			case "buttontext":
 				_elements = ngDriver.findElements(NgBy.buttonText(selectorValue));
 				break;
+
+			case "className":
+				_elements = driver.findElements(By.className(selectorValue));
+				break;
+
 			case "css":
 				_elements = driver.findElements(By.cssSelector(selectorValue));
 				break;
+
 			case "cssContainingText":
 				_elements = ngDriver.findElements(
 						NgBy.cssContainingText(selectorValue, selectorContainedText));
 				break;
+
 			case "cssSelector":
 				_elements = driver.findElements(By.cssSelector(selectorValue));
 				break;
+
 			case "id":
 				_elements = driver.findElements(By.id(selectorValue));
 				break;
+
 			case "model":
 				_elements = ngDriver.findElements(NgBy.model(selectorValue));
 				break;
+
 			case "linkText":
 				_elements = driver.findElements(By.linkText(selectorValue));
 				break;
+
 			case "name":
 				_elements = driver.findElements(By.name(selectorValue));
 				break;
+
 			case "options":
 				_elements = ngDriver.findElements(NgBy.options(selectorValue));
 				break;
+
 			case "partialLinkText":
 				_elements = driver.findElements(By.partialLinkText(selectorValue));
 				break;
+
 			case "repeater":
 				_elements = ngDriver.findElements(NgBy.repeater(selectorValue));
 				break;
@@ -632,6 +677,7 @@ public class KeywordLibrary {
 			selectedRepeaterOption
 			are unlikely to be useful here
 			*/
+
 			case "text":
 				// Option 1: construct xpath selector
 				Map<String, String> amendedParams = new HashMap<>();
@@ -652,6 +698,7 @@ public class KeywordLibrary {
 							}).collect(Collectors.toList());
 				}
 				break;
+
 			case "xpath":
 				_elements = driver.findElements(By.xpath(selectorValue));
 				break;

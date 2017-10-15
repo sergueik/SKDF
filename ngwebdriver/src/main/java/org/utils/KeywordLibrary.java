@@ -3,6 +3,8 @@ package org.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +50,6 @@ public class KeywordLibrary {
 	public WebDriverWait wait;
 	public Actions actions;
 	private NgWebDriver ngDriver;
-	// private NgBy ngBy;
 	private WebElement element;
 	Properties objectRepo;
 	String status;
@@ -160,6 +161,8 @@ public class KeywordLibrary {
 				methodTable.put(methodName, methodName);
 			}
 		}
+		/*
+		// optional: list all methods
 		try {
 			Class<?> _locatorHelper = Class.forName("org.openqa.selenium.By");
 			Method[] _locatorMethods = _locatorHelper.getMethods();
@@ -169,6 +172,9 @@ public class KeywordLibrary {
 			}
 		} catch (ClassNotFoundException | SecurityException e) {
 		}
+		*/
+		/*
+		// optional: list all methods
 		try {
 			Class<?> _locatorHelper = Class
 					.forName("com.paulhammant.ngwebdriver.ByAngular");
@@ -181,8 +187,10 @@ public class KeywordLibrary {
 		} catch (ClassNotFoundException | SecurityException e) {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
+		*/
 		try {
-			locatorTable.put("class", By.class.getMethod("class", String.class));
+			locatorTable.put("className",
+					By.class.getMethod("className", String.class));
 			locatorTable.put("css", By.class.getMethod("cssSelector", String.class));
 			locatorTable.put("id", By.class.getMethod("id", String.class));
 			locatorTable.put("linkText",
@@ -191,6 +199,22 @@ public class KeywordLibrary {
 			locatorTable.put("tagName", By.class.getMethod("tagName", String.class));
 			locatorTable.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
+			System.out.println("Exception (ignored): " + e.toString());
+		}
+		Method methodMissing = null;
+		try {
+			// do we ever want to send correct arguments ?
+			@SuppressWarnings("rawtypes")
+			Class[] arguments = new Class[] { String.class, String.class };
+			Constructor methodConstructor = Method.class
+					.getDeclaredConstructor(arguments);
+			methodConstructor.setAccessible(true);
+			methodMissing = (Method) methodConstructor.newInstance();
+		} catch (NoSuchMethodException | IllegalAccessException
+				| InstantiationException | IllegalArgumentException
+				| InvocationTargetException e) {
+			System.out.println("Exception (ignored): " + e.toString());
+
 		}
 		try {
 			locatorTable.put("binding",
@@ -213,17 +237,12 @@ public class KeywordLibrary {
 					ByAngular.class.getMethod("partialButtonText", String.class));
 			locatorTable.put("repeater",
 					ByAngular.class.getMethod("repeater", String.class));
-			// TODO: declaration and implementation
-			/*
-			locatorTable.put("repeaterColumn",
-					ByAngularRepeaterRow.class.getMethod("column", String.class));
-			// locatorTable.put("repeaterCell", ByAngularRepeaterCell.class.getMethod(
-			// "???", String.class, Integer.class, String.class));
-			locatorTable.put("repeaterRow",
-					ByAngularRepeaterColumn.class.getMethod("row", Integer.class));
-					*/
+			locatorTable.put("repeaterColumn", methodMissing);
+			locatorTable.put("repeaterCell", methodMissing);
+			locatorTable.put("repeaterRow", methodMissing);
+
 		} catch (NoSuchMethodException e) {
-			System.out.println("Execption (ignored): " + e.toString());
+			System.out.println("Exception (ignored): " + e.toString());
 		}
 	}
 
@@ -506,73 +525,88 @@ public class KeywordLibrary {
 		WebElement _element = null;
 		try {
 			switch (selectorType) {
+
 			case "binding":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(ByAngular.binding(selectorValue));
 				break;
+
 			case "buttontext":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(ByAngular.buttonText(selectorValue));
 				break;
+
+			case "className":
+				_element = driver.findElement(By.className(selectorValue));
+				break;
+
 			case "css":
 				_element = driver.findElement(By.cssSelector(selectorValue));
 				break;
+
 			case "cssContainingText":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(
 						ByAngular.cssContainingText(selectorValue, selectorContainedText));
 				break;
+
 			case "cssSelector":
 				_element = driver.findElement(By.cssSelector(selectorValue));
 				break;
+
 			case "id":
 				_element = driver.findElement(By.id(selectorValue));
 				break;
+
 			case "model":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(ByAngular.model(selectorValue));
 				break;
+
 			case "linkText":
 				_element = driver.findElement(By.linkText(selectorValue));
 				break;
+
 			case "name":
 				_element = driver.findElement(By.name(selectorValue));
 				break;
+
 			case "options":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(ByAngular.options(selectorValue));
 				break;
+
 			case "partialLinkText":
 				_element = driver.findElement(By.partialLinkText(selectorValue));
 				break;
+
 			case "repeater":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(ByAngular.repeater(selectorValue));
 				break;
-			/*
-			case "repeaterColumn":
-			_element = ngDriver
-					.findElement(NgBy.repeaterColumn(selectorValue, selectorColumn));
-			break;
-			case "repeatereElement":
-			_element = ngDriver.findElement(NgBy.repeaterElement(selectorValue,
-					Integer.parseInt(selectorRow), selectorColumn));
-			break;
-			case "repeaterRows":
-			_element = ngDriver.findElement(
-					NgBy.repeaterRows(selectorValue, Integer.parseInt(selectorRow)));
-			break;
-			case "selectedOption":
-			_element = ngDriver.findElement(NgBy.selectedOption(selectorValue));
-			break;
-			case "selectedRepeaterOption":
-			_element = ngDriver
-					.findElement(NgBy.selectedRepeaterOption(selectorValue));
-			break;
-			*/
-			case "text":
 
-				// Option 1: construct xpath selector
+			case "repeaterColumn":
+				ngDriver.waitForAngularRequestsToFinish();
+				ByAngularRepeater _elementRepeater = ByAngular.repeater(selectorValue);
+				ByAngularRepeaterColumn _elementRepeaterColumn = _elementRepeater
+						.column(selectorColumn);
+				_element = driver.findElement(_elementRepeaterColumn);
+				break;
+
+			case "repeaterRow":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.repeater(selectorValue)
+						.row(Integer.parseInt(selectorRow)));
+				break;
+
+			case "repeatereCell":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.repeater(selectorValue)
+						.row(Integer.parseInt(selectorRow)).column(selectorColumn));
+				break;
+
+			case "text":
+				// Option 1: construct XPath selector
 				Map<String, String> amendedParams = new HashMap<>();
 				String amendedSelectorValue = String.format(
 						"//%s[contains(normalize-space(text()),'%s')]",
@@ -581,7 +615,6 @@ public class KeywordLibrary {
 				amendedParams.put("param1", "xpath");
 				amendedParams.put("param2", amendedSelectorValue);
 				_element = _findElement(amendedParams);
-
 				// Option 2: use Java streams for filtering
 				if (selectorTagName != null && _element == null) {
 					_element = driver.findElements(By.tagName(selectorTagName)).stream()
@@ -618,54 +651,70 @@ public class KeywordLibrary {
 		List<WebElement> _elements = new ArrayList<>();
 		try {
 			switch (selectorType) {
+
 			case "binding":
 				ngDriver.waitForAngularRequestsToFinish();
 				_elements = driver.findElements(ByAngular.binding(selectorValue));
 				break;
+
 			case "buttontext":
 				ngDriver.waitForAngularRequestsToFinish();
 				_elements = driver.findElements(ByAngular.buttonText(selectorValue));
 				break;
+
+			case "className":
+				_elements = driver.findElements(By.className(selectorValue));
+				break;
+
 			case "css":
 				_elements = driver.findElements(By.cssSelector(selectorValue));
 				break;
+
 			case "cssContainingText":
 				ngDriver.waitForAngularRequestsToFinish();
 				_elements = driver.findElements(
 						ByAngular.cssContainingText(selectorValue, selectorContainedText));
 				break;
+
 			case "cssSelector":
 				_elements = driver.findElements(By.cssSelector(selectorValue));
 				break;
+
 			case "id":
 				_elements = driver.findElements(By.id(selectorValue));
 				break;
+
 			case "model":
 				ngDriver.waitForAngularRequestsToFinish();
 				_elements = driver.findElements(ByAngular.model(selectorValue));
 				break;
+
 			case "linkText":
 				_elements = driver.findElements(By.linkText(selectorValue));
 				break;
+
 			case "name":
 				_elements = driver.findElements(By.name(selectorValue));
 				break;
+
 			case "options":
 				ngDriver.waitForAngularRequestsToFinish();
 				_elements = driver.findElements(ByAngular.options(selectorValue));
 				break;
+
 			case "partialLinkText":
 				_elements = driver.findElements(By.partialLinkText(selectorValue));
 				break;
+
 			case "repeater":
 				ngDriver.waitForAngularRequestsToFinish();
 				_elements = driver.findElements(ByAngular.repeater(selectorValue));
 				break;
+
 			/*
 			repeaterColumn
-			repeatereElement
-			selectedOption
-			selectedRepeaterOption
+			repeatereCell
+			RepeaterRow
 			are unlikely to be useful here
 			*/
 			case "text":
@@ -688,6 +737,7 @@ public class KeywordLibrary {
 							}).collect(Collectors.toList());
 				}
 				break;
+
 			case "xpath":
 				_elements = driver.findElements(By.xpath(selectorValue));
 				break;
