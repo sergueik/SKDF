@@ -219,8 +219,6 @@ public class KeywordLibrary {
 		try {
 			locatorTable.put("binding",
 					ByAngular.class.getMethod("binding", String.class));
-			locatorTable.put("exactBinding",
-					ByAngular.class.getMethod("exactBinding", String.class));
 			locatorTable.put("buttontext",
 					ByAngular.class.getMethod("buttonText", String.class));
 			locatorTable.put("cssContainingText", ByAngular.class
@@ -554,6 +552,16 @@ public class KeywordLibrary {
 				_element = driver.findElement(By.cssSelector(selectorValue));
 				break;
 
+			case "exactBinding":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.exactBinding(selectorValue));
+				break;
+
+			case "exactRepeater":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.exactRepeater(selectorValue));
+				break;
+
 			case "id":
 				_element = driver.findElement(By.id(selectorValue));
 				break;
@@ -678,6 +686,16 @@ public class KeywordLibrary {
 
 			case "cssSelector":
 				_elements = driver.findElements(By.cssSelector(selectorValue));
+				break;
+
+			case "exactBinding":
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.exactBinding(selectorValue));
+				break;
+
+			case "exactRepeater":
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.exactRepeater(selectorValue));
 				break;
 
 			case "id":

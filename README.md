@@ -82,7 +82,11 @@ This will add about 10 AngularJS-specific `NgBy` locators:
 
 ### Adding ngWebDriver
 
-Another implementation of Protractor selectors is [ngWebDriver](https://github.com/paul-hammant/ngWebDriver). Most Protractor-specific locators are the same (the class is `ByAngular`):
+Another implementation of Protractor selectors is [ngWebDriver](https://github.com/paul-hammant/ngWebDriver).
+
+![ByAngular methods](https://github.com/sergueik/keyword_driven_framework/blob/master/images/byangular_methods.png)
+
+Most Protractor-specific locators are the same (the class is `ByAngular`):
 
 * `options`
 * `repeater`
@@ -114,6 +118,17 @@ Some methods are unique to jProtracror, they do not exist in ngWebDriver:
 
 * `selectedOption`
 * `selectedRepeaterOption`
+
+
+In addition the "text" keyword is recognized with the usual implementation through `xpath` locator:
+```java
+String.format("//%s[contains(normalize-space(text()), '%s')]", (selectorTagName != null) ? selectorTagName : "*", selectorValue);
+```
+alternatively if the `selectorTagName` is provided, the Java 8 stream based impplementation is possible:
+```java
+_element = driver.findElements(By.tagName(selectorTagName)).stream()
+  .filter(o -> o.getText().contains(selectorValue)).findFirst().get();
+```
 
 ### See Also
 
