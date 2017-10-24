@@ -352,7 +352,7 @@ public class KeywordLibrary {
 	public void verifyAttribute(Map<String, String> params) {
 		boolean flag = false;
 		attributeName = params.get("param5");
-		expectedValue = params.get("param4");
+		expectedValue = params.get("param6");
 		element = _findElement(params);
 		if (element != null) {
 			flag = element.getAttribute(attributeName).equals(expectedValue);

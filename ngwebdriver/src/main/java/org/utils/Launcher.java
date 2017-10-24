@@ -109,7 +109,7 @@ public class Launcher {
 	// Safe conversion of type Excel cell object to String value
 	public static String safeCellToString(Cell cell) {
 		if (cell == null) {
-			return "";
+			return "null";
 		}
 		int type = cell.getCellType();
 		Object result;
@@ -123,7 +123,7 @@ public class Launcher {
 		case HSSFCell.CELL_TYPE_FORMULA: // 2
 			throw new IllegalStateException("Can't evaluate formula cell");
 		case HSSFCell.CELL_TYPE_BLANK: // 3
-			result = "-";
+			result = "null";
 			break;
 		case HSSFCell.CELL_TYPE_BOOLEAN: // 4
 			result = cell.getBooleanCellValue();
