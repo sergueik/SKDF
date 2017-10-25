@@ -20,7 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 public class Launcher {
 
 	private static String suite = "TestCase.xls";
-	private static int statusColumn = 6;
+	private static int statusColumn = 9;
 	private static KeywordLibrary keywordLibrary;
 
 	public static void main(String[] args) throws IOException {

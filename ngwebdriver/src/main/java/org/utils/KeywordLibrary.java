@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
@@ -23,6 +25,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -51,6 +54,11 @@ public class KeywordLibrary {
 	public Actions actions;
 	private NgWebDriver ngDriver;
 	private WebElement element;
+	private Pattern pattern;
+	private Matcher matcher;
+	private By locator;
+  private long timeout;
+
 	Properties objectRepo;
 	String status;
 	String result;
@@ -94,6 +102,8 @@ public class KeywordLibrary {
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
+		methodTable.put("WAIT_URL_CHANGE", "wait_url_change");
+		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "wait_clickable");
 	}
 	private Map<String, Method> locatorTable = new HashMap<>();
 
@@ -767,10 +777,87 @@ public class KeywordLibrary {
 		return _elements;
 	}
 
+	// wait for the page url to change to contain expectedURL
+	public void wait_url_change(Map<String, String> params) {
+		timeout = (long) (Float.parseFloat(params.get("param7")));
+		wait = new WebDriverWait(driver, timeout);
+
+		String expectedURL = params.get("param8");
+		ExpectedCondition<Boolean> urlChange = driver -> driver.getCurrentUrl()
+				.matches(String.format("^%s.*", expectedURL));
+		wait.until(urlChange);
+	}
+
+	// wait for the element to become clickable
+	public void wait_clickable(Map<String, String> params) {
+
+		selectorType = params.get("param1");
+		if (!locatorTable.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		}
+		selectorValue = params.get("param2");
+		timeout = (long) (Float.parseFloat(params.get("param7")));
+		wait = new WebDriverWait(driver, timeout);
+		pattern = Pattern.compile("(?:cssSelector|xpath|name|id|tagName)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(selectorType);
+		if (matcher.find()) {
+			switch (selectorType) {
+			case "name":
+				locator = By.name(selectorValue);
+				break;
+			case "id":
+				locator = By.id(selectorValue);
+				break;
+			case "css":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "cssSelector":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "xpath":
+				locator = By.xpath(selectorValue);
+				break;
+			}
+			wait.until(
+					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+			pattern = Pattern.compile(
+					"(?:binding|buttonText|partialButtonText|model|options)",
+					Pattern.CASE_INSENSITIVE);
+			matcher = pattern.matcher(selectorType);
+			if (matcher.find()) {
+				throw new RuntimeException("wait code for Selector type " + selectorType
+						+ " is not implemented yet");
+			}
+		} else if (selectorType == "text") {
+			try {
+				wait.until(new ExpectedCondition<Boolean>() {
+					@Override
+					public Boolean apply(WebDriver d) {
+						String t = d.findElement(By.className("intro-message")).getText();
+						Boolean result = t.contains("Link Successfully clicked");
+						System.err.println(
+								"in apply: Text = " + t + "\nresult = " + result.toString());
+						return result;
+					}
+				});
+			} catch (Exception e) {
+				System.err.println("Exception: " + e.toString());
+				throw new RuntimeException(e);
+			}
+
+		} else {
+			throw new RuntimeException(
+					"Failed to build wait code for Selector type " + selectorType);
+		}
+	}
+
+
 	public void wait(Map<String, String> params) {
-		Long wait = Long.parseLong(params.get("param1"));
+
+		timeout = (long) (Float.parseFloat(params.get("param7")));
 		try {
-			Thread.sleep(wait);
+			Thread.sleep(timeout);
 		} catch (InterruptedException e) {
 		}
 	}
