@@ -45,7 +45,7 @@ public class KeywordLibrary {
 	private Pattern pattern;
 	private Matcher matcher;
 	private By locator;
-  private long timeout;
+	private long timeout;
 
 	Properties objectRepo;
 	String status;
@@ -725,14 +725,14 @@ public class KeywordLibrary {
 
 	// wait for the page url to change to contain expectedURL
 	public void wait_url_change(Map<String, String> params) {
-    System.err.println("enter wait_url_change");
+		System.err.println("enter wait_url_change");
 		timeout = (long) (Float.parseFloat(params.get("param7")));
 		wait = new WebDriverWait(driver, timeout);
 		String expectedURL = params.get("param1");
 		ExpectedCondition<Boolean> urlChange = driver -> driver.getCurrentUrl()
 				.matches(String.format("^%s.*", expectedURL));
 		wait.until(urlChange);
-    System.err.println("exit wait_url_change");
+		System.err.println("exit wait_url_change");
 	}
 
 	// wait for the element to become clickable
@@ -744,54 +744,67 @@ public class KeywordLibrary {
 		}
 		selectorValue = params.get("param2");
 		timeout = (long) (Float.parseFloat(params.get("param7")));
-      wait = new WebDriverWait(driver, timeout);
-		pattern = Pattern.compile("(?:cssSelector|xpath|name|id|tagName)",
+		wait = new WebDriverWait(driver, timeout);
+		pattern = Pattern.compile(
+				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
 			switch (selectorType) {
-			case "name":
-				locator = By.name(selectorValue);
-				break;
-			case "id":
-				locator = By.id(selectorValue);
-				break;
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
 			case "cssSelector":
 				locator = By.cssSelector(selectorValue);
 				break;
+			case "id":
+				locator = By.id(selectorValue);
+				break;
+			case "linkText":
+				locator = By.linkText(selectorValue);
+				break;
+			case "name":
+				locator = By.name(selectorValue);
+				break;
+			case "partialLinkText":
+				locator = By.partialLinkText(selectorValue);
+				break;
+			case "tagName":
+				locator = By.tagName(selectorValue);
+				break;
 			case "xpath":
 				locator = By.xpath(selectorValue);
 				break;
 			}
-			pattern = Pattern.compile(
-					"(?:binding|buttonText|partialButtonText|model|options)",
-					Pattern.CASE_INSENSITIVE);
-			matcher = pattern.matcher(selectorType);
-			if (matcher.find()) {
-				switch (selectorType) {
-				case "binding":
-					locator = NgBy.binding(selectorValue);
-					break;
-				case "buttontext":
-					locator = NgBy.buttonText(selectorValue);
-					break;
-				case "partialButtontext":
-					locator = NgBy.partialButtonText(selectorValue);
-					break;
-				case "options":
-					locator = NgBy.options(selectorValue);
-					break;
-				case "model":
-					locator = NgBy.model(selectorValue);
-					break;
-				}
+			wait.until(
+					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+		}
+		pattern = Pattern.compile(
+				"(?:binding|buttonText|partialButtonText|model|options)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(selectorType);
+		if (matcher.find()) {
+			switch (selectorType) {
+			case "binding":
+				locator = NgBy.binding(selectorValue);
+				break;
+			case "buttontext":
+				locator = NgBy.buttonText(selectorValue);
+				break;
+			case "partialButtontext":
+				locator = NgBy.partialButtonText(selectorValue);
+				break;
+			case "options":
+				locator = NgBy.options(selectorValue);
+				break;
+			case "model":
+				locator = NgBy.model(selectorValue);
+				break;
 			}
 			wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
-		} else if (selectorType == "text") {
+		}
+		if (selectorType == "text") {
 			try {
 				wait.until(new ExpectedCondition<Boolean>() {
 					@Override
@@ -808,9 +821,6 @@ public class KeywordLibrary {
 				throw new RuntimeException(e);
 			}
 
-		} else {
-			throw new RuntimeException(
-					"Failed to build wait code for Selector type " + selectorType);
 		}
 	}
 

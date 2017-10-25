@@ -57,7 +57,7 @@ public class KeywordLibrary {
 	private Pattern pattern;
 	private Matcher matcher;
 	private By locator;
-  private long timeout;
+	private long timeout;
 
 	Properties objectRepo;
 	String status;
@@ -795,25 +795,38 @@ public class KeywordLibrary {
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
+		if (params.containsKey("param5")) {
+			selectorContainedText = params.get("param5");
+		}
 		selectorValue = params.get("param2");
 		timeout = (long) (Float.parseFloat(params.get("param7")));
 		wait = new WebDriverWait(driver, timeout);
-		pattern = Pattern.compile("(?:cssSelector|xpath|name|id|tagName)",
+		pattern = Pattern.compile(
+				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
 			switch (selectorType) {
-			case "name":
-				locator = By.name(selectorValue);
-				break;
-			case "id":
-				locator = By.id(selectorValue);
-				break;
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
 			case "cssSelector":
 				locator = By.cssSelector(selectorValue);
+				break;
+			case "id":
+				locator = By.id(selectorValue);
+				break;
+			case "linkText":
+				locator = By.linkText(selectorValue);
+				break;
+			case "name":
+				locator = By.name(selectorValue);
+				break;
+			case "partialLinkText":
+				locator = By.partialLinkText(selectorValue);
+				break;
+			case "tagName":
+				locator = By.tagName(selectorValue);
 				break;
 			case "xpath":
 				locator = By.xpath(selectorValue);
@@ -821,15 +834,43 @@ public class KeywordLibrary {
 			}
 			wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
-			pattern = Pattern.compile(
-					"(?:binding|buttonText|partialButtonText|model|options)",
-					Pattern.CASE_INSENSITIVE);
-			matcher = pattern.matcher(selectorType);
-			if (matcher.find()) {
+		}
+		pattern = Pattern.compile(
+				"(?:binding|buttonText|exactBinding|cssContainingText|model|options|partialButtonText)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(selectorType);
+		if (matcher.find()) {
+			switch (selectorType) {
+			case "binding":
+				locator = ByAngular.binding(selectorValue);
+				break;
+			case "buttontext":
+				locator = ByAngular.buttonText(selectorValue);
+				break;
+			case "cssContainingText":
+				locator = ByAngular.cssContainingText(selectorValue,
+						selectorContainedText);
+				break;
+			case "exactBinding":
+				locator = ByAngular.exactBinding(selectorValue);
+				break;
+			case "model":
+				locator = ByAngular.model(selectorValue);
+				break;
+			case "options":
+				locator = ByAngular.options(selectorValue);
+				break;
+			case "partialButtontext":
+				locator = ByAngular.partialButtonText(selectorValue);
+				break;
+			default:
 				throw new RuntimeException("wait code for Selector type " + selectorType
 						+ " is not implemented yet");
 			}
-		} else if (selectorType == "text") {
+			wait.until(
+					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+		}
+		if (selectorType == "text") {
 			try {
 				wait.until(new ExpectedCondition<Boolean>() {
 					@Override
@@ -845,13 +886,8 @@ public class KeywordLibrary {
 				System.err.println("Exception: " + e.toString());
 				throw new RuntimeException(e);
 			}
-
-		} else {
-			throw new RuntimeException(
-					"Failed to build wait code for Selector type " + selectorType);
 		}
 	}
-
 
 	public void wait(Map<String, String> params) {
 
