@@ -481,6 +481,109 @@ public class KeywordLibrary {
 		}
 	}
 
+	// wrapped in expectedCondition of the appropriate @apply signature
+	public WebElement _waitFindElement(Map<String, String> params) {
+		selectorType = params.get("param1");
+		if (!locatorTable.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		}
+		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
+		selectorValue = params.get("param2");
+		if (params.containsKey("param3")) {
+			selectorRow = params.get("param3");
+		}
+		if (params.containsKey("param4")) {
+			selectorColumn = params.get("param4");
+		}
+
+		if (params.containsKey("param5")) {
+			selectorContainedText = params.get("param5");
+		}
+		if (params.containsKey("param6")) {
+			selectorTagName = params.get("param6");
+		}
+		WebDriverWait _wait;
+		if (params.containsKey("param7")) {
+			timeout = (long) (Float.parseFloat(params.get("param7")));
+			_wait = new WebDriverWait(driver, timeout);
+		} else {
+			_wait = wait;
+		}
+		WebElement _element = null;
+
+		pattern = Pattern.compile(
+				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(selectorType);
+		if (matcher.find()) {
+			switch (selectorType) {
+			case "css":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "cssSelector":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "id":
+				locator = By.id(selectorValue);
+				break;
+			case "linkText":
+				locator = By.linkText(selectorValue);
+				break;
+			case "name":
+				locator = By.name(selectorValue);
+				break;
+			case "partialLinkText":
+				locator = By.partialLinkText(selectorValue);
+				break;
+			case "tagName":
+				locator = By.tagName(selectorValue);
+				break;
+			case "xpath":
+				locator = By.xpath(selectorValue);
+				break;
+			}
+      // TODO: add Angular locators
+			_element = _wait.until(new ExpectedCondition<WebElement>() {
+
+				@Override
+				public WebElement apply(WebDriver d) {
+					Optional<WebElement> e = d.findElements(locator).stream().findFirst();
+					return (e.isPresent()) ? e.get() : (WebElement) null;
+				}
+			});
+
+		} else if (selectorType == "text") {
+			if (selectorTagName != null) {
+				_element = _wait.until(new ExpectedCondition<WebElement>() {
+					@Override
+					public WebElement apply(WebDriver d) {
+						return d.findElements(By.tagName(selectorTagName)).stream()
+								.filter(o -> {
+									return (Boolean) (o.getText().contains(selectorValue));
+								}).findFirst().get();
+					}
+				});
+			} else {
+				String amendedSelectorValue = String.format(
+						"//%s[contains(normalize-space(text()),'%s')]",
+						(selectorTagName != null) ? selectorTagName : "*", selectorValue);
+				_element = _wait.until(new ExpectedCondition<WebElement>() {
+					@Override
+					public WebElement apply(WebDriver d) {
+						return d.findElements(By.xpath(amendedSelectorValue)).stream()
+								.filter(o -> {
+									return (Boolean) (o.getText().contains(selectorValue));
+								}).findFirst().get();
+					}
+				});
+
+			}
+
+		}
+		return _element;
+	}
+
+	// straight to WebDriver
 	public WebElement _findElement(Map<String, String> params) {
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
@@ -743,8 +846,13 @@ public class KeywordLibrary {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
 		selectorValue = params.get("param2");
-		timeout = (long) (Float.parseFloat(params.get("param7")));
-		wait = new WebDriverWait(driver, timeout);
+		WebDriverWait _wait;
+		if (params.containsKey("param7")) {
+			timeout = (long) (Float.parseFloat(params.get("param7")));
+			_wait = new WebDriverWait(driver, timeout);
+		} else {
+			_wait = wait;
+		}
 		pattern = Pattern.compile(
 				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
@@ -776,7 +884,7 @@ public class KeywordLibrary {
 				locator = By.xpath(selectorValue);
 				break;
 			}
-			wait.until(
+			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
 		pattern = Pattern.compile(
@@ -801,12 +909,12 @@ public class KeywordLibrary {
 				locator = NgBy.model(selectorValue);
 				break;
 			}
-			wait.until(
+			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
 		if (selectorType == "text") {
 			try {
-				wait.until(new ExpectedCondition<Boolean>() {
+				_wait.until(new ExpectedCondition<Boolean>() {
 					@Override
 					public Boolean apply(WebDriver d) {
 						String t = d.findElement(By.className("intro-message")).getText();

@@ -799,8 +799,13 @@ public class KeywordLibrary {
 			selectorContainedText = params.get("param5");
 		}
 		selectorValue = params.get("param2");
-		timeout = (long) (Float.parseFloat(params.get("param7")));
-		wait = new WebDriverWait(driver, timeout);
+		WebDriverWait _wait;
+		if (params.containsKey("param7")) {
+			timeout = (long) (Float.parseFloat(params.get("param7")));
+			_wait = new WebDriverWait(driver, timeout);
+		} else {
+			_wait = wait;
+		}
 		pattern = Pattern.compile(
 				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
@@ -832,7 +837,7 @@ public class KeywordLibrary {
 				locator = By.xpath(selectorValue);
 				break;
 			}
-			wait.until(
+			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
 		pattern = Pattern.compile(
@@ -867,12 +872,12 @@ public class KeywordLibrary {
 				throw new RuntimeException("wait code for Selector type " + selectorType
 						+ " is not implemented yet");
 			}
-			wait.until(
+			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
 		if (selectorType == "text") {
 			try {
-				wait.until(new ExpectedCondition<Boolean>() {
+				_wait.until(new ExpectedCondition<Boolean>() {
 					@Override
 					public Boolean apply(WebDriver d) {
 						String t = d.findElement(By.className("intro-message")).getText();
