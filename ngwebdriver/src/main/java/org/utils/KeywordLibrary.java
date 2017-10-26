@@ -435,14 +435,14 @@ public class KeywordLibrary {
 	}
 
 	public void clickCheckBox(Map<String, String> params) {
-		expectedValue = params.get("param5");
-		if (expectedValue.equals("null")) {
+		if (!params.containsKey("param5") || params.get("param5") == null) {
 			element = _findElement(params);
 			if (element != null) {
 				highlight(element);
 				element.click();
 			}
 		} else {
+			expectedValue = params.get("param5");
 			element = null;
 			for (WebElement e : _findElements(params)) {
 				if (e.getAttribute("value").equals(expectedValue)) {
@@ -460,10 +460,10 @@ public class KeywordLibrary {
 	}
 
 	public void clickRadioButton(Map<String, String> params) {
-		expectedValue = params.get("param5");
-		if (expectedValue.equals("null")) {
+		if (!params.containsKey("param5") || params.get("param5") == null) {
 			element = _findElement(params);
 		} else {
+			expectedValue = params.get("param5");
 			element = null;
 			for (WebElement e : _findElements(params)) {
 				if (e.getAttribute("value").equals(expectedValue)) {
@@ -779,13 +779,17 @@ public class KeywordLibrary {
 
 	// wait for the page url to change to contain expectedURL
 	public void wait_url_change(Map<String, String> params) {
-		timeout = (long) (Float.parseFloat(params.get("param7")));
-		wait = new WebDriverWait(driver, timeout);
-
+		WebDriverWait _wait;
+		try {
+			timeout = (long) (Float.parseFloat(params.get("param7")));
+			_wait = new WebDriverWait(driver, timeout);
+		} catch (java.lang.NumberFormatException e) {
+			_wait = wait;
+		}		
 		String expectedURL = params.get("param8");
 		ExpectedCondition<Boolean> urlChange = driver -> driver.getCurrentUrl()
 				.matches(String.format("^%s.*", expectedURL));
-		wait.until(urlChange);
+		_wait.until(urlChange);
 	}
 
 	// wait for the element to become clickable
@@ -800,11 +804,13 @@ public class KeywordLibrary {
 		}
 		selectorValue = params.get("param2");
 		WebDriverWait _wait;
-		if (params.containsKey("param7")) {
+		if (params.containsKey("param7") && params.get("param7") != null) {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
 			_wait = new WebDriverWait(driver, timeout);
+			// System.err.println("Using wait with timeout = " + timeout + " .");
 		} else {
 			_wait = wait;
+			// System.err.println("Using default wait.");
 		}
 		pattern = Pattern.compile(
 				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",

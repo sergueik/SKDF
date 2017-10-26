@@ -2,7 +2,7 @@
 
 ![TestCase.xls](https://github.com/sergueik/keyword_driven_framework/blob/master/images/testcase_selenium.png)
 
-This directory contains a skeleton keyword framework project based on
+This directory contains a skeleton [Keyword-Driven Framework](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) project based on
 [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [selenium-webdriver-software-testing/keyword-driven-framework](https://github.com/selenium-webdriver-software-testing/keyword-driven-framework)
 
 The project builds a runnable jar:

@@ -4,8 +4,7 @@
   <groupId>org.utils</groupId>
   <artifactId>keyword_framework</artifactId>
   <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-
+  <version>1.0-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <name>root app module</name>
   <modules>
