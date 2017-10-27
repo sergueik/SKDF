@@ -91,8 +91,8 @@ public class KeywordLibrary {
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
-		methodTable.put("WAIT_URL_CHANGE", "wait_url_change");
-		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "wait_clickable");
+		methodTable.put("waitURLChange", "waitURLChange");
+		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 	}
 	private Map<String, Method> locatorTable = new HashMap<>();
 
@@ -298,14 +298,16 @@ public class KeywordLibrary {
 	}
 
 	public void clickLink(Map<String, String> params) {
-		// element = _findElement(params);
-		element = _waitFindElement(params);
-
+		element = _findElement(params);
+		// experimental
+		// element = _waitFindElement(params);
 		if (element != null) {
 			highlight(element);
+			System.err.println("click");
 			element.click();
 			status = "Passed";
 		} else {
+			System.err.println("Can't click");
 			status = "Failed";
 		}
 		try {
@@ -514,8 +516,9 @@ public class KeywordLibrary {
 		}
 		WebElement _element = null;
 
+		// NOTE: all keys, including synthetic ones e.g. 'css'
 		pattern = Pattern.compile(
-				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
+				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
@@ -550,12 +553,20 @@ public class KeywordLibrary {
 
 				@Override
 				public WebElement apply(WebDriver d) {
-					// System.err.println("In apply.");
 					Optional<WebElement> e = d.findElements(locator).stream().findFirst();
+					/*
+					if (e.isPresent()) {
+						System.err.println("apply => " + selectorType + " => "
+								+ e.get().getAttribute("outerHTML"));
+					}
+					*/
 					return (e.isPresent()) ? e.get() : (WebElement) null;
 				}
 			});
-
+			/* 
+			  System.err
+					.println("returned from _wait : " + _element.getAttribute("outerHTML"));
+			*/
 		} else if (selectorType == "text") {
 			if (selectorTagName != null) {
 				_element = _wait.until(new ExpectedCondition<WebElement>() {
@@ -831,7 +842,7 @@ public class KeywordLibrary {
 	}
 
 	// wait for the page url to change to contain expectedURL
-	public void wait_url_change(Map<String, String> params) {
+	public void waitURLChange(Map<String, String> params) {
 		WebDriverWait _wait;
 		try {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
@@ -846,7 +857,7 @@ public class KeywordLibrary {
 	}
 
 	// wait for the element to become clickable
-	public void wait_clickable(Map<String, String> params) {
+	public void waitClickable(Map<String, String> params) {
 
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
@@ -861,7 +872,7 @@ public class KeywordLibrary {
 			_wait = wait;
 		}
 		pattern = Pattern.compile(
-				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
+				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {

@@ -102,8 +102,8 @@ public class KeywordLibrary {
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
-		methodTable.put("WAIT_URL_CHANGE", "wait_url_change");
-		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "wait_clickable");
+		methodTable.put("waitURLChange", "waitURLChange");
+		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 	}
 	private Map<String, Method> locatorTable = new HashMap<>();
 
@@ -778,7 +778,7 @@ public class KeywordLibrary {
 	}
 
 	// wait for the page url to change to contain expectedURL
-	public void wait_url_change(Map<String, String> params) {
+	public void waitURLChange(Map<String, String> params) {
 		WebDriverWait _wait;
 		try {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
@@ -793,7 +793,7 @@ public class KeywordLibrary {
 	}
 
 	// wait for the element to become clickable
-	public void wait_clickable(Map<String, String> params) {
+	public void waitClickable(Map<String, String> params) {
 
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
@@ -811,7 +811,7 @@ public class KeywordLibrary {
 			_wait = wait;
 		}
 		pattern = Pattern.compile(
-				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
+				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
