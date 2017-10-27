@@ -1,6 +1,6 @@
-### Info
+### About SKDF
 
-![TestCase.xls](https://github.com/sergueik/keyword_driven_framework/blob/master/images/testcase_selenium.png)
+![TestCase.xls](https://github.com/sergueik/skdf/blob/master/images/testcase_selenium.png)
 
 This directory contains a skeleton [Keyword-Driven Framework](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) project based on
 [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [selenium-webdriver-software-testing/keyword-driven-framework](https://github.com/selenium-webdriver-software-testing/keyword-driven-framework)
@@ -9,7 +9,7 @@ The project builds a runnable jar:
 ```bash
 cp TestCase.xls ~/Desktop
 mvn -Dmaven.test.skip=true clean install
-java -jar target/keyword_framework-0.4-SNAPSHOT.jar
+java -jar target/skdf-0.4-SNAPSHOT.jar
 ```
 The launcher uses reflection to associate _keywords_ with *class methods*
 ```java
@@ -82,7 +82,7 @@ The step status is returned via `params["status"]` entry, the step result (if an
 
 One can explore additional selectors with jProtractor.
 
-![TestCase.xls](https://github.com/sergueik/keyword_driven_framework/blob/master/images/testcase_protractor.png)
+![TestCase.xls](https://github.com/sergueik/skdf/blob/master/images/testcase_protractor.png)
 
 [jProtractor](https://github.com/sergueik/jProtractor) is not available in maven central, therefore to use it with framework one needs do build it from source and
 install it into current user's `.m2` repo:
@@ -99,7 +99,7 @@ which will install the jar:
 ```
 This will add about 10 AngularJS-specific `NgBy` locators:
 
-![NgBy methods](https://github.com/sergueik/keyword_driven_framework/blob/master/images/ngby_methods.png)
+![NgBy methods](https://github.com/sergueik/skdf/blob/master/images/ngby_methods.png)
 
 * `options`
 * `input`
@@ -119,7 +119,7 @@ This will add about 10 AngularJS-specific `NgBy` locators:
 
 Another implementation of Protractor selectors is [ngWebDriver](https://github.com/paul-hammant/ngWebDriver).
 
-![ByAngular methods](https://github.com/sergueik/keyword_driven_framework/blob/master/images/byangular_methods.png)
+![ByAngular methods](https://github.com/sergueik/skdf/blob/master/images/byangular_methods.png)
 
 Most Protractor-specific locators are the same (the class is `ByAngular`):
 
