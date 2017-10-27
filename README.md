@@ -34,6 +34,41 @@ try {
   Object _object = _class.newInstance();
   _method.invoke(_object, params);
 ```
+Similar approach is used to define Selector strategies, most of which are static methods of the appropriate core  Selenium class:
+```java
+    locatorTable.put("className",
+        By.class.getMethod("className", String.class));
+    locatorTable.put("css", By.class.getMethod("cssSelector", String.class));
+    locatorTable.put("id", By.class.getMethod("id", String.class));
+    locatorTable.put("linkText",
+        By.class.getMethod("linkText", String.class));
+    locatorTable.put("name", By.class.getMethod("name", String.class));
+    locatorTable.put("tagName", By.class.getMethod("tagName", String.class));
+    locatorTable.put("xpath", By.class.getMethod("xpath", String.class));
+```
+
+with few "synthetic" strategies, notably  the __TEXT__:
+
+```java
+// put synthetic selectors explicitly
+  locatorTable.put("text", methodMissing);
+```
+implemented e.g. through `xpath`:
+
+```java
+  String amendedSelectorValue = String.format(
+      "//%s[contains(normalize-space(text()),'%s')]",
+      (selectorTagName != null) ? selectorTagName : "*", selectorValue);
+  _element = _wait.until(new ExpectedCondition<WebElement>() {
+    @Override
+    public WebElement apply(WebDriver d) {
+      return d.findElements(By.xpath(amendedSelectorValue)).stream()
+          .filter(o -> {
+            return (Boolean) (o.getText().contains(selectorValue));
+          }).findFirst().get();
+    }
+  });
+```
 
 The test step arguments are passed as hash of parameters.  That is done so one does not care about the method signature.
 Also the [AngularJS](https://angularjs.org/) introduced `NgBy` locators which fequently require (multiple) additional arguments like e.g.

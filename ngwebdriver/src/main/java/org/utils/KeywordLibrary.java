@@ -211,6 +211,7 @@ public class KeywordLibrary {
 		} catch (NoSuchMethodException e) {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
+		// phony method
 		Method methodMissing = null;
 		try {
 			// do we ever want to send correct arguments ?
@@ -226,6 +227,8 @@ public class KeywordLibrary {
 			System.out.println("Exception (ignored): " + e.toString());
 
 		}
+		// put synthetic selectors explicitly
+		locatorTable.put("text", methodMissing);
 		try {
 			locatorTable.put("binding",
 					ByAngular.class.getMethod("binding", String.class));
@@ -245,6 +248,7 @@ public class KeywordLibrary {
 					ByAngular.class.getMethod("partialButtonText", String.class));
 			locatorTable.put("repeater",
 					ByAngular.class.getMethod("repeater", String.class));
+			// put synthetic selectors explicitly
 			locatorTable.put("repeaterColumn", methodMissing);
 			locatorTable.put("repeaterCell", methodMissing);
 			locatorTable.put("repeaterRow", methodMissing);

@@ -3,6 +3,8 @@ package org.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -223,8 +225,27 @@ public class KeywordLibrary {
 		} catch (NoSuchMethodException e) {
 			System.out.println("Execption (ignored): " + e.toString());
 		}
+		// phony method
+		Method methodMissing = null;
+		try {
+			// do we ever want to send correct arguments ?
+			@SuppressWarnings("rawtypes")
+			Class[] arguments = new Class[] { String.class, String.class };
+			Constructor methodConstructor = Method.class
+					.getDeclaredConstructor(arguments);
+			methodConstructor.setAccessible(true);
+			methodMissing = (Method) methodConstructor.newInstance();
+		} catch (NoSuchMethodException | IllegalAccessException
+				| InstantiationException | IllegalArgumentException
+				| InvocationTargetException e) {
+			System.out.println("Exception (ignored): " + e.toString());
+
+		}
+		// put synthetic selectors explicitly
+		locatorTable.put("text", methodMissing);
 	}
 
+	
 	public void callMethod(String keyword, Map<String, String> params) {
 		if (_object == null) {
 			try {
