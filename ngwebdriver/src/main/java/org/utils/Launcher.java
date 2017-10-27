@@ -43,6 +43,11 @@ public class Launcher {
 
 				for (int step = 0; step < steps.size(); step++) {
 					Map<String, String> data = steps.get(step);
+					for (String param : new ArrayList<String>(data.keySet())) {
+						if (data.get(param) == null) {
+							data.remove(param);
+						}
+					}
 					String keyword = data.get("keyword");
 					keywordLibrary.callMethod(keyword, data);
 					writeStatus(indexRow.getCell(0).getStringCellValue(), step + 1);

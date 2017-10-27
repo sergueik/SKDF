@@ -435,7 +435,7 @@ public class KeywordLibrary {
 	}
 
 	public void clickCheckBox(Map<String, String> params) {
-		if (!params.containsKey("param5") || params.get("param5") == null) {
+		if (!params.containsKey("param5") ) {
 			element = _findElement(params);
 			if (element != null) {
 				highlight(element);
@@ -460,7 +460,7 @@ public class KeywordLibrary {
 	}
 
 	public void clickRadioButton(Map<String, String> params) {
-		if (!params.containsKey("param5") || params.get("param5") == null) {
+		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 		} else {
 			expectedValue = params.get("param5");
@@ -804,13 +804,11 @@ public class KeywordLibrary {
 		}
 		selectorValue = params.get("param2");
 		WebDriverWait _wait;
-		if (params.containsKey("param7") && params.get("param7") != null) {
+		if (params.containsKey("param7")) {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
 			_wait = new WebDriverWait(driver, timeout);
-			// System.err.println("Using wait with timeout = " + timeout + " .");
 		} else {
 			_wait = wait;
-			// System.err.println("Using default wait.");
 		}
 		pattern = Pattern.compile(
 				"(?:cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",

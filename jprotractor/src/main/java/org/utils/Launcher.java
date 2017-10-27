@@ -43,6 +43,11 @@ public class Launcher {
 
 				for (int step = 0; step < steps.size(); step++) {
 					Map<String, String> data = steps.get(step);
+					for (String param : new ArrayList<String>(data.keySet())) {
+						if (data.get(param) == null) {
+							data.remove(param);
+						}
+					}
 					String keyword = data.get("keyword");
 					keywordLibrary.callMethod(keyword, data);
 					writeStatus(indexRow.getCell(0).getStringCellValue(), step + 1);
@@ -109,7 +114,7 @@ public class Launcher {
 	// Safe conversion of type Excel cell object to String value
 	public static String safeCellToString(Cell cell) {
 		if (cell == null) {
-			return "null";
+			return null;
 		}
 		int type = cell.getCellType();
 		Object result;
@@ -123,7 +128,7 @@ public class Launcher {
 		case HSSFCell.CELL_TYPE_FORMULA: // 2
 			throw new IllegalStateException("Can't evaluate formula cell");
 		case HSSFCell.CELL_TYPE_BLANK: // 3
-			result = "null";
+			result = null;
 			break;
 		case HSSFCell.CELL_TYPE_BOOLEAN: // 4
 			result = cell.getBooleanCellValue();
@@ -133,7 +138,7 @@ public class Launcher {
 		default:
 			throw new IllegalStateException("Unsupported cell type: " + type);
 		}
-		return result.toString();
+		return (result == null) ? null : result.toString();
 	}
 
 	public static String getPropertyEnv(String name, String defaultValue) {
