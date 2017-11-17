@@ -4,7 +4,7 @@
   <groupId>org.utils</groupId>
   <artifactId>skdf_jprotractor</artifactId>
   <packaging>jar</packaging>
-  <version>0.8-SNAPSHOT</version>
+  <version>0.9-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -27,8 +27,8 @@
     <browser.name>chrome</browser.name>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
     <jprotractor.version>1.2-SNAPSHOT</jprotractor.version>
-    <poi.version>3.14</poi.version>
-    <poiooxml.version>3.14</poiooxml.version>
+    <poi.version>3.17</poi.version>
+    <poiooxml.version>3.17</poiooxml.version>
   </properties>
   <dependencies>
     <dependency>

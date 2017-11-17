@@ -4,7 +4,7 @@
   <groupId>org.utils</groupId>
   <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.4-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -26,8 +26,8 @@
     <guava.version>21.0</guava.version>
     <browser.name>chrome</browser.name>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
-    <poi.version>3.14</poi.version>
-    <poiooxml.version>3.14</poiooxml.version>
+    <poi.version>3.17</poi.version>
+    <poiooxml.version>3.17</poiooxml.version>
     <ngwebdriver.version>1.0</ngwebdriver.version>
   </properties>
   <dependencies>

@@ -8,8 +8,14 @@ This directory contains a skeleton [Keyword-Driven Framework](http://toolsqa.com
 The project builds a runnable jar:
 ```bash
 cp TestCase.xls ~/Desktop
-mvn -Dmaven.test.skip=true clean install
-java -jar target/skdf-0.4-SNAPSHOT.jar
+pushd jprotractor
+mvn clean install
+java -jar target/skdf_jprotractor-0.9-SNAPSHOT.jar
+popd
+pushd ngwebdriver
+mvn clean install
+java -jar target/skdf_ngwebdriver-0.4-SNAPSHOT.jar
+popd
 ```
 The launcher uses reflection to associate _keywords_ with *class methods*
 ```java

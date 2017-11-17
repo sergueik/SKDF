@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 public class Launcher {
@@ -112,33 +113,38 @@ public class Launcher {
 	}
 
 	// Safe conversion of type Excel cell object to String value
-	public static String safeCellToString(Cell cell) {
+	public static String safeCellToString(org.apache.poi.ss.usermodel.Cell cell) {
+
 		if (cell == null) {
-			return "null";
+			return null;
 		}
-		int type = cell.getCellType();
+		CellType type = cell.getCellTypeEnum();
 		Object result;
 		switch (type) {
-		case HSSFCell.CELL_TYPE_NUMERIC: // 0
+		case _NONE:
+			result = null;
+			break;
+		case NUMERIC:
 			result = cell.getNumericCellValue();
 			break;
-		case HSSFCell.CELL_TYPE_STRING: // 1
+		case STRING:
 			result = cell.getStringCellValue();
 			break;
-		case HSSFCell.CELL_TYPE_FORMULA: // 2
-			throw new IllegalStateException("Can't evaluate formula cell");
-		case HSSFCell.CELL_TYPE_BLANK: // 3
-			result = "null";
+		case FORMULA:
+			throw new IllegalStateException("The formula cell is not supported");
+		case BLANK:
+			result = null;
 			break;
-		case HSSFCell.CELL_TYPE_BOOLEAN: // 4
+		case BOOLEAN:
 			result = cell.getBooleanCellValue();
 			break;
-		case HSSFCell.CELL_TYPE_ERROR: // 5
+		case ERROR:
 			throw new RuntimeException("Cell has an error");
 		default:
-			throw new IllegalStateException("Unsupported cell type: " + type);
+			throw new IllegalStateException(
+					"Cell type: " + type + " is not supported");
 		}
-		return result.toString();
+		return (result == null) ? null : result.toString();
 	}
 
 	public static String getPropertyEnv(String name, String defaultValue) {
