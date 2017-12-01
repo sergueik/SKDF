@@ -18,16 +18,30 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
+/**
+ * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
+ */
+
 public class Launcher {
 
-	private static String suite = "TestCase.xls";
+	private static String propertiesFileName = "application.properties";
+	private static String defaultTestCase = "TestCase.xls";
 	private static int statusColumn = 9;
 	private static KeywordLibrary keywordLibrary;
+	private static boolean debug = false;
+	private static String testCase;
 
 	public static void main(String[] args) throws IOException {
 
-		FileInputStream file = new FileInputStream(getPropertyEnv("suite",
-				String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), suite)));
+		Map<String, String> propertiesMap = PropertiesParser
+				.getProperties(String.format("%s/src/main/resources/%s",
+						System.getProperty("user.dir"), propertiesFileName));
+		statusColumn = Integer.parseInt(propertiesMap.get("statusColumn"));
+		testCase = (propertiesMap.get("testCase") != null)
+				? propertiesMap.get("testCase")
+				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
+						System.getenv("USERPROFILE"), defaultTestCase));
+		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
 
@@ -37,8 +51,10 @@ public class Launcher {
 			Row indexRow = indexSheet.getRow(row);
 			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
 					&& !safeCellToString(indexRow.getCell(0)).isEmpty()) {
-				System.out.println(
-						"Reading suite: " + indexRow.getCell(0).getStringCellValue());
+				if (debug) {
+					System.err.println(
+							"Reading suite: " + indexRow.getCell(0).getStringCellValue());
+				}
 				Map<Integer, Map<String, String>> steps = readSteps(
 						indexRow.getCell(0).getStringCellValue());
 
@@ -55,15 +71,16 @@ public class Launcher {
 				}
 			}
 		}
-		System.out.println("Done");
+		if (debug) {
+			System.err.println("Done");
+		}
 		workbook.close();
 
 	}
 
 	public static void writeStatus(String sheetName, int rowNumber)
 			throws IOException {
-		File file = new File(getPropertyEnv("suite",
-				String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), suite)));
+		File file = new File(testCase);
 
 		FileInputStream istream = new FileInputStream(file);
 		HSSFWorkbook workbook = new HSSFWorkbook(istream);
@@ -78,19 +95,22 @@ public class Launcher {
 		workbook.close();
 	}
 
+	// reads the spreadsheet into a hash of step keywords and parameters indexed
+	// by column number and step number
 	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
 			throws IOException {
-		HashMap<String, String> data = new HashMap<>();
+		Map<String, String> data = new HashMap<>();
 		Map<Integer, Map<String, String>> stepDataMap = new HashMap<>();
-		FileInputStream file = new FileInputStream(getPropertyEnv("suite",
-				String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), suite)));
+		FileInputStream file = new FileInputStream(testCase);
 
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet testcaseSheet = workbook.getSheet(sheetName);
 		Row stepRow;
 		Cell stepCell;
 		for (int row = 1; row <= testcaseSheet.getLastRowNum(); row++) {
-			System.err.println("Row: " + row);
+			if (debug) {
+				System.err.println("Row: " + row);
+			}
 			data = new HashMap<>();
 			stepRow = testcaseSheet.getRow(row);
 			data.put("keyword", stepRow.getCell(0).getStringCellValue());
@@ -103,7 +123,9 @@ public class Launcher {
 					System.err.println("Exception (ignored): " + e.toString());
 					cellValue = "";
 				}
-				System.err.println("Column[" + col + "] = " + cellValue);
+				if (debug) {
+					System.err.println("Column[" + col + "] = " + cellValue);
+				}
 				data.put(String.format("param%d", col), cellValue);
 			}
 			stepDataMap.put(row - 1, data);
