@@ -7,11 +7,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -43,6 +41,7 @@ import com.paulhammant.ngwebdriver.ByAngularRepeater;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterCell;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterColumn;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterRow;
+
 
 public class KeywordLibrary {
 
@@ -102,7 +101,7 @@ public class KeywordLibrary {
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
-		methodTable.put("waitURLChange", "waitURLChange");
+		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 	}
 	private Map<String, Method> locatorTable = new HashMap<>();
@@ -439,7 +438,7 @@ public class KeywordLibrary {
 	}
 
 	public void clickCheckBox(Map<String, String> params) {
-		if (!params.containsKey("param5") ) {
+		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 			if (element != null) {
 				highlight(element);
@@ -789,7 +788,7 @@ public class KeywordLibrary {
 			_wait = new WebDriverWait(driver, timeout);
 		} catch (java.lang.NumberFormatException e) {
 			_wait = wait;
-		}		
+		}
 		String expectedURL = params.get("param8");
 		ExpectedCondition<Boolean> urlChange = driver -> driver.getCurrentUrl()
 				.matches(String.format("^%s.*", expectedURL));

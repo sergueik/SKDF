@@ -14,7 +14,7 @@ java -jar target/skdf_jprotractor-0.9-SNAPSHOT.jar
 popd
 pushd ngwebdriver
 mvn clean install
-java -jar target/skdf_ngwebdriver-0.4-SNAPSHOT.jar
+java -jar target/skdf_ngwebdriver-0.5-SNAPSHOT.jar
 popd
 ```
 The launcher uses reflection to associate _keywords_ with *class methods*
