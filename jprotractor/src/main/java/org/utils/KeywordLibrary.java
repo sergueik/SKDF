@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -29,51 +27,50 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import com.jprotractor.NgBy;
 import com.jprotractor.NgWebDriver;
-import com.jprotractor.NgWebElement;
 
-public class KeywordLibrary {
+public final class KeywordLibrary {
 
-	private static boolean instance_flag = false;
-	private Object _object = null;
-	private Class<?> _class = null;
-	public WebDriver driver;
-	public WebDriverWait wait;
-	public Actions actions;
-	private NgWebDriver ngDriver;
-	private WebElement element;
+	private static Class<?> _class = null;
+	public static WebDriver driver;
+	public static WebDriverWait wait;
+	public static Actions actions;
+	private static NgWebDriver ngDriver;
+	private static WebElement element;
 
-	private Pattern pattern;
-	private Matcher matcher;
-	private By locator;
-	private long timeout;
+	private static Pattern pattern;
+	private static Matcher matcher;
+	private static By locator;
+	private static long timeout;
 
-	Properties objectRepo;
-	String status;
-	String result;
-	private String selectorTagName = null;
-	private String selectorType = null;
-	private String selectorValue = null;
-	private String selectorRow = null;
-	private String selectorColumn = null;
-	private String selectorContainedText = null;
-	private String expectedValue = null;
-	private String textData = null;
-	private String visibleText = null;
-	private String expectedText = null;
-	private String attributeName = null;
-	private String param1;
-	private String param2;
-	private String param3;
+	private static Properties objectRepo;
+	private static String status;
+	private static String result;
+	private static String selectorTagName = null;
+	private static String selectorType = null;
+	private static String selectorValue = null;
+	private static String selectorRow = null;
+	private static String selectorColumn = null;
+	private static String selectorContainedText = null;
+	private static String expectedValue = null;
+	private static String textData = null;
+	private static String visibleText = null;
+	private static String expectedText = null;
+	private static String attributeName = null;
+	private static String param1;
+	private static String param2;
+	private static String param3;
 
-	public int scriptTimeout = 5;
-	public int stepWait = 150;
-	public int flexibleWait = 120;
-	public int implicitWait = 1;
-	public long pollingInterval = 500;
-	private Map<String, String> methodTable = new HashMap<>();
-	{
+	public static int scriptTimeout = 5;
+	public static int stepWait = 150;
+	public static int flexibleWait = 120;
+	public static int implicitWait = 1;
+	public static long pollingInterval = 500;
+
+	private static Map<String, String> methodTable = new HashMap<>();
+	static {
 		methodTable.put("CLICK", "clickButton");
 		methodTable.put("CLICK_BUTTON", "clickButton");
 		methodTable.put("CLICK_CHECKBOX", "clickCheckBox");
@@ -93,26 +90,22 @@ public class KeywordLibrary {
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
-		methodTable.put("waitURLChange", "waitURLChange");
+		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 	}
-	private Map<String, Method> locatorTable = new HashMap<>();
+	private static Map<String, Method> locatorTable = new HashMap<>();
 
-	public void closeBrowser(Map<String, String> params) {
+	public static void closeBrowser(Map<String, String> params) {
 		driver.quit();
 	}
 
-	public void navigateTo(Map<String, String> params) {
+	public static void navigateTo(Map<String, String> params) {
 		String url = params.get("param1");
 		System.err.println("Navigate to: " + url);
 		driver.navigate().to(url);
 	}
 
-	private KeywordLibrary() {
-		initMethods();
-	}
-
-	public String getStatus() {
+	public static String getStatus() {
 		return status;
 	}
 
@@ -120,19 +113,16 @@ public class KeywordLibrary {
 		return result;
 	}
 
-	public static KeywordLibrary Instance() {
-		if (!instance_flag) {
-			instance_flag = true;
-			return new KeywordLibrary();
-		} else
-			return null;
+	// https://stackoverflow.com/questions/7486012/static-classes-in-java
+	// https://github.com/sergueik/selenium_java/commit/57724dafc4fa33339
+
+	// A top-level Java class mimicking static class behavior
+	// All methods are static
+	private KeywordLibrary() { // private constructor
+		_class = null;
 	}
 
-	public void finalize() {
-		instance_flag = false;
-	}
-
-	public void initMethods() {
+	public static void initMethods() {
 		try {
 			_class = Class.forName("org.utils.KeywordLibrary");
 		} catch (ClassNotFoundException e) {
@@ -245,36 +235,32 @@ public class KeywordLibrary {
 		locatorTable.put("text", methodMissing);
 	}
 
-	
-	public void callMethod(String keyword, Map<String, String> params) {
-		if (_object == null) {
-			try {
-				_object = _class.newInstance();
-			} catch (IllegalAccessException | InstantiationException e) {
-				throw new RuntimeException(e);
-			}
+	public static void callMethod(String keyword, Map<String, String> params) {
+		if (_class == null) {
+			initMethods();
 		}
 		if (methodTable.containsKey(keyword)) {
 			String methodName = methodTable.get(keyword);
 			try {
-				System.err.println(keyword + " call method: " + methodName + " with "
+				System.out.println(keyword + " call method: " + methodName + " with "
 						+ String.join(",", params.values()));
-				_class.getMethod(methodName, Map.class).invoke(_object, params);
+				_class.getMethod(methodName, Map.class).invoke(null, params);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
-			throw new RuntimeException("No method found for keyword: " + keyword);
+			System.out.println("No method found for keyword: " + keyword);
 		}
 	}
 
-	public void loadProperties() throws IOException {
+	public static void loadProperties() throws IOException {
 		File file = new File("ObjectRepo.Properties");
 		objectRepo = new Properties();
 		objectRepo.load(new FileInputStream(file));
 	}
 
-	public void openBrowser(Map<String, String> params) throws IOException {
+	public static void openBrowser(Map<String, String> params)
+			throws IOException {
 		try {
 			File file = new File("Config.properties");
 			Properties config = new Properties();
@@ -295,7 +281,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void enterText(Map<String, String> params) {
+	public static void enterText(Map<String, String> params) {
 		element = _findElement(params);
 		textData = params.get("param5");
 		if (element != null) {
@@ -307,7 +293,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void clickButton(Map<String, String> params) {
+	public static void clickButton(Map<String, String> params) {
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
@@ -318,7 +304,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void clickLink(Map<String, String> params) {
+	public static void clickLink(Map<String, String> params) {
 		element = _findElement(params);
 		// experimental
 		// element = _waitFindElement(params);
@@ -339,7 +325,7 @@ public class KeywordLibrary {
 
 	}
 
-	public void selectDropDown(Map<String, String> params) {
+	public static void selectDropDown(Map<String, String> params) {
 		Select select;
 		visibleText = params.get("param5");
 		element = _findElement(params);
@@ -357,7 +343,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void verifyAttribute(Map<String, String> params) {
+	public static void verifyAttribute(Map<String, String> params) {
 		boolean flag = false;
 		attributeName = params.get("param5");
 		expectedValue = params.get("param6");
@@ -371,7 +357,7 @@ public class KeywordLibrary {
 			status = "Failed";
 	}
 
-	public void verifyText(Map<String, String> params) {
+	public static void verifyText(Map<String, String> params) {
 		boolean flag = false;
 		expectedText = params.get("param5");
 		element = _findElement(params);
@@ -385,7 +371,7 @@ public class KeywordLibrary {
 			status = "Failed";
 	}
 
-	public void getElementText(Map<String, String> params) {
+	public static void getElementText(Map<String, String> params) {
 		String text = null;
 		element = _findElement(params);
 		if (element != null) {
@@ -400,7 +386,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void getElementAttribute(Map<String, String> params) {
+	public static void getElementAttribute(Map<String, String> params) {
 		attributeName = params.get("param5");
 		String value = null;
 		element = _findElement(params);
@@ -416,7 +402,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void elementPresent(Map<String, String> params) {
+	public static void elementPresent(Map<String, String> params) {
 		Boolean flag = false;
 		element = _findElement(params);
 		if (element != null) {
@@ -432,7 +418,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void clickCheckBox(Map<String, String> params) {
+	public static void clickCheckBox(Map<String, String> params) {
 		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 			if (element != null) {
@@ -457,7 +443,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void clickRadioButton(Map<String, String> params) {
+	public static void clickRadioButton(Map<String, String> params) {
 		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 		} else {
@@ -479,7 +465,7 @@ public class KeywordLibrary {
 	}
 
 	// TODO:
-	public void switchFrame(Map<String, String> params) {
+	public static void switchFrame(Map<String, String> params) {
 		param1 = params.get("param1");
 		param2 = params.get("param2");
 		param3 = params.get("param5");
@@ -508,7 +494,7 @@ public class KeywordLibrary {
 	}
 
 	// wrapped in expectedCondition of the appropriate @apply signature
-	public WebElement _waitFindElement(Map<String, String> params) {
+	public static WebElement _waitFindElement(Map<String, String> params) {
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
@@ -620,7 +606,7 @@ public class KeywordLibrary {
 	}
 
 	// straight to WebDriver
-	public WebElement _findElement(Map<String, String> params) {
+	public static WebElement _findElement(Map<String, String> params) {
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
@@ -751,7 +737,7 @@ public class KeywordLibrary {
 		return _element;
 	}
 
-	public List<WebElement> _findElements(Map<String, String> params) {
+	public static List<WebElement> _findElements(Map<String, String> params) {
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
@@ -863,7 +849,7 @@ public class KeywordLibrary {
 	}
 
 	// wait for the page url to change to contain expectedURL
-	public void waitURLChange(Map<String, String> params) {
+	public static void waitURLChange(Map<String, String> params) {
 		WebDriverWait _wait;
 		try {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
@@ -878,7 +864,7 @@ public class KeywordLibrary {
 	}
 
 	// wait for the element to become clickable
-	public void waitClickable(Map<String, String> params) {
+	public static void waitClickable(Map<String, String> params) {
 
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
@@ -971,7 +957,7 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void wait(Map<String, String> params) {
+	public static void wait(Map<String, String> params) {
 		timeout = (long) (Float.parseFloat(params.get("param7")));
 		try {
 			Thread.sleep(timeout);
@@ -979,11 +965,11 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void highlight(WebElement element) {
+	public static void highlight(WebElement element) {
 		highlight(element, 100);
 	}
 
-	public void highlight(WebElement element, long highlight_interval) {
+	public static void highlight(WebElement element, long highlight_interval) {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(element));
 			if (driver instanceof JavascriptExecutor) {

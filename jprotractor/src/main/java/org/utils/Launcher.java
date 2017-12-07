@@ -27,7 +27,6 @@ public class Launcher {
 	private static String propertiesFileName = "application.properties";
 	private static String defaultTestCase = "TestCase.xls";
 	private static int statusColumn = 9;
-	private static KeywordLibrary keywordLibrary;
 	private static boolean debug = false;
 	private static String testCase;
 
@@ -44,9 +43,7 @@ public class Launcher {
 		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
-		
-		keywordLibrary = KeywordLibrary.Instance();
-
+		KeywordLibrary.loadProperties();
 		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
 			Row indexRow = indexSheet.getRow(row);
 			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
@@ -66,7 +63,7 @@ public class Launcher {
 						}
 					}
 					String keyword = data.get("keyword");
-					keywordLibrary.callMethod(keyword, data);
+					KeywordLibrary.callMethod(keyword, data);
 					writeStatus(indexRow.getCell(0).getStringCellValue(), step + 1);
 				}
 			}
@@ -87,7 +84,7 @@ public class Launcher {
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		Row row = sheet.getRow(rowNumber);
 		Cell cell = row.createCell(statusColumn);
-		cell.setCellValue(keywordLibrary.getStatus());
+		cell.setCellValue(KeywordLibrary.getStatus());
 
 		FileOutputStream ostream = new FileOutputStream(file);
 		workbook.write(ostream);
