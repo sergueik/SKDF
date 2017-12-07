@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
+ * Standalone Launcher for Selenium WebDriver Keyword Driven Library
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 

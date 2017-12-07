@@ -11,11 +11,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Property file Reader for Selenium WebDriver Keyword Driven Library
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 
 public class PropertiesParser {
 	private static boolean debug = false;
+
 	public static Map<String, String> getProperties(final String fileName) {
 		Properties p = new Properties();
 		Map<String, String> propertiesMap = new HashMap<>();

@@ -31,6 +31,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.jprotractor.NgBy;
 import com.jprotractor.NgWebDriver;
 
+/**
+ * Keyword Driven Library for Selenium WebDriver
+ * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
+ */
+
 public final class KeywordLibrary {
 
 	private static Class<?> _class = null;

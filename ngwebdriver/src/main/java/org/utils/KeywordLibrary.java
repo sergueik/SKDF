@@ -28,6 +28,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+// NOTE: eclipse appears to be removing these imports
 import com.paulhammant.ngwebdriver.NgWebDriver;
 import com.paulhammant.ngwebdriver.ByAngular;
 import com.paulhammant.ngwebdriver.ByAngularBinding;
@@ -42,6 +43,10 @@ import com.paulhammant.ngwebdriver.ByAngularRepeaterCell;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterColumn;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterRow;
 
+/**
+ * Keyword Driven Library for Selenium WebDriver
+ * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
+ */
 
 public class KeywordLibrary {
 
@@ -57,6 +62,7 @@ public class KeywordLibrary {
 	private Matcher matcher;
 	private By locator;
 	private long timeout;
+	private static boolean debug = true;
 
 	Properties objectRepo;
 	String status;
@@ -789,9 +795,26 @@ public class KeywordLibrary {
 		} catch (java.lang.NumberFormatException e) {
 			_wait = wait;
 		}
-		String expectedURL = params.get("param8");
-		ExpectedCondition<Boolean> urlChange = driver -> driver.getCurrentUrl()
-				.matches(String.format("^%s.*", expectedURL));
+		final String expectedURL = params.get("param1"); // was: param8
+		// NOTE: cannot change: the code below would lead
+		// to a compiler error:
+		// local variables referenced from a lambda expression
+		// must be final or effectively final
+		/* 
+		expectedURL = params.get("param8");
+		if (expectedURL.isEmpty()) {
+			expectedURL = params.get("param1");
+		}
+		*/
+		ExpectedCondition<Boolean> urlChange = driver -> {
+			String url = driver.getCurrentUrl();
+			if (debug) {
+				System.err.println("Inspecting the URL: " + url);
+				System.err.println("Waiting for the URL: " + expectedURL); // https://accounts.google.com/signin
+
+			}
+			return (boolean) url.matches(String.format("^%s.*", expectedURL));
+		};
 		_wait.until(urlChange);
 	}
 
