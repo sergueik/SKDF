@@ -1,4 +1,4 @@
-package org.utils;
+package com.github.sergueik.jprotractor;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

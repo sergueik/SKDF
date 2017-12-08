@@ -1,4 +1,4 @@
-package org.utils;
+package com.github.sergueik.ngwebdriver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -28,54 +28,66 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.jprotractor.NgBy;
-import com.jprotractor.NgWebDriver;
+// NOTE: eclipse appears to be removing these imports
+import com.paulhammant.ngwebdriver.NgWebDriver;
+import com.paulhammant.ngwebdriver.ByAngular;
+import com.paulhammant.ngwebdriver.ByAngularBinding;
+import com.paulhammant.ngwebdriver.ByAngularButtonText;
+import com.paulhammant.ngwebdriver.ByAngularCssContainingText;
+import com.paulhammant.ngwebdriver.ByAngularExactBinding;
+import com.paulhammant.ngwebdriver.ByAngularModel;
+import com.paulhammant.ngwebdriver.ByAngularOptions;
+import com.paulhammant.ngwebdriver.ByAngularPartialButtonText;
+import com.paulhammant.ngwebdriver.ByAngularRepeater;
+import com.paulhammant.ngwebdriver.ByAngularRepeaterCell;
+import com.paulhammant.ngwebdriver.ByAngularRepeaterColumn;
+import com.paulhammant.ngwebdriver.ByAngularRepeaterRow;
 
 /**
  * Keyword Driven Library for Selenium WebDriver
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 
-public final class KeywordLibrary {
+public class KeywordLibrary {
 
-	private static Class<?> _class = null;
-	public static WebDriver driver;
-	public static WebDriverWait wait;
-	public static Actions actions;
-	private static NgWebDriver ngDriver;
-	private static WebElement element;
+	private static boolean instance_flag = false;
+	private Object _object = null;
+	private Class<?> _class = null;
+	public WebDriver driver;
+	public WebDriverWait wait;
+	public Actions actions;
+	private NgWebDriver ngDriver;
+	private WebElement element;
+	private Pattern pattern;
+	private Matcher matcher;
+	private By locator;
+	private long timeout;
+	private static boolean debug = true;
 
-	private static Pattern pattern;
-	private static Matcher matcher;
-	private static By locator;
-	private static long timeout;
-
-	private static Properties objectRepo;
-	private static String status;
-	private static String result;
-	private static String selectorTagName = null;
-	private static String selectorType = null;
-	private static String selectorValue = null;
-	private static String selectorRow = null;
-	private static String selectorColumn = null;
-	private static String selectorContainedText = null;
-	private static String expectedValue = null;
-	private static String textData = null;
-	private static String visibleText = null;
-	private static String expectedText = null;
-	private static String attributeName = null;
-	private static String param1;
-	private static String param2;
-	private static String param3;
-
-	public static int scriptTimeout = 5;
-	public static int stepWait = 150;
-	public static int flexibleWait = 120;
-	public static int implicitWait = 1;
-	public static long pollingInterval = 500;
-
-	private static Map<String, String> methodTable = new HashMap<>();
-	static {
+	Properties objectRepo;
+	String status;
+	String result;
+	private String selectorTagName = null;
+	private String selectorType = null;
+	private String selectorValue = null;
+	private String selectorRow = null;
+	private String selectorColumn = null;
+	private String selectorContainedText = null;
+	private String expectedValue = null;
+	private String textData = null;
+	private String visibleText = null;
+	private String expectedText = null;
+	private String attributeName = null;
+	private String param1;
+	private String param2;
+	private String param3;
+	public int scriptTimeout = 5;
+	public int stepWait = 150;
+	public int flexibleWait = 120;
+	public int implicitWait = 1;
+	public long pollingInterval = 500;
+	private Map<String, String> methodTable = new HashMap<>();
+	{
 		methodTable.put("CLICK", "clickButton");
 		methodTable.put("CLICK_BUTTON", "clickButton");
 		methodTable.put("CLICK_CHECKBOX", "clickCheckBox");
@@ -98,19 +110,23 @@ public final class KeywordLibrary {
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 	}
-	private static Map<String, Method> locatorTable = new HashMap<>();
+	private Map<String, Method> locatorTable = new HashMap<>();
 
-	public static void closeBrowser(Map<String, String> params) {
+	public void closeBrowser(Map<String, String> params) {
 		driver.quit();
 	}
 
-	public static void navigateTo(Map<String, String> params) {
+	public void navigateTo(Map<String, String> params) {
 		String url = params.get("param1");
 		System.err.println("Navigate to: " + url);
 		driver.navigate().to(url);
 	}
 
-	public static String getStatus() {
+	private KeywordLibrary() {
+		initMethods();
+	}
+
+	public String getStatus() {
 		return status;
 	}
 
@@ -118,18 +134,21 @@ public final class KeywordLibrary {
 		return result;
 	}
 
-	// https://stackoverflow.com/questions/7486012/static-classes-in-java
-	// https://github.com/sergueik/selenium_java/commit/57724dafc4fa33339
-
-	// A top-level Java class mimicking static class behavior
-	// All methods are static
-	private KeywordLibrary() { // private constructor
-		_class = null;
+	public static KeywordLibrary Instance() {
+		if (!instance_flag) {
+			instance_flag = true;
+			return new KeywordLibrary();
+		} else
+			return null;
 	}
 
-	public static void initMethods() {
+	public void finalize() {
+		instance_flag = false;
+	}
+
+	public void initMethods() {
 		try {
-			_class = Class.forName("org.utils.KeywordLibrary");
+			_class = Class.forName("com.github.sergueik.ngwebdriver.KeywordLibrary");
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -172,11 +191,13 @@ public final class KeywordLibrary {
 		/*
 		// optional: list all methods
 		try {
-			Class<?> _locatorHelper = Class.forName("com.jprotractor.NgBy");
+			Class<?> _locatorHelper = Class
+					.forName("com.paulhammant.ngwebdriver.ByAngular");
 			Method[] _locatorMethods = _locatorHelper.getMethods();
 			for (Method _locatorMethod : _locatorMethods) {
-				System.err.println("Adding locator of com.jprotractor.NgBy:"
-						+ _locatorMethod.toString());
+				System.err
+						.println("Adding locator of com.paulhammant.ngwebdriver.ByAngular:"
+								+ _locatorMethod.toString());
 			}
 		} catch (ClassNotFoundException | SecurityException e) {
 			System.out.println("Exception (ignored): " + e.toString());
@@ -193,32 +214,7 @@ public final class KeywordLibrary {
 			locatorTable.put("tagName", By.class.getMethod("tagName", String.class));
 			locatorTable.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
-		}
-		try {
-			locatorTable.put("binding",
-					NgBy.class.getMethod("binding", String.class));
-			locatorTable.put("buttontext",
-					NgBy.class.getMethod("buttonText", String.class));
-			locatorTable.put("cssContainingText", NgBy.class
-					.getMethod("cssContainingText", String.class, String.class));
-			locatorTable.put("model", NgBy.class.getMethod("model", String.class));
-			locatorTable.put("options",
-					NgBy.class.getMethod("options", String.class));
-			locatorTable.put("repeater",
-					NgBy.class.getMethod("repeater", String.class));
-			locatorTable.put("repeaterColumn",
-					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
-			locatorTable.put("repeaterElement", NgBy.class.getMethod(
-					"repeaterElement", String.class, Integer.class, String.class));
-			// NOTE: plural in the method name
-			locatorTable.put("repeaterRows",
-					NgBy.class.getMethod("repeaterRows", String.class, Integer.class));
-			locatorTable.put("selectedOption",
-					NgBy.class.getMethod("selectedOption", String.class));
-			locatorTable.put("selectedRepeaterOption",
-					NgBy.class.getMethod("selectedRepeaterOption", String.class));
-		} catch (NoSuchMethodException e) {
-			System.out.println("Execption (ignored): " + e.toString());
+			System.out.println("Exception (ignored): " + e.toString());
 		}
 		// phony method
 		Method methodMissing = null;
@@ -238,34 +234,64 @@ public final class KeywordLibrary {
 		}
 		// put synthetic selectors explicitly
 		locatorTable.put("text", methodMissing);
+		try {
+			locatorTable.put("binding",
+					ByAngular.class.getMethod("binding", String.class));
+			locatorTable.put("buttontext",
+					ByAngular.class.getMethod("buttonText", String.class));
+			locatorTable.put("cssContainingText", ByAngular.class
+					.getMethod("cssContainingText", String.class, String.class));
+			locatorTable.put("exactBinding",
+					ByAngular.class.getMethod("exactBinding", String.class));
+			locatorTable.put("exactRepeater",
+					ByAngular.class.getMethod("exactRepeater", String.class));
+			locatorTable.put("model",
+					ByAngular.class.getMethod("model", String.class));
+			locatorTable.put("options",
+					ByAngular.class.getMethod("options", String.class));
+			locatorTable.put("partialButtonText",
+					ByAngular.class.getMethod("partialButtonText", String.class));
+			locatorTable.put("repeater",
+					ByAngular.class.getMethod("repeater", String.class));
+			// put synthetic selectors explicitly
+			locatorTable.put("repeaterColumn", methodMissing);
+			locatorTable.put("repeaterCell", methodMissing);
+			locatorTable.put("repeaterRow", methodMissing);
+
+		} catch (NoSuchMethodException e) {
+			System.out.println("Exception (ignored): " + e.toString());
+		}
 	}
 
-	public static void callMethod(String keyword, Map<String, String> params) {
-		if (_class == null) {
-			initMethods();
+	public void callMethod(String keyword, Map<String, String> params) {
+		if (_object == null) {
+			try {
+				_object = _class.newInstance();
+			} catch (IllegalAccessException | InstantiationException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		if (methodTable.containsKey(keyword)) {
 			String methodName = methodTable.get(keyword);
 			try {
-				System.out.println(keyword + " call method: " + methodName + " with "
+				System.err.println(keyword + " call method: " + methodName + " with "
 						+ String.join(",", params.values()));
-				_class.getMethod(methodName, Map.class).invoke(null, params);
+				_class.getMethod(methodName, Map.class).invoke(_object, params);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("No method found for keyword: " + keyword);
+			throw new RuntimeException("No method found for keyword: " + keyword);
 		}
 	}
 
-	public static void loadProperties() throws IOException {
+	public void loadProperties() throws IOException {
 		File file = new File("ObjectRepo.Properties");
 		objectRepo = new Properties();
 		objectRepo.load(new FileInputStream(file));
 	}
 
-	public static void openBrowser(Map<String, String> params)
-			throws IOException {
+	public void openBrowser(Map<String, String> params) throws IOException {
 		try {
 			File file = new File("Config.properties");
 			Properties config = new Properties();
@@ -274,9 +300,7 @@ public final class KeywordLibrary {
 				System.setProperty("webdriver.chrome.driver",
 						"C:\\java\\selenium\\chromedriver.exe");
 				driver = new ChromeDriver();
-				wait = new WebDriverWait(driver, flexibleWait);
-				wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
-				ngDriver = new NgWebDriver(driver);
+				ngDriver = new NgWebDriver((JavascriptExecutor) driver);
 				driver.get(config.getProperty("url"));
 			}
 			driver.manage().window().maximize();
@@ -286,7 +310,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void enterText(Map<String, String> params) {
+	public void enterText(Map<String, String> params) {
 		element = _findElement(params);
 		textData = params.get("param5");
 		if (element != null) {
@@ -298,7 +322,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void clickButton(Map<String, String> params) {
+	public void clickButton(Map<String, String> params) {
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
@@ -309,17 +333,13 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void clickLink(Map<String, String> params) {
+	public void clickLink(Map<String, String> params) {
 		element = _findElement(params);
-		// experimental
-		// element = _waitFindElement(params);
 		if (element != null) {
 			highlight(element);
-			System.err.println("click");
 			element.click();
 			status = "Passed";
 		} else {
-			System.err.println("Can't click");
 			status = "Failed";
 		}
 		try {
@@ -330,7 +350,7 @@ public final class KeywordLibrary {
 
 	}
 
-	public static void selectDropDown(Map<String, String> params) {
+	public void selectDropDown(Map<String, String> params) {
 		Select select;
 		visibleText = params.get("param5");
 		element = _findElement(params);
@@ -348,7 +368,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void verifyAttribute(Map<String, String> params) {
+	public void verifyAttribute(Map<String, String> params) {
 		boolean flag = false;
 		attributeName = params.get("param5");
 		expectedValue = params.get("param6");
@@ -362,7 +382,7 @@ public final class KeywordLibrary {
 			status = "Failed";
 	}
 
-	public static void verifyText(Map<String, String> params) {
+	public void verifyText(Map<String, String> params) {
 		boolean flag = false;
 		expectedText = params.get("param5");
 		element = _findElement(params);
@@ -376,7 +396,7 @@ public final class KeywordLibrary {
 			status = "Failed";
 	}
 
-	public static void getElementText(Map<String, String> params) {
+	public void getElementText(Map<String, String> params) {
 		String text = null;
 		element = _findElement(params);
 		if (element != null) {
@@ -391,7 +411,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void getElementAttribute(Map<String, String> params) {
+	public void getElementAttribute(Map<String, String> params) {
 		attributeName = params.get("param5");
 		String value = null;
 		element = _findElement(params);
@@ -407,7 +427,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void elementPresent(Map<String, String> params) {
+	public void elementPresent(Map<String, String> params) {
 		Boolean flag = false;
 		element = _findElement(params);
 		if (element != null) {
@@ -423,7 +443,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void clickCheckBox(Map<String, String> params) {
+	public void clickCheckBox(Map<String, String> params) {
 		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 			if (element != null) {
@@ -448,7 +468,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void clickRadioButton(Map<String, String> params) {
+	public void clickRadioButton(Map<String, String> params) {
 		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 		} else {
@@ -470,7 +490,7 @@ public final class KeywordLibrary {
 	}
 
 	// TODO:
-	public static void switchFrame(Map<String, String> params) {
+	public void switchFrame(Map<String, String> params) {
 		param1 = params.get("param1");
 		param2 = params.get("param2");
 		param3 = params.get("param5");
@@ -498,120 +518,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	// wrapped in expectedCondition of the appropriate @apply signature
-	public static WebElement _waitFindElement(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
-		}
-		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
-		selectorValue = params.get("param2");
-		if (params.containsKey("param3")) {
-			selectorRow = params.get("param3");
-		}
-		if (params.containsKey("param4")) {
-			selectorColumn = params.get("param4");
-		}
-
-		if (params.containsKey("param5")) {
-			selectorContainedText = params.get("param5");
-		}
-		if (params.containsKey("param6")) {
-			selectorTagName = params.get("param6");
-		}
-		WebDriverWait _wait;
-		if (params.containsKey("param7")) {
-			timeout = (long) (Float.parseFloat(params.get("param7")));
-			_wait = new WebDriverWait(driver, timeout);
-		} else {
-			_wait = wait;
-		}
-		WebElement _element = null;
-
-		// NOTE: all keys, including synthetic ones e.g. 'css'
-		pattern = Pattern.compile(
-				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
-				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(selectorType);
-		if (matcher.find()) {
-			switch (selectorType) {
-			case "css":
-				locator = By.cssSelector(selectorValue);
-				break;
-			case "cssSelector":
-				locator = By.cssSelector(selectorValue);
-				break;
-			case "id":
-				locator = By.id(selectorValue);
-				break;
-			case "linkText":
-				locator = By.linkText(selectorValue);
-				break;
-			case "name":
-				locator = By.name(selectorValue);
-				break;
-			case "partialLinkText":
-				locator = By.partialLinkText(selectorValue);
-				break;
-			case "tagName":
-				locator = By.tagName(selectorValue);
-				break;
-			case "xpath":
-				locator = By.xpath(selectorValue);
-				break;
-			}
-			// TODO: add Angular locators
-			_element = _wait.until(new ExpectedCondition<WebElement>() {
-
-				@Override
-				public WebElement apply(WebDriver d) {
-					Optional<WebElement> e = d.findElements(locator).stream().findFirst();
-					/*
-					if (e.isPresent()) {
-						System.err.println("apply => " + selectorType + " => "
-								+ e.get().getAttribute("outerHTML"));
-					}
-					*/
-					return (e.isPresent()) ? e.get() : (WebElement) null;
-				}
-			});
-			/* 
-			  System.err
-					.println("returned from _wait : " + _element.getAttribute("outerHTML"));
-			*/
-		} else if (selectorType == "text") {
-			if (selectorTagName != null) {
-				_element = _wait.until(new ExpectedCondition<WebElement>() {
-					@Override
-					public WebElement apply(WebDriver d) {
-						return d.findElements(By.tagName(selectorTagName)).stream()
-								.filter(o -> {
-									return (Boolean) (o.getText().contains(selectorValue));
-								}).findFirst().get();
-					}
-				});
-			} else {
-				String amendedSelectorValue = String.format(
-						"//%s[contains(normalize-space(text()),'%s')]",
-						(selectorTagName != null) ? selectorTagName : "*", selectorValue);
-				_element = _wait.until(new ExpectedCondition<WebElement>() {
-					@Override
-					public WebElement apply(WebDriver d) {
-						return d.findElements(By.xpath(amendedSelectorValue)).stream()
-								.filter(o -> {
-									return (Boolean) (o.getText().contains(selectorValue));
-								}).findFirst().get();
-					}
-				});
-
-			}
-
-		}
-		return _element;
-	}
-
-	// straight to WebDriver
-	public static WebElement _findElement(Map<String, String> params) {
+	public WebElement _findElement(Map<String, String> params) {
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
@@ -637,11 +544,13 @@ public final class KeywordLibrary {
 			switch (selectorType) {
 
 			case "binding":
-				_element = ngDriver.findElement(NgBy.binding(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.binding(selectorValue));
 				break;
 
 			case "buttontext":
-				_element = ngDriver.findElement(NgBy.buttonText(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.buttonText(selectorValue));
 				break;
 
 			case "className":
@@ -653,12 +562,23 @@ public final class KeywordLibrary {
 				break;
 
 			case "cssContainingText":
-				_element = ngDriver.findElement(
-						NgBy.cssContainingText(selectorValue, selectorContainedText));
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(
+						ByAngular.cssContainingText(selectorValue, selectorContainedText));
 				break;
 
 			case "cssSelector":
 				_element = driver.findElement(By.cssSelector(selectorValue));
+				break;
+
+			case "exactBinding":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.exactBinding(selectorValue));
+				break;
+
+			case "exactRepeater":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.exactRepeater(selectorValue));
 				break;
 
 			case "id":
@@ -666,7 +586,8 @@ public final class KeywordLibrary {
 				break;
 
 			case "model":
-				_element = ngDriver.findElement(NgBy.model(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.model(selectorValue));
 				break;
 
 			case "linkText":
@@ -678,7 +599,8 @@ public final class KeywordLibrary {
 				break;
 
 			case "options":
-				_element = ngDriver.findElement(NgBy.options(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.options(selectorValue));
 				break;
 
 			case "partialLinkText":
@@ -686,32 +608,28 @@ public final class KeywordLibrary {
 				break;
 
 			case "repeater":
-				_element = ngDriver.findElement(NgBy.repeater(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.repeater(selectorValue));
 				break;
 
 			case "repeaterColumn":
-				_element = ngDriver
-						.findElement(NgBy.repeaterColumn(selectorValue, selectorColumn));
+				ngDriver.waitForAngularRequestsToFinish();
+				ByAngularRepeater _elementRepeater = ByAngular.repeater(selectorValue);
+				ByAngularRepeaterColumn _elementRepeaterColumn = _elementRepeater
+						.column(selectorColumn);
+				_element = driver.findElement(_elementRepeaterColumn);
 				break;
 
-			case "repeatereElement":
-				_element = ngDriver.findElement(NgBy.repeaterElement(selectorValue,
-						Integer.parseInt(selectorRow), selectorColumn));
+			case "repeaterRow":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.repeater(selectorValue)
+						.row(Integer.parseInt(selectorRow)));
 				break;
 
-			case "repeaterRows":
-				_element = ngDriver.findElement(
-						NgBy.repeaterRows(selectorValue, Integer.parseInt(selectorRow)));
-				break;
-
-			// unique to jProtracror and old Protractor JS
-			case "selectedOption":
-				_element = ngDriver.findElement(NgBy.selectedOption(selectorValue));
-				break;
-
-			case "selectedRepeaterOption":
-				_element = ngDriver
-						.findElement(NgBy.selectedRepeaterOption(selectorValue));
+			case "repeatereCell":
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.repeater(selectorValue)
+						.row(Integer.parseInt(selectorRow)).column(selectorColumn));
 				break;
 
 			case "text":
@@ -742,7 +660,7 @@ public final class KeywordLibrary {
 		return _element;
 	}
 
-	public static List<WebElement> _findElements(Map<String, String> params) {
+	public List<WebElement> _findElements(Map<String, String> params) {
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
@@ -762,11 +680,13 @@ public final class KeywordLibrary {
 			switch (selectorType) {
 
 			case "binding":
-				_elements = ngDriver.findElements(NgBy.binding(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.binding(selectorValue));
 				break;
 
 			case "buttontext":
-				_elements = ngDriver.findElements(NgBy.buttonText(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.buttonText(selectorValue));
 				break;
 
 			case "className":
@@ -778,12 +698,23 @@ public final class KeywordLibrary {
 				break;
 
 			case "cssContainingText":
-				_elements = ngDriver.findElements(
-						NgBy.cssContainingText(selectorValue, selectorContainedText));
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(
+						ByAngular.cssContainingText(selectorValue, selectorContainedText));
 				break;
 
 			case "cssSelector":
 				_elements = driver.findElements(By.cssSelector(selectorValue));
+				break;
+
+			case "exactBinding":
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.exactBinding(selectorValue));
+				break;
+
+			case "exactRepeater":
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.exactRepeater(selectorValue));
 				break;
 
 			case "id":
@@ -791,7 +722,8 @@ public final class KeywordLibrary {
 				break;
 
 			case "model":
-				_elements = ngDriver.findElements(NgBy.model(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.model(selectorValue));
 				break;
 
 			case "linkText":
@@ -803,7 +735,8 @@ public final class KeywordLibrary {
 				break;
 
 			case "options":
-				_elements = ngDriver.findElements(NgBy.options(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.options(selectorValue));
 				break;
 
 			case "partialLinkText":
@@ -811,16 +744,16 @@ public final class KeywordLibrary {
 				break;
 
 			case "repeater":
-				_elements = ngDriver.findElements(NgBy.repeater(selectorValue));
+				ngDriver.waitForAngularRequestsToFinish();
+				_elements = driver.findElements(ByAngular.repeater(selectorValue));
 				break;
+
 			/*
 			repeaterColumn
-			repeatereElement
-			selectedOption
-			selectedRepeaterOption
+			repeatereCell
+			RepeaterRow
 			are unlikely to be useful here
 			*/
-
 			case "text":
 				// Option 1: construct xpath selector
 				Map<String, String> amendedParams = new HashMap<>();
@@ -854,7 +787,7 @@ public final class KeywordLibrary {
 	}
 
 	// wait for the page url to change to contain expectedURL
-	public static void waitURLChange(Map<String, String> params) {
+	public void waitURLChange(Map<String, String> params) {
 		WebDriverWait _wait;
 		try {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
@@ -862,18 +795,38 @@ public final class KeywordLibrary {
 		} catch (java.lang.NumberFormatException e) {
 			_wait = wait;
 		}
-		String expectedURL = params.get("param1");
-		ExpectedCondition<Boolean> urlChange = driver -> driver.getCurrentUrl()
-				.matches(String.format("^%s.*", expectedURL));
+		final String expectedURL = params.get("param1"); // was: param8
+		// NOTE: cannot change: the code below would lead
+		// to a compiler error:
+		// local variables referenced from a lambda expression
+		// must be final or effectively final
+		/* 
+		expectedURL = params.get("param8");
+		if (expectedURL.isEmpty()) {
+			expectedURL = params.get("param1");
+		}
+		*/
+		ExpectedCondition<Boolean> urlChange = driver -> {
+			String url = driver.getCurrentUrl();
+			if (debug) {
+				System.err.println("Inspecting the URL: " + url);
+				System.err.println("Waiting for the URL: " + expectedURL); // https://accounts.google.com/signin
+
+			}
+			return (boolean) url.matches(String.format("^%s.*", expectedURL));
+		};
 		_wait.until(urlChange);
 	}
 
 	// wait for the element to become clickable
-	public static void waitClickable(Map<String, String> params) {
+	public void waitClickable(Map<String, String> params) {
 
 		selectorType = params.get("param1");
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		}
+		if (params.containsKey("param5")) {
+			selectorContainedText = params.get("param5");
 		}
 		selectorValue = params.get("param2");
 		WebDriverWait _wait;
@@ -918,26 +871,36 @@ public final class KeywordLibrary {
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
 		pattern = Pattern.compile(
-				"(?:binding|buttonText|partialButtonText|model|options)",
+				"(?:binding|buttonText|exactBinding|cssContainingText|model|options|partialButtonText)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
 			switch (selectorType) {
 			case "binding":
-				locator = NgBy.binding(selectorValue);
+				locator = ByAngular.binding(selectorValue);
 				break;
 			case "buttontext":
-				locator = NgBy.buttonText(selectorValue);
+				locator = ByAngular.buttonText(selectorValue);
 				break;
-			case "partialButtontext":
-				locator = NgBy.partialButtonText(selectorValue);
+			case "cssContainingText":
+				locator = ByAngular.cssContainingText(selectorValue,
+						selectorContainedText);
 				break;
-			case "options":
-				locator = NgBy.options(selectorValue);
+			case "exactBinding":
+				locator = ByAngular.exactBinding(selectorValue);
 				break;
 			case "model":
-				locator = NgBy.model(selectorValue);
+				locator = ByAngular.model(selectorValue);
 				break;
+			case "options":
+				locator = ByAngular.options(selectorValue);
+				break;
+			case "partialButtontext":
+				locator = ByAngular.partialButtonText(selectorValue);
+				break;
+			default:
+				throw new RuntimeException("wait code for Selector type " + selectorType
+						+ " is not implemented yet");
 			}
 			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
@@ -958,11 +921,11 @@ public final class KeywordLibrary {
 				System.err.println("Exception: " + e.toString());
 				throw new RuntimeException(e);
 			}
-
 		}
 	}
 
-	public static void wait(Map<String, String> params) {
+	public void wait(Map<String, String> params) {
+
 		timeout = (long) (Float.parseFloat(params.get("param7")));
 		try {
 			Thread.sleep(timeout);
@@ -970,11 +933,15 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void highlight(WebElement element) {
+	public void highlight(WebElement element) {
 		highlight(element, 100);
 	}
 
-	public static void highlight(WebElement element, long highlight_interval) {
+	public void highlight(WebElement element, long highlight_interval) {
+		if (wait == null) {
+			wait = new WebDriverWait(driver, flexibleWait);
+		}
+		wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
 		try {
 			wait.until(ExpectedConditions.visibilityOf(element));
 			if (driver instanceof JavascriptExecutor) {

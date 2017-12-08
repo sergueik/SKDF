@@ -5,7 +5,7 @@
 This directory contains a skeleton [Keyword-Driven Framework](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) project based on
 [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [selenium-webdriver-software-testing/keyword-driven-framework](https://github.com/selenium-webdriver-software-testing/keyword-driven-framework)
 
-The project builds a runnable jar:
+The project builds two runnable jars (`com.github.sergueik.jprotractor` and `com.github.sergueik.ngwebdriver` group id namespaces):
 ```bash
 cp TestCase.xls ~/Desktop
 pushd jprotractor
@@ -30,7 +30,7 @@ static {
 ```java
 String methodName = methodTable.get(keyword);
 try {
-  Class<?> _class = Class.forName("org.utils.KeywordLibrary");
+  Class<?> _class = Class.forName("com.github.sergueik.ngwebdriver.KeywordLibrary");
   Method _method = _class.getMethod(methodName, Map.class);
   System.out.println(keyword + " call method: " + methodName + " with "
 			+ String.join(",", params.values()));
