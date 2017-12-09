@@ -22,7 +22,11 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -38,6 +42,7 @@ import com.github.sergueik.jprotractor.NgWebDriver;
 
 public final class KeywordLibrary {
 
+	private static boolean debug = true;
 	private static Class<?> _class = null;
 	public static WebDriver driver;
 	public static WebDriverWait wait;
@@ -50,7 +55,6 @@ public final class KeywordLibrary {
 	private static By locator;
 	private static long timeout;
 
-	private static Properties objectRepo;
 	private static String status;
 	private static String result;
 	private static String selectorTagName = null;
@@ -73,6 +77,14 @@ public final class KeywordLibrary {
 	public static int flexibleWait = 120;
 	public static int implicitWait = 1;
 	public static long pollingInterval = 500;
+
+	private static String browser = "chrome";
+	private static String osName = getOsName();
+	private static String chromeDriverPath = null;
+	private static String geckoDriverPath = null;
+	private static String firefoxBrowserPath = null;
+	private static String ieDriverPath = null;
+	private static String edgeDriverPath = null;
 
 	private static Map<String, String> methodTable = new HashMap<>();
 	static {
@@ -129,7 +141,7 @@ public final class KeywordLibrary {
 
 	public static void initMethods() {
 		try {
-			_class = Class.forName("com.github.sergueik.utils.KeywordLibrary");
+			_class = Class.forName("com.github.sergueik.jprotractor.KeywordLibrary");
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -258,30 +270,63 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void loadProperties() throws IOException {
-		File file = new File("ObjectRepo.Properties");
-		objectRepo = new Properties();
-		objectRepo.load(new FileInputStream(file));
-	}
-
 	public static void openBrowser(Map<String, String> params)
 			throws IOException {
 		try {
-			File file = new File("Config.properties");
-			Properties config = new Properties();
-			config.load(new FileInputStream(file));
-			if (config.getProperty("browser").equalsIgnoreCase("Chrome")) {
+			switch (KeywordLibrary.browser) {
+			case "chrome":
 				System.setProperty("webdriver.chrome.driver",
-						"C:\\java\\selenium\\chromedriver.exe");
+						new File((chromeDriverPath == null)
+								? osName.toLowerCase().startsWith("windows")
+										? "C:\\java\\selenium\\chromedriver.exe"
+										: "/var/run/chromedriver"
+								: chromeDriverPath).getAbsolutePath());
 				driver = new ChromeDriver();
-				wait = new WebDriverWait(driver, flexibleWait);
-				wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
-				ngDriver = new NgWebDriver(driver);
-				driver.get(config.getProperty("url"));
+				break;
+			case "firefox":
+				System.setProperty("webdriver.gecko.driver",
+						new File((geckoDriverPath == null)
+								? osName.toLowerCase().startsWith("windows")
+										? "c:/java/selenium/geckodriver.exe"
+										: "/var/run/geckodriver"
+								: geckoDriverPath).getAbsolutePath());
+				DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+
+				// TODO: switch to Selenium 3.X+
+				capabilities.setCapability("marionette", false);
+				driver = new FirefoxDriver(capabilities);
+				break;
+			case "ie":
+				System.setProperty("webdriver.ie.driver",
+						new File((ieDriverPath == null)
+								? "c:/java/selenium/IEDriverServer.exe" : ieDriverPath)
+										.getAbsolutePath());
+				driver = new InternetExplorerDriver();
+				break;
+			case "edge":
+				System.setProperty("webdriver.edge.driver",
+						new File((edgeDriverPath == null)
+								? "C:\\Program Files (x86)\\Microsoft Web Driver\\MicrosoftWebDriver.exe"
+								: edgeDriverPath).getAbsolutePath());
+				driver = new EdgeDriver();
+				break;
+			default:
+				break;
 			}
+			if (debug) {
+				System.err.println("Open: " + KeywordLibrary.getBrowser());
+			}
+
+			wait = new WebDriverWait(driver, flexibleWait);
+			wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
+			ngDriver = new NgWebDriver(driver);
+			// driver.get(config.getProperty("url"));
 			driver.manage().window().maximize();
 			status = "Passed";
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
+			System.err.println("Exception: " + e.toString());
 			status = "Failed";
 		}
 	}
@@ -582,6 +627,7 @@ public final class KeywordLibrary {
 		} else if (selectorType == "text") {
 			if (selectorTagName != null) {
 				_element = _wait.until(new ExpectedCondition<WebElement>() {
+
 					@Override
 					public WebElement apply(WebDriver d) {
 						return d.findElements(By.tagName(selectorTagName)).stream()
@@ -990,4 +1036,60 @@ public final class KeywordLibrary {
 			System.err.println("Ignored: " + e.toString());
 		}
 	}
+
+	public static String getChromeDriverPath() {
+		return chromeDriverPath;
+	}
+
+	public static void setChromeDriverPath(String chromeDriverPath) {
+		KeywordLibrary.chromeDriverPath = chromeDriverPath;
+	}
+
+	public static String getGeckoDriverPath() {
+		return geckoDriverPath;
+	}
+
+	public static void setGeckoDriverPath(String geckoDriverPath) {
+		KeywordLibrary.geckoDriverPath = geckoDriverPath;
+	}
+
+	public static String getFirefoxBrowserPath() {
+		return firefoxBrowserPath;
+	}
+
+	public static void setFirefoxBrowserPath(String firefoxBrowserPath) {
+		KeywordLibrary.firefoxBrowserPath = firefoxBrowserPath;
+	}
+
+	public static String getIeDriverPath() {
+		return ieDriverPath;
+	}
+
+	public static void setIeDriverPath(String ieDriverPath) {
+		KeywordLibrary.ieDriverPath = ieDriverPath;
+	}
+
+	public static String getEdgeDriverPath() {
+		return edgeDriverPath;
+	}
+
+	public static void setEdgeDriverPath(String edgeDriverPath) {
+		KeywordLibrary.edgeDriverPath = edgeDriverPath;
+	}
+
+	public static String getOsName() {
+		if (KeywordLibrary.osName == null) {
+			KeywordLibrary.osName = System.getProperty("os.name");
+		}
+		return KeywordLibrary.osName.toLowerCase();
+	}
+
+	public static String getBrowser() {
+		return browser;
+	}
+
+	public static void setBrowser(String _browser) {
+		KeywordLibrary.browser = browser;
+	}
+
 }

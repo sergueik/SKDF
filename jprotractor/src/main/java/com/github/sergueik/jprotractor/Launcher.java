@@ -14,6 +14,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
+import com.github.sergueik.jprotractor.KeywordLibrary;
+
 /**
  * Standalone Launcher for Selenium WebDriver Keyword Driven Library
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
@@ -23,7 +25,10 @@ public class Launcher {
 
 	private static String propertiesFileName = "application.properties";
 	private static String defaultTestCase = "TestCase.xls";
-	private static int statusColumn = 9;
+	private static int statusColumn;
+	private static int defaultStatusColumn = 9;
+	private static KeywordLibrary keywordLibrary;
+	private static String defaultBrowser = "chrome";
 	private static boolean debug = false;
 	private static String testCase;
 
@@ -40,7 +45,23 @@ public class Launcher {
 		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
-		KeywordLibrary.loadProperties();
+		//
+		// KeywordLibrary.loadProperties();
+		KeywordLibrary.setBrowser((propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowser);
+
+		if (propertiesMap.get("chromeDriverPath") != null) {
+			KeywordLibrary.setChromeDriverPath(propertiesMap.get("chromeDriverPath"));
+		}
+		if (propertiesMap.get("geckoDriverPath") != null) {
+			KeywordLibrary.setGeckoDriverPath(propertiesMap.get("geckoDriverPath"));
+		}
+		if (propertiesMap.get("edgeDriverPath") != null) {
+			KeywordLibrary.setEdgeDriverPath(propertiesMap.get("edgeDriverPath"));
+		}
+		if (propertiesMap.get("iePath") != null) {
+			KeywordLibrary.setIeDriverPath(propertiesMap.get("ieDriverPath"));
+		}
 		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
 			Row indexRow = indexSheet.getRow(row);
 			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
