@@ -42,11 +42,10 @@ public class Launcher {
 				? propertiesMap.get("testCase")
 				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
 						System.getenv("USERPROFILE"), defaultTestCase));
+		System.err.println("Loading test case from: " + testCase);
 		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
-		//
-		// KeywordLibrary.loadProperties();
 		KeywordLibrary.setBrowser((propertiesMap.get("browser") != null)
 				? propertiesMap.get("browser") : defaultBrowser);
 

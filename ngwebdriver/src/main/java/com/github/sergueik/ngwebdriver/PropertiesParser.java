@@ -52,7 +52,7 @@ public class PropertiesParser {
 		if (null == input) {
 			return null;
 		}
-		Pattern p = Pattern.compile("\\$(?:\\{(\\w+)\\}|(\\w+))");
+		Pattern p = Pattern.compile("\\$(?:\\{([\\.\\w]+)\\}|(\\w+))");
 		Matcher m = p.matcher(input);
 		StringBuffer sb = new StringBuffer();
 		while (m.find()) {
@@ -63,5 +63,16 @@ public class PropertiesParser {
 		}
 		m.appendTail(sb);
 		return sb.toString();
+	}
+
+	public static String getPropertyEnv(String name, String defaultValue) {
+		String value = System.getProperty(name);
+		if (value == null) {
+			value = System.getenv(name);
+			if (value == null) {
+				value = defaultValue;
+			}
+		}
+		return value;
 	}
 }
