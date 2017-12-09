@@ -52,7 +52,6 @@ public class Launcher {
 
 		keywordLibrary = KeywordLibrary.Instance();
 
-		System.err.println("Setting Browser: " + propertiesMap.get("browser"));
 		keywordLibrary.setBrowser((propertiesMap.get("browser") != null)
 				? propertiesMap.get("browser") : defaultBrowser);
 
@@ -96,7 +95,6 @@ public class Launcher {
 			System.err.println("Done");
 		}
 		workbook.close();
-
 	}
 
 	public static void writeStatus(String sheetName, int rowNumber)

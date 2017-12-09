@@ -26,6 +26,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -60,71 +61,12 @@ public class KeywordLibrary {
 	public WebDriverWait wait;
 	public Actions actions;
 	private String browser = "chrome";
+	private String osName = getOsName();
 	private String chromeDriverPath = null;
 	private String geckoDriverPath = null;
 	private String firefoxBrowserPath = null;
 	private String ieDriverPath = null;
 	private String edgeDriverPath = null;
-
-	public String getChromeDriverPath() {
-		return chromeDriverPath;
-	}
-
-	public void setChromeDriverPath(String chromeDriverPath) {
-		this.chromeDriverPath = chromeDriverPath;
-	}
-
-	public String getGeckoDriverPath() {
-		return geckoDriverPath;
-	}
-
-	public void setGeckoDriverPath(String geckoDriverPath) {
-		this.geckoDriverPath = geckoDriverPath;
-	}
-
-	public String getFirefoxBrowserPath() {
-		return firefoxBrowserPath;
-	}
-
-	public void setFirefoxBrowserPath(String firefoxBrowserPath) {
-		this.firefoxBrowserPath = firefoxBrowserPath;
-	}
-
-	public String getIeDriverPath() {
-		return ieDriverPath;
-	}
-
-	public void setIeDriverPath(String ieDriverPath) {
-		this.ieDriverPath = ieDriverPath;
-	}
-
-	public String getEdgeDriverPath() {
-		return edgeDriverPath;
-	}
-
-	public void setEdgeDriverPath(String edgeDriverPath) {
-		this.edgeDriverPath = edgeDriverPath;
-	}
-
-	private String osName = getOsName();
-
-	public String getOsName() {
-		if (this.osName == null) {
-			this.osName = System.getProperty("os.name");
-		}
-		return osName.toLowerCase();
-	}
-
-	public String getBrowser() {
-		return browser;
-	}
-
-	public void setBrowser(String browser) {
-		this.browser = browser;
-		System.err.println("Browser: " + this.getBrowser());
-
-	}
-
 	private NgWebDriver ngDriver;
 	private WebElement element;
 	private Pattern pattern;
@@ -133,9 +75,8 @@ public class KeywordLibrary {
 	private long timeout;
 	private static boolean debug = true;
 
-	Properties objectRepo;
-	String status;
-	String result;
+	private String status;
+	private String result;
 	private String selectorTagName = null;
 	private String selectorType = null;
 	private String selectorValue = null;
@@ -187,11 +128,14 @@ public class KeywordLibrary {
 
 	public void navigateTo(Map<String, String> params) {
 		String url = params.get("param1");
-		System.err.println("Navigate to: " + url);
+		if (debug) {
+			System.err.println("Navigate to: " + url);
+		}
 		driver.navigate().to(url);
 	}
 
 	private KeywordLibrary() {
+		_object = this;
 		initMethods();
 	}
 
@@ -354,12 +298,6 @@ public class KeywordLibrary {
 		}
 	}
 
-	public void loadProperties() throws IOException {
-		File file = new File("ObjectRepo.Properties");
-		objectRepo = new Properties();
-		objectRepo.load(new FileInputStream(file));
-	}
-
 	public void openBrowser(Map<String, String> params) throws IOException {
 		try {
 			switch (this.browser) {
@@ -379,7 +317,11 @@ public class KeywordLibrary {
 										? "c:/java/selenium/geckodriver.exe"
 										: "/var/run/geckodriver"
 								: geckoDriverPath).getAbsolutePath());
-				driver = new FirefoxDriver();
+				DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+
+				// TODO: switch to Selenium 3.X+
+				capabilities.setCapability("marionette", false);
+				driver = new FirefoxDriver(capabilities);
 				break;
 			case "ie":
 				System.setProperty("webdriver.ie.driver",
@@ -398,7 +340,9 @@ public class KeywordLibrary {
 			default:
 				break;
 			}
-			System.err.println("Open " + browser);
+			if (debug) {
+				System.err.println("Open: " + this.getBrowser());
+			}
 			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
 			// TODO: pass from launcher
 			// driver.get(config.getProperty("url"));
@@ -622,7 +566,6 @@ public class KeywordLibrary {
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
-		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
 		selectorValue = params.get("param2");
 		if (params.containsKey("param3")) {
 			selectorRow = params.get("param3");
@@ -1056,4 +999,61 @@ public class KeywordLibrary {
 			System.err.println("Ignored: " + e.toString());
 		}
 	}
+
+	public String getChromeDriverPath() {
+		return chromeDriverPath;
+	}
+
+	public void setChromeDriverPath(String chromeDriverPath) {
+		this.chromeDriverPath = chromeDriverPath;
+	}
+
+	public String getGeckoDriverPath() {
+		return geckoDriverPath;
+	}
+
+	public void setGeckoDriverPath(String geckoDriverPath) {
+		this.geckoDriverPath = geckoDriverPath;
+	}
+
+	public String getFirefoxBrowserPath() {
+		return firefoxBrowserPath;
+	}
+
+	public void setFirefoxBrowserPath(String firefoxBrowserPath) {
+		this.firefoxBrowserPath = firefoxBrowserPath;
+	}
+
+	public String getIeDriverPath() {
+		return ieDriverPath;
+	}
+
+	public void setIeDriverPath(String ieDriverPath) {
+		this.ieDriverPath = ieDriverPath;
+	}
+
+	public String getEdgeDriverPath() {
+		return edgeDriverPath;
+	}
+
+	public void setEdgeDriverPath(String edgeDriverPath) {
+		this.edgeDriverPath = edgeDriverPath;
+	}
+
+
+	public String getOsName() {
+		if (this.osName == null) {
+			this.osName = System.getProperty("os.name");
+		}
+		return osName.toLowerCase();
+	}
+
+	public String getBrowser() {
+		return browser;
+	}
+
+	public void setBrowser(String browser) {
+		this.browser = browser;
+	}
+
 }
