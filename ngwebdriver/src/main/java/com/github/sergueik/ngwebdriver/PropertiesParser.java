@@ -57,7 +57,7 @@ public class PropertiesParser {
 		StringBuffer sb = new StringBuffer();
 		while (m.find()) {
 			String envVarName = null == m.group(1) ? m.group(2) : m.group(1);
-			String envVarValue = System.getenv(envVarName);
+			String envVarValue = getPropertyEnv(envVarName, "");
 			m.appendReplacement(sb,
 					null == envVarValue ? "" : envVarValue.replace("\\", "\\\\"));
 		}
