@@ -22,6 +22,9 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -56,6 +59,72 @@ public class KeywordLibrary {
 	public WebDriver driver;
 	public WebDriverWait wait;
 	public Actions actions;
+	private String browser = "chrome";
+	private String chromeDriverPath = null;
+	private String geckoDriverPath = null;
+	private String firefoxBrowserPath = null;
+	private String ieDriverPath = null;
+	private String edgeDriverPath = null;
+
+	public String getChromeDriverPath() {
+		return chromeDriverPath;
+	}
+
+	public void setChromeDriverPath(String chromeDriverPath) {
+		this.chromeDriverPath = chromeDriverPath;
+	}
+
+	public String getGeckoDriverPath() {
+		return geckoDriverPath;
+	}
+
+	public void setGeckoDriverPath(String geckoDriverPath) {
+		this.geckoDriverPath = geckoDriverPath;
+	}
+
+	public String getFirefoxBrowserPath() {
+		return firefoxBrowserPath;
+	}
+
+	public void setFirefoxBrowserPath(String firefoxBrowserPath) {
+		this.firefoxBrowserPath = firefoxBrowserPath;
+	}
+
+	public String getIeDriverPath() {
+		return ieDriverPath;
+	}
+
+	public void setIeDriverPath(String ieDriverPath) {
+		this.ieDriverPath = ieDriverPath;
+	}
+
+	public String getEdgeDriverPath() {
+		return edgeDriverPath;
+	}
+
+	public void setEdgeDriverPath(String edgeDriverPath) {
+		this.edgeDriverPath = edgeDriverPath;
+	}
+
+	private String osName = getOsName();
+
+	public String getOsName() {
+		if (this.osName == null) {
+			this.osName = System.getProperty("os.name");
+		}
+		return osName.toLowerCase();
+	}
+
+	public String getBrowser() {
+		return browser;
+	}
+
+	public void setBrowser(String browser) {
+		this.browser = browser;
+		System.err.println("Browser: " + this.getBrowser());
+
+	}
+
 	private NgWebDriver ngDriver;
 	private WebElement element;
 	private Pattern pattern;
@@ -293,16 +362,46 @@ public class KeywordLibrary {
 
 	public void openBrowser(Map<String, String> params) throws IOException {
 		try {
-			File file = new File("Config.properties");
-			Properties config = new Properties();
-			config.load(new FileInputStream(file));
-			if (config.getProperty("browser").equalsIgnoreCase("Chrome")) {
+			switch (this.browser) {
+			case "chrome":
 				System.setProperty("webdriver.chrome.driver",
-						"C:\\java\\selenium\\chromedriver.exe");
+						new File((chromeDriverPath == null)
+								? osName.toLowerCase().startsWith("windows")
+										? "C:\\java\\selenium\\chromedriver.exe"
+										: "/var/run/chromedriver"
+								: chromeDriverPath).getAbsolutePath());
 				driver = new ChromeDriver();
-				ngDriver = new NgWebDriver((JavascriptExecutor) driver);
-				driver.get(config.getProperty("url"));
+				break;
+			case "firefox":
+				System.setProperty("webdriver.gecko.driver",
+						new File((geckoDriverPath == null)
+								? osName.toLowerCase().startsWith("windows")
+										? "c:/java/selenium/geckodriver.exe"
+										: "/var/run/geckodriver"
+								: geckoDriverPath).getAbsolutePath());
+				driver = new FirefoxDriver();
+				break;
+			case "ie":
+				System.setProperty("webdriver.ie.driver",
+						new File((ieDriverPath == null)
+								? "c:/java/selenium/IEDriverServer.exe" : ieDriverPath)
+										.getAbsolutePath());
+				driver = new InternetExplorerDriver();
+				break;
+			case "edge":
+				System.setProperty("webdriver.edge.driver",
+						new File((edgeDriverPath == null)
+								? "C:\\Program Files (x86)\\Microsoft Web Driver\\MicrosoftWebDriver.exe"
+								: edgeDriverPath).getAbsolutePath());
+				driver = new EdgeDriver();
+				break;
+			default:
+				break;
 			}
+			System.err.println("Open " + browser);
+			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
+			// TODO: pass from launcher
+			// driver.get(config.getProperty("url"));
 			driver.manage().window().maximize();
 			status = "Passed";
 		} catch (Exception e) {

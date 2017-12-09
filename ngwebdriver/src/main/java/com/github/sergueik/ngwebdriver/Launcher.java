@@ -26,18 +26,22 @@ import org.apache.poi.ss.usermodel.Row;
 public class Launcher {
 
 	private static String propertiesFileName = "application.properties";
+	private static String testCase;
 	private static String defaultTestCase = "TestCase.xls";
-	private static int statusColumn = 9;
+	private static int statusColumn;
+	private static int defaultStatusColumn = 9;
 	private static KeywordLibrary keywordLibrary;
 	private static boolean debug = false;
-	private static String testCase;
+	private static String defaultBrowser = "chrome";
 
 	public static void main(String[] args) throws IOException {
 
 		Map<String, String> propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
-		statusColumn = Integer.parseInt(propertiesMap.get("statusColumn"));
+		statusColumn = (propertiesMap.get("statusColumn") != null)
+				? Integer.parseInt(propertiesMap.get("statusColumn"))
+				: defaultStatusColumn;
 		testCase = (propertiesMap.get("testCase") != null)
 				? propertiesMap.get("testCase")
 				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
@@ -48,6 +52,22 @@ public class Launcher {
 
 		keywordLibrary = KeywordLibrary.Instance();
 
+		System.err.println("Setting Browser: " + propertiesMap.get("browser"));
+		keywordLibrary.setBrowser((propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowser);
+
+		if (propertiesMap.get("chromeDriverPath") != null) {
+			keywordLibrary.setChromeDriverPath(propertiesMap.get("chromeDriverPath"));
+		}
+		if (propertiesMap.get("geckoDriverPath") != null) {
+			keywordLibrary.setGeckoDriverPath(propertiesMap.get("geckoDriverPath"));
+		}
+		if (propertiesMap.get("edgeDriverPath") != null) {
+			keywordLibrary.setEdgeDriverPath(propertiesMap.get("edgeDriverPath"));
+		}
+		if (propertiesMap.get("iePath") != null) {
+			keywordLibrary.setIeDriverPath(propertiesMap.get("ieDriverPath"));
+		}
 		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
 			Row indexRow = indexSheet.getRow(row);
 			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
@@ -121,6 +141,8 @@ public class Launcher {
 				try {
 					cellValue = safeCellToString(stepCell);
 				} catch (NullPointerException | IllegalStateException e) {
+					// TODO: observed Exception (ignored):
+					// java.lang.IllegalStateException: The formula cell is not supported
 					System.err.println("Exception (ignored): " + e.toString());
 					cellValue = "";
 				}
