@@ -42,7 +42,7 @@ import com.github.sergueik.jprotractor.NgWebDriver;
 
 public final class KeywordLibrary {
 
-	private static boolean debug = true;
+	private static boolean debug = false		;
 	private static Class<?> _class = null;
 	public static WebDriver driver;
 	public static WebDriverWait wait;
@@ -67,6 +67,7 @@ public final class KeywordLibrary {
 	private static String textData = null;
 	private static String visibleText = null;
 	private static String expectedText = null;
+	private static String expectedTag = null;
 	private static String attributeName = null;
 	private static String param1;
 	private static String param2;
@@ -105,6 +106,7 @@ public final class KeywordLibrary {
 		methodTable.put("SWITCH_FRAME", "switchFrame");
 		methodTable.put("VERIFY_ATTR", "verifyAttribute");
 		methodTable.put("VERIFY_TEXT", "verifyText");
+		methodTable.put("VERIFY_TAG", "verifyTag");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
@@ -421,6 +423,20 @@ public final class KeywordLibrary {
 			status = "Failed";
 	}
 
+	public static void verifyTag(Map<String, String> params) {
+		boolean flag = false;
+		expectedTag = params.get("param5");
+		element = _findElement(params);
+		if (element != null) {
+			highlight(element);
+			flag = element.getText().equals(expectedText);
+		}
+		if (flag)
+			status = "Passed";
+		else
+			status = "Failed";
+	}
+
 	public static void getElementText(Map<String, String> params) {
 		String text = null;
 		element = _findElement(params);
@@ -440,6 +456,7 @@ public final class KeywordLibrary {
 		attributeName = params.get("param5");
 		String value = null;
 		element = _findElement(params);
+
 		if (element != null) {
 			highlight(element);
 			value = element.getAttribute(attributeName);
@@ -448,6 +465,8 @@ public final class KeywordLibrary {
 			System.err.println(
 					String.format("%s returned \"%s\"", "getElementAttribute", result));
 		} else {
+			System.err.println("element not found");
+
 			status = "Failed";
 		}
 	}
@@ -662,6 +681,7 @@ public final class KeywordLibrary {
 		if (!locatorTable.containsKey(selectorType)) {
 			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
+
 		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
 		selectorValue = params.get("param2");
 		if (params.containsKey("param3")) {
@@ -677,7 +697,11 @@ public final class KeywordLibrary {
 		if (params.containsKey("param6")) {
 			selectorTagName = params.get("param6");
 		}
-
+		if (debug) {
+			System.err
+					.println(String.format("selectorType: \"%s\", selectorValue: \"%s\"",
+							selectorType, selectorValue));
+		}
 		WebElement _element = null;
 		try {
 			switch (selectorType) {
@@ -734,15 +758,22 @@ public final class KeywordLibrary {
 			case "repeater":
 				_element = ngDriver.findElement(NgBy.repeater(selectorValue));
 				break;
-
 			case "repeaterColumn":
 				_element = ngDriver
 						.findElement(NgBy.repeaterColumn(selectorValue, selectorColumn));
 				break;
 
-			case "repeatereElement":
+			case "repeaterElement":
+				if (debug) {
+					System.err.println(
+							String.format("repeaterElement(\"%s\",%d,\"%s\")", selectorValue,
+									Integer.parseInt(selectorRow.replaceAll(".\\d+$", "")),
+									selectorColumn));
+
+				}
 				_element = ngDriver.findElement(NgBy.repeaterElement(selectorValue,
-						Integer.parseInt(selectorRow), selectorColumn));
+						Integer.parseInt(selectorRow.replaceAll(".\\d+$", "")),
+						selectorColumn));
 				break;
 
 			case "repeaterRows":
@@ -784,6 +815,7 @@ public final class KeywordLibrary {
 				break;
 			}
 		} catch (Exception e) {/* TODO: logging*/
+			System.err.println("Exception: " + e.toString());
 		}
 		return _element;
 	}
