@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -29,7 +30,7 @@ public class Launcher {
 	private static int defaultStatusColumn = 9;
 	private static KeywordLibrary keywordLibrary;
 	private static String defaultBrowser = "chrome";
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private static String testCase;
 
 	public static void main(String[] args) throws IOException {
@@ -111,6 +112,7 @@ public class Launcher {
 
 	// reads the spreadsheet into a hash of step keywords and parameters indexed
 	// by column number and step number
+	@SuppressWarnings("deprecation")
 	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
 			throws IOException {
 		Map<String, String> data = new HashMap<>();
@@ -127,22 +129,27 @@ public class Launcher {
 			}
 			data = new HashMap<>();
 			stepRow = testcaseSheet.getRow(row);
-			data.put("keyword", stepRow.getCell(0).getStringCellValue());
-			for (int col = 1; col < statusColumn; col++) {
-				stepCell = stepRow.getCell(col);
-				String cellValue = null;
-				try {
-					cellValue = safeCellToString(stepCell);
-				} catch (NullPointerException | IllegalStateException e) {
-					System.err.println("Exception (ignored): " + e.toString());
-					cellValue = "";
+			stepCell = stepRow.getCell(0);
+			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
+					&& stepCell.getCellTypeEnum() != CellType.BLANK
+					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
+				data.put("keyword", stepCell.getStringCellValue());
+				for (int col = 1; col < statusColumn; col++) {
+					stepCell = stepRow.getCell(col);
+					String cellValue = null;
+					try {
+						cellValue = safeCellToString(stepCell);
+					} catch (NullPointerException | IllegalStateException e) {
+						System.err.println("Exception (ignored): " + e.toString());
+						cellValue = "";
+					}
+					if (debug) {
+						System.err.println("Column[" + col + "] = " + cellValue);
+					}
+					data.put(String.format("param%d", col), cellValue);
 				}
-				if (debug) {
-					System.err.println("Column[" + col + "] = " + cellValue);
-				}
-				data.put(String.format("param%d", col), cellValue);
+				stepDataMap.put(row - 1, data);
 			}
-			stepDataMap.put(row - 1, data);
 		}
 		workbook.close();
 		return stepDataMap;

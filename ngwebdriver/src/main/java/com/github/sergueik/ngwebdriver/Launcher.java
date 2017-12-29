@@ -132,24 +132,30 @@ public class Launcher {
 			}
 			data = new HashMap<>();
 			stepRow = testcaseSheet.getRow(row);
-			data.put("keyword", stepRow.getCell(0).getStringCellValue());
-			for (int col = 1; col < statusColumn; col++) {
-				stepCell = stepRow.getCell(col);
-				String cellValue = null;
-				try {
-					cellValue = safeCellToString(stepCell);
-				} catch (NullPointerException | IllegalStateException e) {
-					// TODO: observed Exception (ignored):
-					// java.lang.IllegalStateException: The formula cell is not supported
-					System.err.println("Exception (ignored): " + e.toString());
-					cellValue = "";
+			stepCell = stepRow.getCell(0);
+			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
+					&& stepCell.getCellTypeEnum() != CellType.BLANK
+					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
+				data.put("keyword", stepCell.getStringCellValue());
+				for (int col = 1; col < statusColumn; col++) {
+					stepCell = stepRow.getCell(col);
+					String cellValue = null;
+					try {
+						cellValue = safeCellToString(stepCell);
+					} catch (NullPointerException | IllegalStateException e) {
+						// TODO: observed Exception (ignored):
+						// java.lang.IllegalStateException: The formula cell is not
+						// supported
+						System.err.println("Exception (ignored): " + e.toString());
+						cellValue = "";
+					}
+					if (debug) {
+						System.err.println("Column[" + col + "] = " + cellValue);
+					}
+					data.put(String.format("param%d", col), cellValue);
 				}
-				if (debug) {
-					System.err.println("Column[" + col + "] = " + cellValue);
-				}
-				data.put(String.format("param%d", col), cellValue);
+				stepDataMap.put(row - 1, data);
 			}
-			stepDataMap.put(row - 1, data);
 		}
 		workbook.close();
 		return stepDataMap;
