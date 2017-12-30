@@ -47,6 +47,17 @@ import com.paulhammant.ngwebdriver.ByAngularRepeaterCell;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterColumn;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterRow;
 
+import org.hamcrest.CoreMatchers;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 /**
  * Keyword Driven Library for Selenium WebDriver
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
@@ -87,6 +98,7 @@ public class KeywordLibrary {
 	private String textData = null;
 	private String visibleText = null;
 	private String expectedText = null;
+	private String expectedTag = null;
 	private String attributeName = null;
 	private String param1;
 	private String param2;
@@ -98,6 +110,7 @@ public class KeywordLibrary {
 	public long pollingInterval = 500;
 	private Map<String, String> methodTable = new HashMap<>();
 	{
+		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("CLICK", "clickButton");
 		methodTable.put("CLICK_BUTTON", "clickButton");
 		methodTable.put("CLICK_CHECKBOX", "clickCheckBox");
@@ -110,15 +123,15 @@ public class KeywordLibrary {
 		methodTable.put("GET_TEXT", "getElementText");
 		methodTable.put("GOTO_URL", "navigateTo");
 		methodTable.put("SELECT_OPTION", "selectDropDown");
-		methodTable.put("SET_TEXT", "enterText");
 		methodTable.put("SEND_KEYS", "enterText");
+		methodTable.put("SET_TEXT", "enterText");
 		methodTable.put("SWITCH_FRAME", "switchFrame");
 		methodTable.put("VERIFY_ATTR", "verifyAttribute");
+		methodTable.put("VERIFY_TAG", "verifyTag");
 		methodTable.put("VERIFY_TEXT", "verifyText");
-		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
-		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
+		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
 	private Map<String, Method> locatorTable = new HashMap<>();
 
@@ -235,7 +248,7 @@ public class KeywordLibrary {
 			// do we ever want to send correct arguments ?
 			@SuppressWarnings("rawtypes")
 			Class[] arguments = new Class[] { String.class, String.class };
-			Constructor methodConstructor = Method.class
+			Constructor<Method> methodConstructor = Method.class
 					.getDeclaredConstructor(arguments);
 			methodConstructor.setAccessible(true);
 			methodMissing = (Method) methodConstructor.newInstance();
@@ -248,6 +261,7 @@ public class KeywordLibrary {
 		// put synthetic selectors explicitly
 		locatorTable.put("text", methodMissing);
 		try {
+			// put synthetic selectors explicitly
 			locatorTable.put("binding",
 					ByAngular.class.getMethod("binding", String.class));
 			locatorTable.put("buttontext",
@@ -266,10 +280,12 @@ public class KeywordLibrary {
 					ByAngular.class.getMethod("partialButtonText", String.class));
 			locatorTable.put("repeater",
 					ByAngular.class.getMethod("repeater", String.class));
-			// put synthetic selectors explicitly
-			locatorTable.put("repeaterColumn", methodMissing);
 			locatorTable.put("repeaterCell", methodMissing);
+			locatorTable.put("repeaterColumn", methodMissing);
+			locatorTable.put("repeaterElement", methodMissing);
 			locatorTable.put("repeaterRow", methodMissing);
+			// NOTE: plural in the method name
+			locatorTable.put("repeaterRows", methodMissing);
 
 		} catch (NoSuchMethodException e) {
 			System.out.println("Exception (ignored): " + e.toString());
@@ -418,6 +434,20 @@ public class KeywordLibrary {
 		element = _findElement(params);
 		if (element != null) {
 			flag = element.getAttribute(attributeName).equals(expectedValue);
+		}
+		if (flag)
+			status = "Passed";
+		else
+			status = "Failed";
+	}
+
+	public void verifyTag(Map<String, String> params) {
+		boolean flag = false;
+		expectedTag = params.get("param5");
+		element = _findElement(params);
+		if (element != null) {
+			highlight(element);
+			flag = element.getText().equals(expectedText);
 		}
 		if (flag)
 			status = "Passed";
@@ -663,15 +693,31 @@ public class KeywordLibrary {
 				break;
 
 			case "repeaterRow":
-				ngDriver.waitForAngularRequestsToFinish();
-				_element = driver.findElement(ByAngular.repeater(selectorValue)
-						.row(Integer.parseInt(selectorRow)));
-				break;
 
-			case "repeatereCell":
+			case "repeaterRows":
 				ngDriver.waitForAngularRequestsToFinish();
 				_element = driver.findElement(ByAngular.repeater(selectorValue)
-						.row(Integer.parseInt(selectorRow)).column(selectorColumn));
+						.row(Integer.parseInt(selectorRow.replaceAll(".\\d+$", ""))));
+				break;
+			//
+			case "repeaterElement":
+
+			case "repeaterCell":
+				if (debug) {
+					System.err.println(
+							String.format("repeaterElement(\"%s\",%d,\"%s\")", selectorValue,
+									Integer.parseInt(selectorRow.replaceAll(".\\d+$", "")),
+									selectorColumn));
+
+				}
+				ngDriver.waitForAngularRequestsToFinish();
+				_element = driver.findElement(ByAngular.repeater(selectorValue)
+						.row(Integer.parseInt(selectorRow.replaceAll(".\\d+$", "")))
+						.column(selectorColumn));
+				if (debug) {
+					assertThat(element, notNullValue());
+					System.err.println(element.getAttribute("outerHTML"));
+				}
 				break;
 
 			case "text":
@@ -697,7 +743,8 @@ public class KeywordLibrary {
 				_element = driver.findElement(By.xpath(selectorValue));
 				break;
 			}
-		} catch (Exception e) {/* TODO: logging*/
+		} catch (Exception e) {
+			System.err.println("Exception: " + e.toString());
 		}
 		return _element;
 	}
@@ -1039,7 +1086,6 @@ public class KeywordLibrary {
 	public void setEdgeDriverPath(String edgeDriverPath) {
 		this.edgeDriverPath = edgeDriverPath;
 	}
-
 
 	public String getOsName() {
 		if (this.osName == null) {

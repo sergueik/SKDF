@@ -42,7 +42,7 @@ import com.github.sergueik.jprotractor.NgWebDriver;
 
 public final class KeywordLibrary {
 
-	private static boolean debug = false		;
+	private static boolean debug = false;
 	private static Class<?> _class = null;
 	public static WebDriver driver;
 	public static WebDriverWait wait;
@@ -89,28 +89,29 @@ public final class KeywordLibrary {
 
 	private static Map<String, String> methodTable = new HashMap<>();
 	static {
+		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("CLICK", "clickButton");
 		methodTable.put("CLICK_BUTTON", "clickButton");
 		methodTable.put("CLICK_CHECKBOX", "clickCheckBox");
 		methodTable.put("CLICK_LINK", "clickLink");
 		methodTable.put("CLICK_RADIO", "clickRadioButton");
 		methodTable.put("CLOSE_BROWSER", "closeBrowser");
+		methodTable.put("COUNT_ELEMENTS", "countElements");
 		methodTable.put("CREATE_BROWSER", "openBrowser");
 		methodTable.put("ELEMENT_PRESENT", "elementPresent");
 		methodTable.put("GET_ATTR", "getElementAttribute");
 		methodTable.put("GET_TEXT", "getElementText");
 		methodTable.put("GOTO_URL", "navigateTo");
 		methodTable.put("SELECT_OPTION", "selectDropDown");
-		methodTable.put("SET_TEXT", "enterText");
 		methodTable.put("SEND_KEYS", "enterText");
+		methodTable.put("SET_TEXT", "enterText");
 		methodTable.put("SWITCH_FRAME", "switchFrame");
 		methodTable.put("VERIFY_ATTR", "verifyAttribute");
-		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("VERIFY_TAG", "verifyTag");
-		methodTable.put("CLEAR_TEXT", "clearText");
+		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("WAIT", "wait");
-		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
+		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
 	private static Map<String, Method> locatorTable = new HashMap<>();
 
@@ -196,6 +197,22 @@ public final class KeywordLibrary {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
 		*/
+		// phony method
+		Method methodMissing = null;
+		try {
+			// do we ever want to send correct arguments ?
+			@SuppressWarnings("rawtypes")
+			Class[] arguments = new Class[] { String.class, String.class };
+			Constructor<Method> methodConstructor = Method.class
+					.getDeclaredConstructor(arguments);
+			methodConstructor.setAccessible(true);
+			methodMissing = (Method) methodConstructor.newInstance();
+		} catch (NoSuchMethodException | IllegalAccessException
+				| InstantiationException | IllegalArgumentException
+				| InvocationTargetException e) {
+			System.out.println("Exception (ignored): " + e.toString());
+
+		}
 		try {
 			locatorTable.put("className",
 					By.class.getMethod("className", String.class));
@@ -220,10 +237,12 @@ public final class KeywordLibrary {
 					NgBy.class.getMethod("options", String.class));
 			locatorTable.put("repeater",
 					NgBy.class.getMethod("repeater", String.class));
+			locatorTable.put("repeaterCell", methodMissing);
 			locatorTable.put("repeaterColumn",
 					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
 			locatorTable.put("repeaterElement", NgBy.class.getMethod(
 					"repeaterElement", String.class, Integer.class, String.class));
+			locatorTable.put("repeaterRow", methodMissing);
 			// NOTE: plural in the method name
 			locatorTable.put("repeaterRows",
 					NgBy.class.getMethod("repeaterRows", String.class, Integer.class));
@@ -233,22 +252,6 @@ public final class KeywordLibrary {
 					NgBy.class.getMethod("selectedRepeaterOption", String.class));
 		} catch (NoSuchMethodException e) {
 			System.out.println("Execption (ignored): " + e.toString());
-		}
-		// phony method
-		Method methodMissing = null;
-		try {
-			// do we ever want to send correct arguments ?
-			@SuppressWarnings("rawtypes")
-			Class[] arguments = new Class[] { String.class, String.class };
-			Constructor methodConstructor = Method.class
-					.getDeclaredConstructor(arguments);
-			methodConstructor.setAccessible(true);
-			methodMissing = (Method) methodConstructor.newInstance();
-		} catch (NoSuchMethodException | IllegalAccessException
-				| InstantiationException | IllegalArgumentException
-				| InvocationTargetException e) {
-			System.out.println("Exception (ignored): " + e.toString());
-
 		}
 		// put synthetic selectors explicitly
 		locatorTable.put("text", methodMissing);
@@ -331,6 +334,21 @@ public final class KeywordLibrary {
 			System.err.println("Exception: " + e.toString());
 			status = "Failed";
 		}
+	}
+
+	public static void countElements(Map<String, String> params) {
+		List<WebElement> _elements = _findElements(params);
+		textData = params.get("param5");
+		if (_elements != null) {
+			highlight(element);
+			status = "Passed";
+			result = String.format("%d", _elements.size());
+		} else {
+			status = "Failed";
+			result = "-1";
+		}
+		System.err
+				.println(String.format("%s returned \"%s\"", "countElements", result));
 	}
 
 	public static void enterText(Map<String, String> params) {
@@ -707,6 +725,7 @@ public final class KeywordLibrary {
 			switch (selectorType) {
 
 			case "binding":
+				// case "exactBinding":
 				_element = ngDriver.findElement(NgBy.binding(selectorValue));
 				break;
 
@@ -755,13 +774,18 @@ public final class KeywordLibrary {
 				_element = driver.findElement(By.partialLinkText(selectorValue));
 				break;
 
+			// case "exactRepeater":
 			case "repeater":
 				_element = ngDriver.findElement(NgBy.repeater(selectorValue));
 				break;
+
 			case "repeaterColumn":
 				_element = ngDriver
 						.findElement(NgBy.repeaterColumn(selectorValue, selectorColumn));
 				break;
+
+			// added for ngWebDriver compatibility
+			case "repeaterCell":
 
 			case "repeaterElement":
 				if (debug) {
@@ -776,9 +800,11 @@ public final class KeywordLibrary {
 						selectorColumn));
 				break;
 
+			case "repeaterRow":
+
 			case "repeaterRows":
-				_element = ngDriver.findElement(
-						NgBy.repeaterRows(selectorValue, Integer.parseInt(selectorRow)));
+				_element = ngDriver.findElement(NgBy.repeaterRows(selectorValue,
+						Integer.parseInt(selectorRow.replaceAll(".\\d+$", ""))));
 				break;
 
 			// unique to jProtracror and old Protractor JS
