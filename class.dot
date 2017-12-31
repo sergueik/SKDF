@@ -1,0 +1,102 @@
+# https://seleniumhq.github.io/selenium/docs/api/java/
+# http://stamm-wilbrandt.de/GraphvizFiddle/
+digraph G {
+  size = "20,15"
+  # rankdir = BT
+  fontname = "Verdana"
+  fontsize = 14
+  node [
+    fontname = "Verdana"
+    fontsize = 14
+    shape = "record"
+  ]
+
+  edge [
+    dir = normal
+    arrowhead = empty
+    fontname = "Verdana"
+    fontsize = 14
+  ]
+
+  WebDriver [
+    style = rounded
+    label = "{WebDriver|+ close: void\l+ get: void\l+ getCurrentUrl: String\l+ getPageSource: String\l+ getTitle: String\l+ getWindowHandle : String\l+ getWindowHandles : Set\l+ manage: Options\l+ navigate: Navigation\l+ quit: void\l+ switchTo: TargetLocator\l}"
+  ]
+
+  WebElement [
+    style = rounded
+    label = "{WebElement|+ clear : void\l+ click : void\l+ getAttribute : String\l+ getCssValue : String\l+ getLocation : Point\l+ getRect  : Rectangle\l+ getSize : Dimension\l+ getTagName : String\l+ getText : String\l+ isDisplayed : boolean\l+ isEnabled : boolean\l+ isSelected : boolean\l+ sendKeys : void\l+ submit : void\l}"
+  ]
+
+  SearchContext[
+    label = "{SearchContext|+ findElement : WebElement\l+ findElements : List\l}"
+  ]
+
+  Actions [
+    style = rounded
+    label = "{Actions|+ build : Action\l+ click : Actions\l+ click : Actions\l+ clickAndHold : Actions\l+ contextClick : Actions\l+ doubleClick : Actions\l+ dragAndDrop : Actions\l+ keyDown : Actions\l+ keyUp : Actions\l+ moveByOffset : Actions\l+ moveToElement : Actions\l+ pause  : Actions\l+ perform : void\l+ release : Actions\l+ sendKeys : Actions\l+ tick  : Actions\l}"
+  ]
+
+  ByClassName [
+    style = rounded
+    label = "{ByClassName}"
+  ]
+
+  ByCssSelector [
+    style = rounded
+    label = "{ByCssSelector}"
+  ]
+
+  ById [
+    style = rounded
+    label = "{ById}"
+  ]
+
+  ByLinkText [
+    style = rounded
+    label = "{ByLinkText}"
+  ]
+
+  ByName [
+    style = rounded
+    label = "{ByName}"
+  ]
+  ByPartialLinkText [
+    style = rounded
+    label = "{ByPartialLinkText}"
+  ]
+
+  ByTagName [
+    style = rounded
+    label = "{ByTagName}"
+  ]
+
+  ByXPath [
+    style = rounded
+    label = "{ByXPath}"
+  ]
+
+  subgraph cluster_0 {
+    style = invis;
+    { WebDriver ; WebElement }-> SearchContext;
+  }
+
+  subgraph cluster_1 {
+    edge[style = invis]
+    len = 0
+    label = "By"
+    rankdir = "TB"
+    rank = "same"
+    ranksep = "0.05 equally"
+    ByClassName -> ByCssSelector -> ById -> ByLinkText -> ByName -> ByPartialLinkText -> ByTagName -> ByXPath;
+  }
+
+  ExpectedConditions [
+    style = rounded
+    label = "{ExpectedConditions|+ alertIsPresent : T\l+ and : T\l+ attributeContains\l+ attributeToBe : T\l+ attributeToBeNotEmpty : T\l+ elementSelectionStateToBe  : T\l+ elementToBeClickable : T\l+ elementToBeSelected  : T\l+frameToBeAvailableAndSwitchToIt : T\l+ invisibilityOf : T\l+ invisibilityOfAllElements : T\l+ javaScriptThrowsNoExceptions : T\l+ jsReturnsValue : T\l+ not : T\l+ numberOfElementsToBe : T\l+ numberOfElementsToBeLessThan : T\l+ numberOfElementsToBeMoreThan : T\l+ numberOfWindowsToBe  : T\l+ or : T\l+ presenceOfAllElementsLocatedBy : T\l+ presenceOfElementLocated : T\l+ presenceOfNestedElementLocatedBy : T\l+ presenceOfNestedElementsLocatedBy : T\l+ refreshed : T\l+ stalenessOf : T\l+ textMatches : T\l+ textToBe : T\l+ textToBePresentInElement : T\l+ textToBePresentInElementLocated : T\l+ textToBePresentInElementValue : T\l+ titleContains : T\l+ titleIs : T\l+ urlContains : T\l+ urlMatches : T\l+ urlToBe : T\l+ visibilityOf : T\l+ visibilityOfAllElements : T\l+ visibilityOfAllElementsLocatedBy : T\l+ visibilityOfElementLocated : T\l+ visibilityOfNestedElementsLocatedBy : T\l}"
+  ]
+
+}
+
+
+
