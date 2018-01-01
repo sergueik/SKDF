@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,7 @@ import com.paulhammant.ngwebdriver.ByAngularRepeaterCell;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterColumn;
 import com.paulhammant.ngwebdriver.ByAngularRepeaterRow;
 
+import org.apache.poi.sl.usermodel.Sheet;
 import org.hamcrest.CoreMatchers;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -108,6 +111,7 @@ public class KeywordLibrary {
 	public int flexibleWait = 120;
 	public int implicitWait = 1;
 	public long pollingInterval = 500;
+
 	private Map<String, String> methodTable = new HashMap<>();
 	{
 		methodTable.put("CLEAR_TEXT", "clearText");
@@ -133,7 +137,16 @@ public class KeywordLibrary {
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
+
+	public Set<String> getKeywords() {
+		return this.methodTable.keySet();
+	}
+
 	private Map<String, Method> locatorTable = new HashMap<>();
+
+	public Set<String> getLocators() {
+		return this.locatorTable.keySet();
+	}
 
 	public void closeBrowser(Map<String, String> params) {
 		driver.quit();
@@ -178,27 +191,34 @@ public class KeywordLibrary {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
+		// NOTE: java.util.ConcurrentModificationException
 		for (String keyword : methodTable.keySet()
 				.toArray(new String[methodTable.keySet().size()])) {
 			if (methodTable.get(keyword).isEmpty()) {
-				System.err.println("Removing keyword:" + keyword);
+				if (debug) {
+					System.err.println("Removing keyword:" + keyword);
+				}
 				methodTable.remove(keyword);
 			} else {
 				try {
 					_class.getMethod(methodTable.get(keyword), Map.class);
 				} catch (NoSuchMethodException e) {
-					System.err.println(
-							"Removing  keyword:" + keyword + " exception: " + e.toString());
+					if (debug) {
+						System.err.println(
+								"Removing  keyword:" + keyword + " exception: " + e.toString());
+					}
 					methodTable.remove(keyword);
 				} catch (SecurityException e) {
 					/* ignore*/
 				}
 			}
 		}
-		for (String methodName : methodTable.values()
-				.toArray(new String[methodTable.values().size()])) {
-			System.err.println("Adding keyword for method: " + methodName);
+		// NOTE: java.util.ConcurrentModificationException
+		for (String methodName : methodTable.values().toArray(new String[methodTable.values().size()])) {
 			if (!methodTable.containsKey(methodName)) {
+				if (debug) {
+					System.err.println("Adding keyword for method: " + methodName);
+				}
 				methodTable.put(methodName, methodName);
 			}
 		}

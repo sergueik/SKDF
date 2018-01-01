@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,7 +115,19 @@ public final class KeywordLibrary {
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
+
+	public static Set<String> getKeywords() {
+		return KeywordLibrary.methodTable.keySet();
+	}
+
 	private static Map<String, Method> locatorTable = new HashMap<>();
+
+	public static Set<String> getLocators() {
+		if (_class == null) {
+			initMethods();
+		}
+		return KeywordLibrary.locatorTable.keySet();
+	}
 
 	public static void closeBrowser(Map<String, String> params) {
 		driver.quit();
@@ -148,27 +162,34 @@ public final class KeywordLibrary {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
+		// NOTE: java.util.ConcurrentModificationException
 		for (String keyword : methodTable.keySet()
 				.toArray(new String[methodTable.keySet().size()])) {
 			if (methodTable.get(keyword).isEmpty()) {
-				System.err.println("Removing keyword:" + keyword);
+				if (debug) {
+					System.err.println("Removing keyword:" + keyword);
+				}
 				methodTable.remove(keyword);
 			} else {
 				try {
 					_class.getMethod(methodTable.get(keyword), Map.class);
 				} catch (NoSuchMethodException e) {
-					System.err.println(
-							"Removing  keyword:" + keyword + " exception: " + e.toString());
+					if (debug) {
+						System.err.println(
+								"Removing  keyword:" + keyword + " exception: " + e.toString());
+					}
 					methodTable.remove(keyword);
 				} catch (SecurityException e) {
 					/* ignore*/
 				}
 			}
 		}
-		for (String methodName : methodTable.values()
-				.toArray(new String[methodTable.values().size()])) {
-			System.err.println("Adding keyword for method: " + methodName);
+		// NOTE: java.util.ConcurrentModificationException
+		for (String methodName : methodTable.values().toArray(new String[methodTable.values().size()])) {
 			if (!methodTable.containsKey(methodName)) {
+				if (debug) {
+					System.err.println("Adding keyword for method itself: " + methodName);
+				}
 				methodTable.put(methodName, methodName);
 			}
 		}
@@ -211,7 +232,6 @@ public final class KeywordLibrary {
 				| InstantiationException | IllegalArgumentException
 				| InvocationTargetException e) {
 			System.out.println("Exception (ignored): " + e.toString());
-
 		}
 		try {
 			locatorTable.put("className",

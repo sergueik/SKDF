@@ -1,12 +1,20 @@
 package com.github.sergueik.jprotractor;
 
+// 	import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -32,9 +40,22 @@ public class Launcher {
 	private static String defaultBrowser = "chrome";
 	private static boolean debug = true;
 	private static String testCase;
+	private static String[] expected = new String[] {
+			"VERIFY_ATTR" , "CLEAR_TEXT" ,
+										"CLICK", "WAIT",  "CLOSE_BROWSER", "COUNT_ELEMENTS", "GOTO_URL",
+										"GET_TEXT", "GET_ATTR", "SET_TEXT" /* */ };
+	private static Set<String> result = new HashSet<>();
 
 	public static void main(String[] args) throws IOException {
 
+		
+		result = KeywordLibrary.getKeywords();
+		for (String keyword : result) {
+			System.err.println(keyword);
+		}
+		Set<String> dataSet = new HashSet<String>(Arrays.asList(expected));
+		assertTrue(result.containsAll(dataSet));
+		
 		Map<String, String> propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
