@@ -32,57 +32,58 @@ import com.github.sergueik.jprotractor.KeywordLibrary;
 
 public class Launcher {
 
-	private static String propertiesFileName = "application.properties";
+	private static boolean debug = true;
+	private static String testCase;
 	private static String defaultTestCase = "TestCase.xls";
 	private static int statusColumn;
 	private static int defaultStatusColumn = 9;
-	private static KeywordLibrary keywordLibrary;
-	private static String defaultBrowser = "chrome";
-	private static boolean debug = true;
-	private static String testCase;
-	private static String[] expected = new String[] {
-			"VERIFY_ATTR" , "CLEAR_TEXT" ,
-										"CLICK", "WAIT",  "CLOSE_BROWSER", "COUNT_ELEMENTS", "GOTO_URL",
-										"GET_TEXT", "GET_ATTR", "SET_TEXT" /* */ };
-	private static Set<String> result = new HashSet<>();
+
+	// application configuration file
+	private static String propertiesFileName = "application.properties";
+
+	private static Map<String, String> propertiesMap = new HashMap<>();
+
+	private static String osName = getOsName();
+	static Map<String, String> defaultBrowsers = new HashMap<>();
+	static {
+		defaultBrowsers.put("windows", "chrome");
+		defaultBrowsers.put("linux", "firefox");
+		defaultBrowsers.put("mac", "safari");
+	}
+	static Map<String, String> browserDrivers = new HashMap<>();
+	static {
+		browserDrivers.put("chrome", "chromeDriverPath");
+		browserDrivers.put("firefox", "geckoDriverPath");
+		browserDrivers.put("edge", "edgeDriverPath");
+		browserDrivers.put("ie", "ieDriverPath");
+		browserDrivers.put("safari", null);
+	}
 
 	public static void main(String[] args) throws IOException {
 
-		
-		result = KeywordLibrary.getKeywords();
-		for (String keyword : result) {
-			System.err.println(keyword);
-		}
-		Set<String> dataSet = new HashSet<String>(Arrays.asList(expected));
-		assertTrue(result.containsAll(dataSet));
-		
-		Map<String, String> propertiesMap = PropertiesParser
+		// Load property file from project directory (not from the jar)
+		propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
-		statusColumn = Integer.parseInt(propertiesMap.get("statusColumn"));
+
+		setBrowser();
+		statusColumn = (propertiesMap.get("statusColumn") != null)
+				? Integer.parseInt(propertiesMap.get("statusColumn"))
+				: defaultStatusColumn;
 		testCase = (propertiesMap.get("testCase") != null)
 				? propertiesMap.get("testCase")
 				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
 						System.getenv("USERPROFILE"), defaultTestCase));
+		run(testCase, statusColumn);
+	}
+
+	public static void run(String testCase, int statusColumn) throws IOException {
+
+		verifyKeywordLibrary();
 		System.err.println("Loading test case from: " + testCase);
 		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
-		KeywordLibrary.setBrowser((propertiesMap.get("browser") != null)
-				? propertiesMap.get("browser") : defaultBrowser);
-
-		if (propertiesMap.get("chromeDriverPath") != null) {
-			KeywordLibrary.setChromeDriverPath(propertiesMap.get("chromeDriverPath"));
-		}
-		if (propertiesMap.get("geckoDriverPath") != null) {
-			KeywordLibrary.setGeckoDriverPath(propertiesMap.get("geckoDriverPath"));
-		}
-		if (propertiesMap.get("edgeDriverPath") != null) {
-			KeywordLibrary.setEdgeDriverPath(propertiesMap.get("edgeDriverPath"));
-		}
-		if (propertiesMap.get("iePath") != null) {
-			KeywordLibrary.setIeDriverPath(propertiesMap.get("ieDriverPath"));
-		}
 		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
 			Row indexRow = indexSheet.getRow(row);
 			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
@@ -112,6 +113,43 @@ public class Launcher {
 		}
 		workbook.close();
 
+	}
+
+	private static void verifyKeywordLibrary() {
+		String[] expected = new String[] { "CLEAR_TEXT", "SWITCH_FRAME", "SET_TEXT",
+				"WAIT_URL_CHANGE", "CLICK_CHECKBOX", "SEND_KEYS", "VERIFY_TEXT",
+				"CLICK_RADIO", "GET_ATTR", "CLICK_LINK", "GET_TEXT", "COUNT_ELEMENTS",
+				"ELEMENT_PRESENT", "GOTO_URL", "CLICK_BUTTON", "CLOSE_BROWSER",
+				"CREATE_BROWSER", "VERIFY_ATTR", "WAIT_ELEMENT_CLICAKBLE", "CLICK",
+				"WAIT", "SELECT_OPTION", "VERIFY_TAG" };
+		Set<String> result = new HashSet<>();
+		result = KeywordLibrary.getKeywords();
+		for (String keyword : result) {
+			System.err.println(keyword);
+		}
+		Set<String> dataSet = new HashSet<String>(Arrays.asList(expected));
+		assertTrue(result.containsAll(dataSet));
+	}
+
+	public static void setBrowser() {
+		String browser = (propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
+		System.err.println("Setting browser: " + browser);
+		String browserDriver = browserDrivers.get(browser.toLowerCase());
+		KeywordLibrary.setBrowser(browser);
+
+		if (browser.matches("chrome")) {
+			KeywordLibrary.setChromeDriverPath(propertiesMap.get(browserDriver));
+		}
+		if (browser.matches("firefox")) {
+			KeywordLibrary.setGeckoDriverPath(propertiesMap.get(browserDriver));
+		}
+		if (browser.matches("edge")) {
+			KeywordLibrary.setEdgeDriverPath(propertiesMap.get(browserDriver));
+		}
+		if (browser.matches("ie")) {
+			KeywordLibrary.setIeDriverPath(propertiesMap.get(browserDriver));
+		}
 	}
 
 	public static void writeStatus(String sheetName, int rowNumber)
@@ -220,5 +258,12 @@ public class Launcher {
 			}
 		}
 		return value;
+	}
+
+	public static String getOsName() {
+		if (osName == null) {
+			osName = System.getProperty("os.name");
+		}
+		return osName.toLowerCase();
 	}
 }
