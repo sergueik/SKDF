@@ -1,15 +1,20 @@
 package com.github.sergueik.ngwebdriver;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -17,6 +22,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+
+import com.github.sergueik.ngwebdriver.KeywordLibrary;
 
 /**
  * Standalone Launcher for Selenium WebDriver Keyword Driven Library
@@ -26,19 +33,63 @@ import org.apache.poi.ss.usermodel.Row;
 public class Launcher {
 
 	private static String propertiesFileName = "application.properties";
-	private static String testCase;
+
 	private static String defaultTestCase = "TestCase.xls";
+	private static String testCase;
+
+	public static void setTestCase(String testCase) {
+		Launcher.testCase = testCase;
+	}
+
 	private static int statusColumn;
 	private static int defaultStatusColumn = 9;
+
+	public static void setStatusColumn(int statusColumn) {
+		Launcher.statusColumn = statusColumn;
+	}
+
+	public static void setKeywordLibrary(KeywordLibrary keywordLibrary) {
+		Launcher.keywordLibrary = keywordLibrary;
+	}
+
 	private static KeywordLibrary keywordLibrary;
 	private static boolean debug = false;
-	private static String defaultBrowser = "chrome";
+	static Map<String, String> defaultBrowsers = new HashMap<>();
+	static {
+		defaultBrowsers.put("windows", "chrome");
+		defaultBrowsers.put("linux", "firefox");
+		defaultBrowsers.put("mac", "safari");
+	}
+	static Map<String, String> browserDrivers = new HashMap<>();
+	static {
+		browserDrivers.put("chrome", "chromeDriverPath");
+		browserDrivers.put("firefox", "geckoDriverPath");
+		browserDrivers.put("edge", "edgeDriverPath");
+		browserDrivers.put("safari", null);
+	}
+
+	private static Map<String, String> propertiesMap = new HashMap<>();
+
+	public static void setPropertiesMap(Map<String, String> propertiesMap) {
+		Launcher.propertiesMap = propertiesMap;
+	}
+
+	private static String osName = getOsName();
+
+	public static void setOsName(String osName) {
+		Launcher.osName = osName;
+	}
 
 	public static void main(String[] args) throws IOException {
 
-		Map<String, String> propertiesMap = PropertiesParser
+		propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
+		String browser = (propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
+
+		keywordLibrary = KeywordLibrary.Instance();
+		setBrowser(browser);
 		statusColumn = (propertiesMap.get("statusColumn") != null)
 				? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
@@ -46,27 +97,16 @@ public class Launcher {
 				? propertiesMap.get("testCase")
 				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
 						System.getenv("USERPROFILE"), defaultTestCase));
+
+		run(testCase, statusColumn);
+
+	}
+
+	public static void run(String testCase, int statusColumn) throws IOException {
+		verifyKeywordLibrary();
 		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
-
-		keywordLibrary = KeywordLibrary.Instance();
-
-		keywordLibrary.setBrowser((propertiesMap.get("browser") != null)
-				? propertiesMap.get("browser") : defaultBrowser);
-
-		if (propertiesMap.get("chromeDriverPath") != null) {
-			keywordLibrary.setChromeDriverPath(propertiesMap.get("chromeDriverPath"));
-		}
-		if (propertiesMap.get("geckoDriverPath") != null) {
-			keywordLibrary.setGeckoDriverPath(propertiesMap.get("geckoDriverPath"));
-		}
-		if (propertiesMap.get("edgeDriverPath") != null) {
-			keywordLibrary.setEdgeDriverPath(propertiesMap.get("edgeDriverPath"));
-		}
-		if (propertiesMap.get("iePath") != null) {
-			keywordLibrary.setIeDriverPath(propertiesMap.get("ieDriverPath"));
-		}
 		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
 			Row indexRow = indexSheet.getRow(row);
 			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
@@ -95,6 +135,42 @@ public class Launcher {
 			System.err.println("Done");
 		}
 		workbook.close();
+	}
+
+	private static void verifyKeywordLibrary() {
+		String[] expected = new String[] { "VERIFY_TAG" };
+		Set<String> result = new HashSet<>();
+		result = keywordLibrary.getKeywords();
+		if (debug) {
+			for (String keyword : result) {
+				System.err.println("verify: " + keyword);
+			}
+		}
+		Set<String> dataSet = new HashSet<String>(Arrays.asList(expected));
+		assertTrue(result.containsAll(dataSet));
+	}
+
+	public static void setBrowser(String browser) {
+		System.err.println("Setting browser: " + browser.toLowerCase());
+		for (String x : browserDrivers.keySet()) {
+			System.err.println("Setting browser driv	ers: " + x);
+
+		}
+		String browserDriver = browserDrivers.get(browser.toLowerCase());
+		keywordLibrary.setBrowser(browser);
+
+		if (browser.matches("chrome")) {
+			keywordLibrary.setChromeDriverPath(propertiesMap.get(browserDriver));
+		}
+		if (browser.matches("firefox")) {
+			keywordLibrary.setGeckoDriverPath(propertiesMap.get(browserDriver));
+		}
+		if (browser.matches("edge")) {
+			keywordLibrary.setEdgeDriverPath(propertiesMap.get(browserDriver));
+		}
+		if (browser.matches("ie")) {
+			keywordLibrary.setIeDriverPath(propertiesMap.get(browserDriver));
+		}
 	}
 
 	public static void writeStatus(String sheetName, int rowNumber)
@@ -205,5 +281,12 @@ public class Launcher {
 			}
 		}
 		return value;
+	}
+
+	public static String getOsName() {
+		if (osName == null) {
+			osName = System.getProperty("os.name");
+		}
+		return osName.toLowerCase();
 	}
 }

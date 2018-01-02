@@ -214,7 +214,8 @@ public class KeywordLibrary {
 			}
 		}
 		// NOTE: java.util.ConcurrentModificationException
-		for (String methodName : methodTable.values().toArray(new String[methodTable.values().size()])) {
+		for (String methodName : methodTable.values()
+				.toArray(new String[methodTable.values().size()])) {
 			if (!methodTable.containsKey(methodName)) {
 				if (debug) {
 					System.err.println("Adding keyword for method: " + methodName);
@@ -1119,6 +1120,9 @@ public class KeywordLibrary {
 	}
 
 	public void setBrowser(String browser) {
+		if (debug) {
+			System.err.println("KeywordLibrary use browser: " + browser);
+		}
 		this.browser = browser;
 	}
 

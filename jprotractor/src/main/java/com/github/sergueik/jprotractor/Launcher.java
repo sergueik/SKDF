@@ -33,17 +33,40 @@ import com.github.sergueik.jprotractor.KeywordLibrary;
 public class Launcher {
 
 	private static boolean debug = true;
-	private static String testCase;
+
 	private static String defaultTestCase = "TestCase.xls";
+	private static String testCase;
+
+	public static void setTestCase(String testCase) {
+		Launcher.testCase = testCase;
+	}
+
 	private static int statusColumn;
+
+	public static void setStatusColumn(int statusColumn) {
+		Launcher.statusColumn = statusColumn;
+	}
+
 	private static int defaultStatusColumn = 9;
 
+	// parameter definition duplication from the fact the Launcher can be used
+	// stand alone or through junit
+	
 	// application configuration file
 	private static String propertiesFileName = "application.properties";
 
 	private static Map<String, String> propertiesMap = new HashMap<>();
 
+	public static void setPropertiesMap(Map<String, String> propertiesMap) {
+		Launcher.propertiesMap = propertiesMap;
+	}
+
 	private static String osName = getOsName();
+
+	public static void setOsName(String osName) {
+		Launcher.osName = osName;
+	}
+
 	static Map<String, String> defaultBrowsers = new HashMap<>();
 	static {
 		defaultBrowsers.put("windows", "chrome");
@@ -55,7 +78,6 @@ public class Launcher {
 		browserDrivers.put("chrome", "chromeDriverPath");
 		browserDrivers.put("firefox", "geckoDriverPath");
 		browserDrivers.put("edge", "edgeDriverPath");
-		browserDrivers.put("ie", "ieDriverPath");
 		browserDrivers.put("safari", null);
 	}
 
@@ -65,8 +87,10 @@ public class Launcher {
 		propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
+		String browser = (propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
 
-		setBrowser();
+		setBrowser(browser);
 		statusColumn = (propertiesMap.get("statusColumn") != null)
 				? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
@@ -124,16 +148,16 @@ public class Launcher {
 				"WAIT", "SELECT_OPTION", "VERIFY_TAG" };
 		Set<String> result = new HashSet<>();
 		result = KeywordLibrary.getKeywords();
-		for (String keyword : result) {
-			System.err.println(keyword);
+		if (debug) {
+			for (String keyword : result) {
+				System.err.println("verify: " + keyword);
+			}
 		}
 		Set<String> dataSet = new HashSet<String>(Arrays.asList(expected));
 		assertTrue(result.containsAll(dataSet));
 	}
 
-	public static void setBrowser() {
-		String browser = (propertiesMap.get("browser") != null)
-				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
+	public static void setBrowser(String browser) {
 		System.err.println("Setting browser: " + browser);
 		String browserDriver = browserDrivers.get(browser.toLowerCase());
 		KeywordLibrary.setBrowser(browser);
@@ -171,11 +195,11 @@ public class Launcher {
 
 	// reads the spreadsheet into a hash of step keywords and parameters indexed
 	// by column number and step number
-	@SuppressWarnings("deprecation")
 	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
 			throws IOException {
 		Map<String, String> data = new HashMap<>();
 		Map<Integer, Map<String, String>> stepDataMap = new HashMap<>();
+		System.err.println("Reading test case: " + testCase);
 		FileInputStream file = new FileInputStream(testCase);
 
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
@@ -193,6 +217,9 @@ public class Launcher {
 					&& stepCell.getCellTypeEnum() != CellType.BLANK
 					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
 				data.put("keyword", stepCell.getStringCellValue());
+				if (debug) {
+					System.err.println("Keyword:" + stepCell.getStringCellValue());
+				}
 				for (int col = 1; col < statusColumn; col++) {
 					stepCell = stepRow.getCell(col);
 					String cellValue = null;
