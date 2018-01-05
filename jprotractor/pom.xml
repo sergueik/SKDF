@@ -32,6 +32,12 @@
   </properties>
   <dependencies>
     <dependency>
+      <!-- experimental -->
+      <groupId>com.github.sergueik.junitparams</groupId>
+      <artifactId>junit_params</artifactId>
+      <version>0.0.7-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>com.github.sergueik.jprotractor</groupId>
       <artifactId>jprotractor</artifactId>
       <version>${jprotractor.version}</version>

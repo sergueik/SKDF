@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 import com.github.sergueik.ngwebdriver.KeywordLibrary;
+import com.github.sergueik.junitparams.Utils;
 
 /**
  * Standalone Launcher for Selenium WebDriver Keyword Driven Library
@@ -36,6 +37,7 @@ public class Launcher {
 
 	private static String defaultTestCase = "TestCase.xls";
 	private static String testCase;
+	private static String suiteName;
 
 	public static void setTestCase(String testCase) {
 		Launcher.testCase = testCase;
@@ -48,11 +50,12 @@ public class Launcher {
 		Launcher.statusColumn = statusColumn;
 	}
 
+	private static KeywordLibrary keywordLibrary;
 	public static void setKeywordLibrary(KeywordLibrary keywordLibrary) {
 		Launcher.keywordLibrary = keywordLibrary;
 	}
+	private static Utils utils = Utils.getInstance();
 
-	private static KeywordLibrary keywordLibrary;
 	private static boolean debug = false;
 	static Map<String, String> defaultBrowsers = new HashMap<>();
 	static {

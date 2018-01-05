@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
+import com.github.sergueik.junitparams.Utils;
 import com.github.sergueik.jprotractor.KeywordLibrary;
 
 /**
@@ -36,6 +37,7 @@ public class Launcher {
 
 	private static String defaultTestCase = "TestCase.xls";
 	private static String testCase;
+	private static String suiteName;
 
 	public static void setTestCase(String testCase) {
 		Launcher.testCase = testCase;
@@ -51,7 +53,7 @@ public class Launcher {
 
 	// parameter definition duplication from the fact the Launcher can be used
 	// stand alone or through junit
-	
+
 	// application configuration file
 	private static String propertiesFileName = "application.properties";
 
@@ -81,6 +83,8 @@ public class Launcher {
 		browserDrivers.put("safari", null);
 	}
 
+	private static Utils utils = Utils.getInstance();
+
 	public static void main(String[] args) throws IOException {
 
 		// Load property file from project directory (not from the jar)
@@ -105,19 +109,18 @@ public class Launcher {
 
 		verifyKeywordLibrary();
 		System.err.println("Loading test case from: " + testCase);
-		FileInputStream file = new FileInputStream(testCase);
-		HSSFWorkbook workbook = new HSSFWorkbook(file);
-		HSSFSheet indexSheet = workbook.getSheet("Index");
-		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
-			Row indexRow = indexSheet.getRow(row);
-			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
-					&& !safeCellToString(indexRow.getCell(0)).isEmpty()) {
+		utils.setSheetName("Index");
+		List<Object[]> result = utils.createDataFromExcel2003(testCase);
+		String suiteStatus = null;
+		for (Object[] indexRow : result) {
+			suiteName = (String) indexRow[0];
+			suiteStatus = (String) indexRow[1];
+
+			if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
 				if (debug) {
-					System.err.println(
-							"Reading suite: " + indexRow.getCell(0).getStringCellValue());
+					System.err.println("Loading test suite : " + suiteName);
 				}
-				Map<Integer, Map<String, String>> steps = readSteps(
-						indexRow.getCell(0).getStringCellValue());
+				Map<Integer, Map<String, String>> steps = readSteps(suiteName);
 
 				for (int step = 0; step < steps.size(); step++) {
 					Map<String, String> data = steps.get(step);
@@ -128,14 +131,42 @@ public class Launcher {
 					}
 					String keyword = data.get("keyword");
 					KeywordLibrary.callMethod(keyword, data);
-					writeStatus(indexRow.getCell(0).getStringCellValue(), step + 1);
+					writeStatus(suiteName, step + 1);
 				}
 			}
 		}
+
+		FileInputStream file = new FileInputStream(testCase);
+		HSSFWorkbook workbook = new HSSFWorkbook(file);
+		HSSFSheet indexSheet = workbook.getSheet("Index");
+		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
+			Row indexRow = indexSheet.getRow(row);
+			suiteName = safeCellToString(indexRow.getCell(0));
+			suiteStatus = safeCellToString(indexRow.getCell(1));
+			if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
+				if (debug) {
+					System.err.println("Reading suite: " + suiteName);
+				}
+				Map<Integer, Map<String, String>> steps = readSteps(suiteName);
+
+				for (int step = 0; step < steps.size(); step++) {
+					Map<String, String> data = steps.get(step);
+					for (String param : new ArrayList<String>(data.keySet())) {
+						if (data.get(param) == null) {
+							data.remove(param);
+						}
+					}
+					String keyword = data.get("keyword");
+					KeywordLibrary.callMethod(keyword, data);
+					writeStatus(suiteName, step + 1);
+				}
+			}
+		}
+		workbook.close();
+
 		if (debug) {
 			System.err.println("Done");
 		}
-		workbook.close();
 
 	}
 
