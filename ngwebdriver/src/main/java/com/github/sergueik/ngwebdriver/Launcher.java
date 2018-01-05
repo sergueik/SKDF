@@ -51,9 +51,11 @@ public class Launcher {
 	}
 
 	private static KeywordLibrary keywordLibrary;
+
 	public static void setKeywordLibrary(KeywordLibrary keywordLibrary) {
 		Launcher.keywordLibrary = keywordLibrary;
 	}
+
 	private static Utils utils = Utils.getInstance();
 
 	private static boolean debug = false;
@@ -107,37 +109,59 @@ public class Launcher {
 
 	public static void run(String testCase, int statusColumn) throws IOException {
 		verifyKeywordLibrary();
+
+		utils.setSheetName("Index");
+		List<Object[]> result = utils.createDataFromExcel2003(testCase);
+		String suiteStatus = null;
+		for (Object[] indexRow : result) {
+			suiteName = (String) indexRow[0];
+			suiteStatus = (String) indexRow[1];
+
+			if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
+				if (debug) {
+					System.err.println("Loading test suite : " + suiteName);
+				}
+				readsuiteTestSteps(suiteName);
+			}
+		}
+
 		FileInputStream file = new FileInputStream(testCase);
 		HSSFWorkbook workbook = new HSSFWorkbook(file);
 		HSSFSheet indexSheet = workbook.getSheet("Index");
 		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
 			Row indexRow = indexSheet.getRow(row);
-			if (safeCellToString(indexRow.getCell(1)).equalsIgnoreCase("Yes")
-					&& !safeCellToString(indexRow.getCell(0)).isEmpty()) {
+			suiteName = safeCellToString(indexRow.getCell(0));
+			suiteStatus = safeCellToString(indexRow.getCell(1));
+			if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
 				if (debug) {
-					System.err.println(
-							"Reading suite: " + indexRow.getCell(0).getStringCellValue());
+					System.err.println("Reading suite: " + suiteName);
 				}
-				Map<Integer, Map<String, String>> steps = readSteps(
-						indexRow.getCell(0).getStringCellValue());
-
-				for (int step = 0; step < steps.size(); step++) {
-					Map<String, String> data = steps.get(step);
-					for (String param : new ArrayList<String>(data.keySet())) {
-						if (data.get(param) == null) {
-							data.remove(param);
-						}
-					}
-					String keyword = data.get("keyword");
-					keywordLibrary.callMethod(keyword, data);
-					writeStatus(indexRow.getCell(0).getStringCellValue(), step + 1);
-				}
+				readsuiteTestSteps(suiteName);
 			}
 		}
+		workbook.close();
 		if (debug) {
 			System.err.println("Done");
 		}
-		workbook.close();
+	}
+
+	private static void readsuiteTestSteps(String suiteName) throws IOException {
+		Map<Integer, Map<String, String>> steps = readSteps(suiteName);
+		for (int step = 0; step < steps.size(); step++) {
+			Map<String, String> data = steps.get(step);
+			for (String param : new ArrayList<String>(data.keySet())) {
+				if (data.get(param) == null) {
+					data.remove(param);
+				}
+			}
+			String keyword = data.get("keyword");
+			keywordLibrary.callMethod(keyword, data);
+			writeStatus(suiteName, step + 1);
+		}
+	}
+
+	private void readTestCase() {
+
 	}
 
 	private static void verifyKeywordLibrary() {

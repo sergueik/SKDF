@@ -120,54 +120,77 @@ public class Launcher {
 				if (debug) {
 					System.err.println("Loading test suite : " + suiteName);
 				}
-				Map<Integer, Map<String, String>> steps = readSteps(suiteName);
-
-				for (int step = 0; step < steps.size(); step++) {
-					Map<String, String> data = steps.get(step);
-					for (String param : new ArrayList<String>(data.keySet())) {
-						if (data.get(param) == null) {
-							data.remove(param);
-						}
-					}
-					String keyword = data.get("keyword");
-					KeywordLibrary.callMethod(keyword, data);
-					writeStatus(suiteName, step + 1);
-				}
+				
+				readsuiteTestStepsWIP(suiteName);
+				readsuiteTestSteps(suiteName);
 			}
 		}
-
-		FileInputStream file = new FileInputStream(testCase);
-		HSSFWorkbook workbook = new HSSFWorkbook(file);
-		HSSFSheet indexSheet = workbook.getSheet("Index");
-		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
-			Row indexRow = indexSheet.getRow(row);
-			suiteName = safeCellToString(indexRow.getCell(0));
-			suiteStatus = safeCellToString(indexRow.getCell(1));
-			if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
-				if (debug) {
-					System.err.println("Reading suite: " + suiteName);
-				}
-				Map<Integer, Map<String, String>> steps = readSteps(suiteName);
-
-				for (int step = 0; step < steps.size(); step++) {
-					Map<String, String> data = steps.get(step);
-					for (String param : new ArrayList<String>(data.keySet())) {
-						if (data.get(param) == null) {
-							data.remove(param);
+		/*
+				FileInputStream file = new FileInputStream(testCase);
+				HSSFWorkbook workbook = new HSSFWorkbook(file);
+				HSSFSheet indexSheet = workbook.getSheet("Index");
+				for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
+					Row indexRow = indexSheet.getRow(row);
+					suiteName = safeCellToString(indexRow.getCell(0));
+					suiteStatus = safeCellToString(indexRow.getCell(1));
+					if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
+						if (debug) {
+							System.err.println("Reading suite: " + suiteName);
 						}
+						readsuiteTestSteps(suiteName);
 					}
-					String keyword = data.get("keyword");
-					KeywordLibrary.callMethod(keyword, data);
-					writeStatus(suiteName, step + 1);
 				}
-			}
-		}
-		workbook.close();
-
+				workbook.close();
+		*/
 		if (debug) {
 			System.err.println("Done");
 		}
 
+	}
+
+	// WIP
+	private static void readsuiteTestStepsWIP(String suiteName)
+			throws IOException {
+		utils.setSheetName(suiteName);
+		List<Object[]> steps = utils.createDataFromExcel2003(testCase);
+		for (int step = 0; step < steps.size(); step++) {
+			Object[] row = steps.get(step);
+			Map<String, String> data = new HashMap<String, String>();
+			String keyword = (String) row[0];
+			if (debug) {
+				System.err.println("Keyword:" + keyword);
+			}
+			for (int col = 1; col < row.length; col++) {
+				if (col == statusColumn) {
+					continue;
+				}
+				if (row[col] != null && row[col].toString() != "") {
+					String cellValue = row[col].toString();
+					data.put(String.format("param%d", col), cellValue);
+					if (debug) {
+						System.err.println("Column[param" + col + "] = " + cellValue);
+					}
+				}
+			}
+			KeywordLibrary.callMethod(keyword, data);
+			writeStatus(suiteName, step + 1);
+		}
+	}
+
+	private static void readsuiteTestSteps(String suiteName) throws IOException {
+		Map<Integer, Map<String, String>> steps = readSteps(suiteName);
+
+		for (int step = 0; step < steps.size(); step++) {
+			Map<String, String> data = steps.get(step);
+			for (String param : new ArrayList<String>(data.keySet())) {
+				if (data.get(param) == null) {
+					data.remove(param);
+				}
+			}
+			String keyword = data.get("keyword");
+			KeywordLibrary.callMethod(keyword, data);
+			writeStatus(suiteName, step + 1);
+		}
 	}
 
 	private static void verifyKeywordLibrary() {
@@ -253,6 +276,9 @@ public class Launcher {
 				}
 				for (int col = 1; col < statusColumn; col++) {
 					stepCell = stepRow.getCell(col);
+					if (col == statusColumn) {
+						continue;
+					}
 					String cellValue = null;
 					try {
 						cellValue = safeCellToString(stepCell);
@@ -260,10 +286,12 @@ public class Launcher {
 						System.err.println("Exception (ignored): " + e.toString());
 						cellValue = "";
 					}
-					if (debug) {
-						System.err.println("Column[" + col + "] = " + cellValue);
+					if (cellValue != null) {
+						if (debug) {
+							System.err.println("Column[param" + col + "] = " + cellValue);
+						}
+						data.put(String.format("param%d", col), cellValue);
 					}
-					data.put(String.format("param%d", col), cellValue);
 				}
 				stepDataMap.put(row - 1, data);
 			}
