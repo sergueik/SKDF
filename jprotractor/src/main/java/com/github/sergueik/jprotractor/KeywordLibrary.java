@@ -60,7 +60,7 @@ public final class KeywordLibrary {
 	private static String status;
 	private static String result;
 	private static String selectorTagName = null;
-	private static String selectorType = null;
+	private static String strategy = null;
 	private static String selectorValue = null;
 	private static String selectorRow = null;
 	private static String selectorColumn = null;
@@ -120,13 +120,13 @@ public final class KeywordLibrary {
 		return KeywordLibrary.methodTable.keySet();
 	}
 
-	private static Map<String, Method> locatorTable = new HashMap<>();
+	private static Map<String, Method> strategies = new HashMap<>();
 
 	public static Set<String> getLocators() {
 		if (_class == null) {
 			initMethods();
 		}
-		return KeywordLibrary.locatorTable.keySet();
+		return KeywordLibrary.strategies.keySet();
 	}
 
 	public static void closeBrowser(Map<String, String> params) {
@@ -235,47 +235,47 @@ public final class KeywordLibrary {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
 		try {
-			locatorTable.put("className",
+			strategies.put("className",
 					By.class.getMethod("className", String.class));
-			locatorTable.put("css", By.class.getMethod("cssSelector", String.class));
-			locatorTable.put("id", By.class.getMethod("id", String.class));
-			locatorTable.put("linkText",
+			strategies.put("css", By.class.getMethod("cssSelector", String.class));
+			strategies.put("id", By.class.getMethod("id", String.class));
+			strategies.put("linkText",
 					By.class.getMethod("linkText", String.class));
-			locatorTable.put("name", By.class.getMethod("name", String.class));
-			locatorTable.put("tagName", By.class.getMethod("tagName", String.class));
-			locatorTable.put("xpath", By.class.getMethod("xpath", String.class));
+			strategies.put("name", By.class.getMethod("name", String.class));
+			strategies.put("tagName", By.class.getMethod("tagName", String.class));
+			strategies.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
 		}
 		try {
-			locatorTable.put("binding",
+			strategies.put("binding",
 					NgBy.class.getMethod("binding", String.class));
-			locatorTable.put("buttontext",
+			strategies.put("buttontext",
 					NgBy.class.getMethod("buttonText", String.class));
-			locatorTable.put("cssContainingText", NgBy.class
+			strategies.put("cssContainingText", NgBy.class
 					.getMethod("cssContainingText", String.class, String.class));
-			locatorTable.put("model", NgBy.class.getMethod("model", String.class));
-			locatorTable.put("options",
+			strategies.put("model", NgBy.class.getMethod("model", String.class));
+			strategies.put("options",
 					NgBy.class.getMethod("options", String.class));
-			locatorTable.put("repeater",
+			strategies.put("repeater",
 					NgBy.class.getMethod("repeater", String.class));
-			locatorTable.put("repeaterCell", methodMissing);
-			locatorTable.put("repeaterColumn",
+			strategies.put("repeaterCell", methodMissing);
+			strategies.put("repeaterColumn",
 					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
-			locatorTable.put("repeaterElement", NgBy.class.getMethod(
+			strategies.put("repeaterElement", NgBy.class.getMethod(
 					"repeaterElement", String.class, Integer.class, String.class));
-			locatorTable.put("repeaterRow", methodMissing);
+			strategies.put("repeaterRow", methodMissing);
 			// NOTE: plural in the method name
-			locatorTable.put("repeaterRows",
+			strategies.put("repeaterRows",
 					NgBy.class.getMethod("repeaterRows", String.class, Integer.class));
-			locatorTable.put("selectedOption",
+			strategies.put("selectedOption",
 					NgBy.class.getMethod("selectedOption", String.class));
-			locatorTable.put("selectedRepeaterOption",
+			strategies.put("selectedRepeaterOption",
 					NgBy.class.getMethod("selectedRepeaterOption", String.class));
 		} catch (NoSuchMethodException e) {
 			System.out.println("Execption (ignored): " + e.toString());
 		}
 		// put synthetic selectors explicitly
-		locatorTable.put("text", methodMissing);
+		strategies.put("text", methodMissing);
 	}
 
 	public static void callMethod(String keyword, Map<String, String> params) {
@@ -603,9 +603,9 @@ public final class KeywordLibrary {
 
 	// wrapped in expectedCondition of the appropriate @apply signature
 	public static WebElement _waitFindElement(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
 		selectorValue = params.get("param2");
@@ -635,9 +635,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(selectorType);
+		matcher = pattern.matcher(strategy);
 		if (matcher.find()) {
-			switch (selectorType) {
+			switch (strategy) {
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
@@ -671,7 +671,7 @@ public final class KeywordLibrary {
 					Optional<WebElement> e = d.findElements(locator).stream().findFirst();
 					/*
 					if (e.isPresent()) {
-						System.err.println("apply => " + selectorType + " => "
+						System.err.println("apply => " + strategy + " => "
 								+ e.get().getAttribute("outerHTML"));
 					}
 					*/
@@ -682,7 +682,7 @@ public final class KeywordLibrary {
 			  System.err
 					.println("returned from _wait : " + _element.getAttribute("outerHTML"));
 			*/
-		} else if (selectorType == "text") {
+		} else if (strategy == "text") {
 			if (selectorTagName != null) {
 				_element = _wait.until(new ExpectedCondition<WebElement>() {
 
@@ -715,10 +715,10 @@ public final class KeywordLibrary {
 	}
 
 	// straight to WebDriver
-	public static WebElement _findElement(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+	private static WebElement _findElement(Map<String, String> params) {
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 
 		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
@@ -738,12 +738,12 @@ public final class KeywordLibrary {
 		}
 		if (debug) {
 			System.err
-					.println(String.format("selectorType: \"%s\", selectorValue: \"%s\"",
-							selectorType, selectorValue));
+					.println(String.format("strategy: \"%s\", selectorValue: \"%s\"",
+							strategy, selectorValue));
 		}
 		WebElement _element = null;
 		try {
-			switch (selectorType) {
+			switch (strategy) {
 
 			case "binding":
 				// case "exactBinding":
@@ -868,9 +868,9 @@ public final class KeywordLibrary {
 	}
 
 	public static List<WebElement> _findElements(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 		// TODO: introduce repository of selector aliases:
 		// objectRepo.getProperty(selectorValue) || selectorValue
@@ -884,7 +884,7 @@ public final class KeywordLibrary {
 		}
 		List<WebElement> _elements = new ArrayList<>();
 		try {
-			switch (selectorType) {
+			switch (strategy) {
 
 			case "binding":
 				_elements = ngDriver.findElements(NgBy.binding(selectorValue));
@@ -996,9 +996,9 @@ public final class KeywordLibrary {
 	// wait for the element to become clickable
 	public static void waitClickable(Map<String, String> params) {
 
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 		selectorValue = params.get("param2");
 		WebDriverWait _wait;
@@ -1011,9 +1011,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(selectorType);
+		matcher = pattern.matcher(strategy);
 		if (matcher.find()) {
-			switch (selectorType) {
+			switch (strategy) {
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
@@ -1045,9 +1045,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|partialButtonText|model|options)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(selectorType);
+		matcher = pattern.matcher(strategy);
 		if (matcher.find()) {
-			switch (selectorType) {
+			switch (strategy) {
 			case "binding":
 				locator = NgBy.binding(selectorValue);
 				break;
@@ -1067,7 +1067,7 @@ public final class KeywordLibrary {
 			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
-		if (selectorType == "text") {
+		if (strategy == "text") {
 			try {
 				_wait.until(new ExpectedCondition<Boolean>() {
 					@Override

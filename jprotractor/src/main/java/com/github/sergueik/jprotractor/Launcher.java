@@ -122,7 +122,8 @@ public class Launcher {
 				}
 				
 				readsuiteTestStepsWIP(suiteName);
-				readsuiteTestSteps(suiteName);
+				// TODO: remove legacy code
+				// readsuiteTestSteps(suiteName);
 			}
 		}
 		/*

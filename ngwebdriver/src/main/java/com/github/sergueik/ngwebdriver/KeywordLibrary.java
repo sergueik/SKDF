@@ -92,7 +92,7 @@ public class KeywordLibrary {
 	private String status;
 	private String result;
 	private String selectorTagName = null;
-	private String selectorType = null;
+	private String strategy = null;
 	private String selectorValue = null;
 	private String selectorRow = null;
 	private String selectorColumn = null;
@@ -142,10 +142,10 @@ public class KeywordLibrary {
 		return this.methodTable.keySet();
 	}
 
-	private Map<String, Method> locatorTable = new HashMap<>();
+	private Map<String, Method> strategies = new HashMap<>();
 
 	public Set<String> getLocators() {
-		return this.locatorTable.keySet();
+		return this.strategies.keySet();
 	}
 
 	public void closeBrowser(Map<String, String> params) {
@@ -251,15 +251,15 @@ public class KeywordLibrary {
 		}
 		*/
 		try {
-			locatorTable.put("className",
+			strategies.put("className",
 					By.class.getMethod("className", String.class));
-			locatorTable.put("css", By.class.getMethod("cssSelector", String.class));
-			locatorTable.put("id", By.class.getMethod("id", String.class));
-			locatorTable.put("linkText",
+			strategies.put("css", By.class.getMethod("cssSelector", String.class));
+			strategies.put("id", By.class.getMethod("id", String.class));
+			strategies.put("linkText",
 					By.class.getMethod("linkText", String.class));
-			locatorTable.put("name", By.class.getMethod("name", String.class));
-			locatorTable.put("tagName", By.class.getMethod("tagName", String.class));
-			locatorTable.put("xpath", By.class.getMethod("xpath", String.class));
+			strategies.put("name", By.class.getMethod("name", String.class));
+			strategies.put("tagName", By.class.getMethod("tagName", String.class));
+			strategies.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
@@ -280,33 +280,33 @@ public class KeywordLibrary {
 
 		}
 		// put synthetic selectors explicitly
-		locatorTable.put("text", methodMissing);
+		strategies.put("text", methodMissing);
 		try {
 			// put synthetic selectors explicitly
-			locatorTable.put("binding",
+			strategies.put("binding",
 					ByAngular.class.getMethod("binding", String.class));
-			locatorTable.put("buttontext",
+			strategies.put("buttontext",
 					ByAngular.class.getMethod("buttonText", String.class));
-			locatorTable.put("cssContainingText", ByAngular.class
+			strategies.put("cssContainingText", ByAngular.class
 					.getMethod("cssContainingText", String.class, String.class));
-			locatorTable.put("exactBinding",
+			strategies.put("exactBinding",
 					ByAngular.class.getMethod("exactBinding", String.class));
-			locatorTable.put("exactRepeater",
+			strategies.put("exactRepeater",
 					ByAngular.class.getMethod("exactRepeater", String.class));
-			locatorTable.put("model",
+			strategies.put("model",
 					ByAngular.class.getMethod("model", String.class));
-			locatorTable.put("options",
+			strategies.put("options",
 					ByAngular.class.getMethod("options", String.class));
-			locatorTable.put("partialButtonText",
+			strategies.put("partialButtonText",
 					ByAngular.class.getMethod("partialButtonText", String.class));
-			locatorTable.put("repeater",
+			strategies.put("repeater",
 					ByAngular.class.getMethod("repeater", String.class));
-			locatorTable.put("repeaterCell", methodMissing);
-			locatorTable.put("repeaterColumn", methodMissing);
-			locatorTable.put("repeaterElement", methodMissing);
-			locatorTable.put("repeaterRow", methodMissing);
+			strategies.put("repeaterCell", methodMissing);
+			strategies.put("repeaterColumn", methodMissing);
+			strategies.put("repeaterElement", methodMissing);
+			strategies.put("repeaterRow", methodMissing);
 			// NOTE: plural in the method name
-			locatorTable.put("repeaterRows", methodMissing);
+			strategies.put("repeaterRows", methodMissing);
 
 		} catch (NoSuchMethodException e) {
 			System.out.println("Exception (ignored): " + e.toString());
@@ -612,10 +612,10 @@ public class KeywordLibrary {
 		}
 	}
 
-	public WebElement _findElement(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+	private WebElement _findElement(Map<String, String> params) {
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 		selectorValue = params.get("param2");
 		if (params.containsKey("param3")) {
@@ -634,7 +634,7 @@ public class KeywordLibrary {
 
 		WebElement _element = null;
 		try {
-			switch (selectorType) {
+			switch (strategy) {
 
 			case "binding":
 				ngDriver.waitForAngularRequestsToFinish();
@@ -771,9 +771,9 @@ public class KeywordLibrary {
 	}
 
 	public List<WebElement> _findElements(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 		// TODO: introduce repository of selector aliases:
 		// objectRepo.getProperty(selectorValue) || selectorValue
@@ -787,7 +787,7 @@ public class KeywordLibrary {
 		}
 		List<WebElement> _elements = new ArrayList<>();
 		try {
-			switch (selectorType) {
+			switch (strategy) {
 
 			case "binding":
 				ngDriver.waitForAngularRequestsToFinish();
@@ -931,9 +931,9 @@ public class KeywordLibrary {
 	// wait for the element to become clickable
 	public void waitClickable(Map<String, String> params) {
 
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
 		}
 		if (params.containsKey("param5")) {
 			selectorContainedText = params.get("param5");
@@ -949,9 +949,9 @@ public class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(selectorType);
+		matcher = pattern.matcher(strategy);
 		if (matcher.find()) {
-			switch (selectorType) {
+			switch (strategy) {
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
@@ -983,9 +983,9 @@ public class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|exactBinding|cssContainingText|model|options|partialButtonText)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(selectorType);
+		matcher = pattern.matcher(strategy);
 		if (matcher.find()) {
-			switch (selectorType) {
+			switch (strategy) {
 			case "binding":
 				locator = ByAngular.binding(selectorValue);
 				break;
@@ -1009,13 +1009,13 @@ public class KeywordLibrary {
 				locator = ByAngular.partialButtonText(selectorValue);
 				break;
 			default:
-				throw new RuntimeException("wait code for Selector type " + selectorType
+				throw new RuntimeException("wait code for Selector type " + strategy
 						+ " is not implemented yet");
 			}
 			_wait.until(
 					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
 		}
-		if (selectorType == "text") {
+		if (strategy == "text") {
 			try {
 				_wait.until(new ExpectedCondition<Boolean>() {
 					@Override
