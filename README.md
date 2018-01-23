@@ -1,4 +1,4 @@
-### About SKDF
+﻿### About SKDF
 
 ![TestCase.xls](https://github.com/sergueik/skdf/blob/master/images/testcase_selenium.png)
 
@@ -173,16 +173,16 @@ _element = driver.findElements(By.tagName(selectorTagName)).stream()
 
 ### Introuction
 
-The original Keyword Driven Framework [suggests](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) identifying only four columns 
-  * __Summary__: *a brief description of the step*
-  * __Target__: *the name of the Web Page object/element, like "Link" or "Input"*
+The original Keyword Driven Framework [suggests](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) identifying few columns (not necessarily exactly four, though)
+  * __Summary__: *brief description of the step*
+  * __Target__: *name of the Web Page object/element, like "Link" or "Input"*
   * __Action__: *name of the action, which will be performed on Target Element such as click, open browser, input text etc.*
   * __Data__: *any value which is needed by the Object to perform any action, like text value for input field.
 
 and lists the advantages from taking such approach:
   * __Less Technical Expertise__:  manual testers or non technical testers can easily write test scripts for automation using the Framework than code straight.
   * __Easy To Understand__: With no coding is exposed, the test flow is easy to read and understand. Keywords & actions are descriptive.
-  * __Early Start__: One can start building Keyword Driven test cases immediately defeting challenging tasks like as Page Object model to the later stage. Keyword steps are quick to write using requirements documentation or mirroring the manual test steps.
+  * __Early Start__: One can start building Keyword Driven test cases immediately deferring more challenging tasks like Page Object model to a later stage. Keyword steps are quick to identify from requirements documentation or manual test.
   * __Re-usability__: With implementing modularization in Keyword Driven, Re-usability can be further increased. Equipped with a stable and powerful Execution Engine in Keyword Driven Framework, it encourage extreme code re-usability.
   * __Automation__: Excel file is (a lot) easier to produce by a recording tool than a full blown program.
 
