@@ -88,9 +88,16 @@ public class Launcher {
 	public static void main(String[] args) throws IOException {
 
 		// Load property file from project directory (not from the jar)
+                // TODO: refactor 
 		propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
+		if (debug){
+	                System.err.println("Loading properties map from "+ String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
+	                for (String propertyKey: propertiesMap.keySet()){
+        		         System.err.println("Property: " + propertyKey +" " + propertiesMap.get(propertyKey));
+			}
+		}
 		String browser = (propertiesMap.get("browser") != null)
 				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
 
@@ -216,10 +223,14 @@ public class Launcher {
 		System.err.println("Setting browser: " + browser);
 		String browserDriver = browserDrivers.get(browser.toLowerCase());
 		KeywordLibrary.setBrowser(browser);
-
+		if (debug){
+			System.err.println(String.format("Setting %s driver (%s): %s" , browser, browserDriver, propertiesMap.get(browserDriver)));
+		}
+		// the method name is browser name specific
 		if (browser.matches("chrome")) {
 			KeywordLibrary.setChromeDriverPath(propertiesMap.get(browserDriver));
 		}
+
 		if (browser.matches("firefox")) {
 			KeywordLibrary.setGeckoDriverPath(propertiesMap.get(browserDriver));
 		}

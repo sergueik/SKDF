@@ -43,6 +43,7 @@ public class KeywordLibraryTest {
 	private static String defaultTestCase = "TestCase.xls";
 	private static int statusColumn;
 	private static int defaultStatusColumn = 9;
+	private static boolean debug = false;
 
 	// application configuration file
 	private static String propertiesFileName = "application.properties";
@@ -68,13 +69,19 @@ public class KeywordLibraryTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		// Load property file from project directory (not from the jar)
+
 		propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
+		if(debug){
+			System.err.println("Loading properties map from "+ String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
+			for (String propertyKey: propertiesMap.keySet()){
+				System.err.println("Property: " + propertyKey +" " + propertiesMap.get(propertyKey));
+			}
+		}
 		String browser = (propertiesMap.get("browser") != null)
 				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
 
-		Launcher.setBrowser(browser);
 		statusColumn = (propertiesMap.get("statusColumn") != null)
 				? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
@@ -86,6 +93,7 @@ public class KeywordLibraryTest {
 		Launcher.setTestCase(testCase);
 		Launcher.setStatusColumn(statusColumn);
 		Launcher.setPropertiesMap(propertiesMap);
+		Launcher.setBrowser(browser);
 	}
 
 	public static String getPropertyEnv(String name, String defaultValue) {
