@@ -84,6 +84,13 @@ private List<WebElement> friendNames;
 ```
 The step status is returned via `params["status"]` entry, the step result (if any) is returned via `params["result"]`
 
+### Adding Tests to the Spreadsheet
+To add a test case, put its name into the `Index` sheet and mark it with `Yes` to be executed
+![index](https://github.com/sergueik/skdf/blob/master/images/testcase_index.png)
+
+Next, add the steps. Making the cell border visible will ensure the blank cells are not getting skipped:
+![index](https://github.com/sergueik/skdf/blob/master/images/testcase_demoqa.png)
+
 ### Adding jProtractor
 
 One can explore additional selectors with jProtractor.
