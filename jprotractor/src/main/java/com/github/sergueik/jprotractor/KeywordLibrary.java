@@ -112,6 +112,7 @@ public final class KeywordLibrary {
 		methodTable.put("VERIFY_TAG", "verifyTag");
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("WAIT", "wait");
+		methodTable.put("WAIT_ELEMENT", "waitVisible");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
@@ -239,30 +240,27 @@ public final class KeywordLibrary {
 					By.class.getMethod("className", String.class));
 			strategies.put("css", By.class.getMethod("cssSelector", String.class));
 			strategies.put("id", By.class.getMethod("id", String.class));
-			strategies.put("linkText",
-					By.class.getMethod("linkText", String.class));
+			strategies.put("linkText", By.class.getMethod("linkText", String.class));
 			strategies.put("name", By.class.getMethod("name", String.class));
 			strategies.put("tagName", By.class.getMethod("tagName", String.class));
 			strategies.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
 		}
 		try {
-			strategies.put("binding",
-					NgBy.class.getMethod("binding", String.class));
+			strategies.put("binding", NgBy.class.getMethod("binding", String.class));
 			strategies.put("buttontext",
 					NgBy.class.getMethod("buttonText", String.class));
 			strategies.put("cssContainingText", NgBy.class
 					.getMethod("cssContainingText", String.class, String.class));
 			strategies.put("model", NgBy.class.getMethod("model", String.class));
-			strategies.put("options",
-					NgBy.class.getMethod("options", String.class));
+			strategies.put("options", NgBy.class.getMethod("options", String.class));
 			strategies.put("repeater",
 					NgBy.class.getMethod("repeater", String.class));
 			strategies.put("repeaterCell", methodMissing);
 			strategies.put("repeaterColumn",
 					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
-			strategies.put("repeaterElement", NgBy.class.getMethod(
-					"repeaterElement", String.class, Integer.class, String.class));
+			strategies.put("repeaterElement", NgBy.class.getMethod("repeaterElement",
+					String.class, Integer.class, String.class));
 			strategies.put("repeaterRow", methodMissing);
 			// NOTE: plural in the method name
 			strategies.put("repeaterRows",
@@ -372,12 +370,24 @@ public final class KeywordLibrary {
 				.println(String.format("%s returned \"%s\"", "countElements", result));
 	}
 
+	public static void sleep(Integer seconds) {
+		long secondsLong = (long) seconds;
+		try {
+			Thread.sleep(secondsLong);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void enterText(Map<String, String> params) {
 		element = _findElement(params);
 		textData = params.get("param5");
 		if (element != null) {
 			highlight(element);
+			System.err.println("Entering text: " + textData);
 			element.sendKeys(textData);
+			sleep(1000);
+			System.err.println("Entered text: " + element.getText());
 			status = "Passed";
 		} else {
 			status = "Failed";
@@ -454,7 +464,7 @@ public final class KeywordLibrary {
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
-			flag = element.getText().equals(expectedText);
+			flag = element.getText().contains((CharSequence) expectedText);
 		}
 		if (flag)
 			status = "Passed";
@@ -737,9 +747,8 @@ public final class KeywordLibrary {
 			selectorTagName = params.get("param6");
 		}
 		if (debug) {
-			System.err
-					.println(String.format("strategy: \"%s\", selectorValue: \"%s\"",
-							strategy, selectorValue));
+			System.err.println(String.format(
+					"strategy: \"%s\", selectorValue: \"%s\"", strategy, selectorValue));
 		}
 		WebElement _element = null;
 		try {
@@ -993,9 +1002,8 @@ public final class KeywordLibrary {
 		_wait.until(urlChange);
 	}
 
-	// wait for the element to become clickable
-	public static void waitClickable(Map<String, String> params) {
-
+	// wait for the element to become visible
+	public static void waitVisible(Map<String, String> params) {
 		strategy = params.get("param1");
 		if (!strategies.containsKey(strategy)) {
 			throw new RuntimeException("Unknown Selector Type: " + strategy);
@@ -1011,7 +1019,7 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(strategy);
+		matcher = pattern.matcher(strategy.toLowerCase());
 		if (matcher.find()) {
 			switch (strategy) {
 			case "css":
@@ -1039,8 +1047,42 @@ public final class KeywordLibrary {
 				locator = By.xpath(selectorValue);
 				break;
 			}
-			_wait.until(
-					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		}
+		if (strategy == "text") {
+			try {
+				_wait.until(new ExpectedCondition<Boolean>() {
+					@Override
+					public Boolean apply(WebDriver d) {
+						String t = d.findElement(By.className("intro-message")).getText();
+						Boolean result = t.contains("Link Successfully clicked");
+						System.err.println(
+								"in apply: Text = " + t + "\nresult = " + result.toString());
+						return result;
+					}
+				});
+			} catch (Exception e) {
+				System.err.println("Exception: " + e.toString());
+				throw new RuntimeException(e);
+			}
+
+		}
+	}
+
+	// wait for the element to become clickable
+	public static void waitClickable(Map<String, String> params) {
+
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		}
+		selectorValue = params.get("param2");
+		WebDriverWait _wait;
+		if (params.containsKey("param7")) {
+			timeout = (long) (Float.parseFloat(params.get("param7")));
+			_wait = new WebDriverWait(driver, timeout);
+		} else {
+			_wait = wait;
 		}
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|partialButtonText|model|options)",
@@ -1169,8 +1211,8 @@ public final class KeywordLibrary {
 
 	public static void setBrowser(String browser) {
 		KeywordLibrary.browser = browser;
-		if (debug){
-			System.err.println("KeywordLibrary use browser: " + browser);			
+		if (debug) {
+			System.err.println("KeywordLibrary use browser: " + browser);
 		}
 	}
 

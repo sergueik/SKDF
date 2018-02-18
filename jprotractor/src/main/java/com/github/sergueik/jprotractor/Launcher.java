@@ -49,7 +49,7 @@ public class Launcher {
 		Launcher.statusColumn = statusColumn;
 	}
 
-	private static int defaultStatusColumn = 9;
+	private static int defaultStatusColumn = 10;
 
 	// parameter definition duplication from the fact the Launcher can be used
 	// stand alone or through junit
@@ -88,14 +88,17 @@ public class Launcher {
 	public static void main(String[] args) throws IOException {
 
 		// Load property file from project directory (not from the jar)
-                // TODO: refactor 
+		// TODO: refactor
 		propertiesMap = PropertiesParser
 				.getProperties(String.format("%s/src/main/resources/%s",
 						System.getProperty("user.dir"), propertiesFileName));
-		if (debug){
-	                System.err.println("Loading properties map from "+ String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
-	                for (String propertyKey: propertiesMap.keySet()){
-        		         System.err.println("Property: " + propertyKey +" " + propertiesMap.get(propertyKey));
+		if (debug) {
+			System.err.println("Loading properties map from "
+					+ String.format("%s/src/main/resources/%s",
+							System.getProperty("user.dir"), propertiesFileName));
+			for (String propertyKey : propertiesMap.keySet()) {
+				System.err.println(
+						"Property: " + propertyKey + " " + propertiesMap.get(propertyKey));
 			}
 		}
 		String browser = (propertiesMap.get("browser") != null)
@@ -127,7 +130,7 @@ public class Launcher {
 				if (debug) {
 					System.err.println("Loading test suite : " + suiteName);
 				}
-				
+
 				readsuiteTestStepsWIP(suiteName);
 				// TODO: remove legacy code
 				// readsuiteTestSteps(suiteName);
@@ -172,7 +175,9 @@ public class Launcher {
 				if (col == statusColumn) {
 					continue;
 				}
-				if (row[col] != null && row[col].toString() != "") {
+				// TODO: temporarily ignore the whilespace only columns until the junitparam is fixed
+				if (row[col] != null && row[col].toString() != ""
+						&& !row[col].toString().matches("^ +$")) {
 					String cellValue = row[col].toString();
 					data.put(String.format("param%d", col), cellValue);
 					if (debug) {
@@ -223,8 +228,9 @@ public class Launcher {
 		System.err.println("Setting browser: " + browser);
 		String browserDriver = browserDrivers.get(browser.toLowerCase());
 		KeywordLibrary.setBrowser(browser);
-		if (debug){
-			System.err.println(String.format("Setting %s driver (%s): %s" , browser, browserDriver, propertiesMap.get(browserDriver)));
+		if (debug) {
+			System.err.println(String.format("Setting %s driver (%s): %s", browser,
+					browserDriver, propertiesMap.get(browserDriver)));
 		}
 		// the method name is browser name specific
 		if (browser.matches("chrome")) {
