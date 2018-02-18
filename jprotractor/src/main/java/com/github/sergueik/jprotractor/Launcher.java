@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -175,9 +176,9 @@ public class Launcher {
 				if (col == statusColumn) {
 					continue;
 				}
-				// TODO: temporarily ignore the whilespace only columns until the junitparam is fixed
-				if (row[col] != null && row[col].toString() != ""
-						&& !row[col].toString().matches("^ +$")) {
+				// TODO: temporarily ignore the whitespace only columns until the
+				// junitparam is fixed
+				if (row[col] != null && StringUtils.isNotBlank(row[col].toString())) {
 					String cellValue = row[col].toString();
 					data.put(String.format("param%d", col), cellValue);
 					if (debug) {

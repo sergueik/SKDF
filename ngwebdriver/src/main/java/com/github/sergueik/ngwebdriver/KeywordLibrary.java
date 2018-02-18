@@ -134,6 +134,7 @@ public class KeywordLibrary {
 		methodTable.put("VERIFY_TAG", "verifyTag");
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("WAIT", "wait");
+		methodTable.put("WAIT_ELEMENT", "waitVisible");
 		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
@@ -255,8 +256,7 @@ public class KeywordLibrary {
 					By.class.getMethod("className", String.class));
 			strategies.put("css", By.class.getMethod("cssSelector", String.class));
 			strategies.put("id", By.class.getMethod("id", String.class));
-			strategies.put("linkText",
-					By.class.getMethod("linkText", String.class));
+			strategies.put("linkText", By.class.getMethod("linkText", String.class));
 			strategies.put("name", By.class.getMethod("name", String.class));
 			strategies.put("tagName", By.class.getMethod("tagName", String.class));
 			strategies.put("xpath", By.class.getMethod("xpath", String.class));
@@ -293,8 +293,7 @@ public class KeywordLibrary {
 					ByAngular.class.getMethod("exactBinding", String.class));
 			strategies.put("exactRepeater",
 					ByAngular.class.getMethod("exactRepeater", String.class));
-			strategies.put("model",
-					ByAngular.class.getMethod("model", String.class));
+			strategies.put("model", ByAngular.class.getMethod("model", String.class));
 			strategies.put("options",
 					ByAngular.class.getMethod("options", String.class));
 			strategies.put("partialButtonText",
@@ -395,10 +394,22 @@ public class KeywordLibrary {
 		textData = params.get("param5");
 		if (element != null) {
 			highlight(element);
+			System.err.println("Entering text: " + textData);
 			element.sendKeys(textData);
+			sleep(1000);
+			System.err.println("Entered text: " + element.getText());
 			status = "Passed";
 		} else {
 			status = "Failed";
+		}
+	}
+
+	public void sleep(Integer seconds) {
+		long secondsLong = (long) seconds;
+		try {
+			Thread.sleep(secondsLong);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -926,6 +937,109 @@ public class KeywordLibrary {
 			return (boolean) url.matches(String.format("^%s.*", expectedURL));
 		};
 		_wait.until(urlChange);
+	}
+
+	// wait for the element to become visible
+	public void waitVisible(Map<String, String> params) {
+		strategy = params.get("param1");
+		if (!strategies.containsKey(strategy)) {
+			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		}
+		if (params.containsKey("param5")) {
+			selectorContainedText = params.get("param5");
+		}
+		selectorValue = params.get("param2");
+		WebDriverWait _wait;
+		if (params.containsKey("param7")) {
+			timeout = (long) (Float.parseFloat(params.get("param7")));
+			_wait = new WebDriverWait(driver, timeout);
+		} else {
+			_wait = wait;
+		}
+		pattern = Pattern.compile(
+				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(strategy);
+		if (matcher.find()) {
+			switch (strategy) {
+			case "css":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "cssSelector":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "id":
+				locator = By.id(selectorValue);
+				break;
+			case "linkText":
+				locator = By.linkText(selectorValue);
+				break;
+			case "name":
+				locator = By.name(selectorValue);
+				break;
+			case "partialLinkText":
+				locator = By.partialLinkText(selectorValue);
+				break;
+			case "tagName":
+				locator = By.tagName(selectorValue);
+				break;
+			case "xpath":
+				locator = By.xpath(selectorValue);
+				break;
+			}
+			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		}
+		pattern = Pattern.compile(
+				"(?:binding|buttonText|exactBinding|cssContainingText|model|options|partialButtonText)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(strategy);
+		if (matcher.find()) {
+			switch (strategy) {
+			case "binding":
+				locator = ByAngular.binding(selectorValue);
+				break;
+			case "buttontext":
+				locator = ByAngular.buttonText(selectorValue);
+				break;
+			case "cssContainingText":
+				locator = ByAngular.cssContainingText(selectorValue,
+						selectorContainedText);
+				break;
+			case "exactBinding":
+				locator = ByAngular.exactBinding(selectorValue);
+				break;
+			case "model":
+				locator = ByAngular.model(selectorValue);
+				break;
+			case "options":
+				locator = ByAngular.options(selectorValue);
+				break;
+			case "partialButtontext":
+				locator = ByAngular.partialButtonText(selectorValue);
+				break;
+			default:
+				throw new RuntimeException("wait code for Selector type " + strategy
+						+ " is not implemented yet");
+			}
+			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		}
+		if (strategy == "text") {
+			try {
+				_wait.until(new ExpectedCondition<Boolean>() {
+					@Override
+					public Boolean apply(WebDriver d) {
+						String t = d.findElement(By.className("intro-message")).getText();
+						Boolean result = t.contains("Link Successfully clicked");
+						System.err.println(
+								"in apply: Text = " + t + "\nresult = " + result.toString());
+						return result;
+					}
+				});
+			} catch (Exception e) {
+				System.err.println("Exception: " + e.toString());
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	// wait for the element to become clickable

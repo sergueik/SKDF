@@ -386,7 +386,7 @@ public final class KeywordLibrary {
 			highlight(element);
 			System.err.println("Entering text: " + textData);
 			element.sendKeys(textData);
-			sleep(1000);
+			sleep(100);
 			System.err.println("Entered text: " + element.getText());
 			status = "Passed";
 		} else {
@@ -1049,6 +1049,30 @@ public final class KeywordLibrary {
 			}
 			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		}
+		pattern = Pattern.compile(
+				"(?:binding|buttonText|partialButtonText|model|options)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(strategy);
+		if (matcher.find()) {
+			switch (strategy) {
+			case "binding":
+				locator = NgBy.binding(selectorValue);
+				break;
+			case "buttontext":
+				locator = NgBy.buttonText(selectorValue);
+				break;
+			case "partialButtontext":
+				locator = NgBy.partialButtonText(selectorValue);
+				break;
+			case "options":
+				locator = NgBy.options(selectorValue);
+				break;
+			case "model":
+				locator = NgBy.model(selectorValue);
+				break;
+			}
+			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		}
 		if (strategy == "text") {
 			try {
 				_wait.until(new ExpectedCondition<Boolean>() {
@@ -1085,6 +1109,40 @@ public final class KeywordLibrary {
 			_wait = wait;
 		}
 		pattern = Pattern.compile(
+				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
+				Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(strategy.toLowerCase());
+		if (matcher.find()) {
+			switch (strategy) {
+			case "css":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "cssSelector":
+				locator = By.cssSelector(selectorValue);
+				break;
+			case "id":
+				locator = By.id(selectorValue);
+				break;
+			case "linkText":
+				locator = By.linkText(selectorValue);
+				break;
+			case "name":
+				locator = By.name(selectorValue);
+				break;
+			case "partialLinkText":
+				locator = By.partialLinkText(selectorValue);
+				break;
+			case "tagName":
+				locator = By.tagName(selectorValue);
+				break;
+			case "xpath":
+				locator = By.xpath(selectorValue);
+				break;
+			}
+			_wait.until(
+					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+		}
+		pattern = Pattern.compile(
 				"(?:binding|buttonText|partialButtonText|model|options)",
 				Pattern.CASE_INSENSITIVE);
 		matcher = pattern.matcher(strategy);
@@ -1106,8 +1164,8 @@ public final class KeywordLibrary {
 				locator = NgBy.model(selectorValue);
 				break;
 			}
-			_wait.until(
-					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+			_wait.until(ExpectedConditions
+					.elementToBeClickable(ngDriver.findElement(locator)));
 		}
 		if (strategy == "text") {
 			try {
