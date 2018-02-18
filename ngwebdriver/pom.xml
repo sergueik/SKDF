@@ -14,6 +14,7 @@
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.0.1</commons-lang3.version>
     <java.version>1.8</java.version>
+    <json.version>20170516</json.version>
     <junit.version>4.12</junit.version>
     <log4j.version>2.5</log4j.version>
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
@@ -22,7 +23,7 @@
     <phantomjsdriver.version>1.2.1</phantomjsdriver.version>
     <selenium.version>3.4.0</selenium.version>
     <selenium.firefox-driver.version>3.4.0</selenium.firefox-driver.version>
-    <testng.version>6.9.10</testng.version>
+    <testng.version>6.11</testng.version>
     <guava.version>21.0</guava.version>
     <browser.name>chrome</browser.name>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
@@ -45,7 +46,7 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20170516</version>
+      <version>${json.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
