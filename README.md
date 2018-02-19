@@ -89,7 +89,7 @@ To add a test case, put its name into the `Index` sheet and mark it with `Yes` t
 ![index](https://github.com/sergueik/skdf/blob/master/images/testcase_index.png)
 
 Next, add the steps. Making the cell border visible will ensure the blank cells are not getting skipped:
-![index](https://github.com/sergueik/skdf/blob/master/images/testcase_demoqa.png)
+![demoqa](https://github.com/sergueik/skdf/blob/master/images/testcase_demoqa.png)
 
 ### Adding jProtractor
 
@@ -178,15 +178,24 @@ _element = driver.findElements(By.tagName(selectorTagName)).stream()
   .filter(o -> o.getText().contains(selectorValue)).findFirst().get();
 ```
 
-### Introuction
+### Introduction
 
-The original Keyword Driven Framework [suggests](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) identifying few columns (not necessarily exactly four, though)
+The original Keyword Driven Framework [suggests](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/)
+identifying few columns (not necessarily exactly four, though).
+
   * __Summary__: *brief description of the step*
   * __Target__: *name of the Web Page object/element, like "Link" or "Input"*
   * __Action__: *name of the action, which will be performed on Target Element such as click, open browser, input text etc.*
   * __Data__: *any value which is needed by the Object to perform any action, like text value for input field.
 
-and lists the advantages from taking such approach:
+
+It is very likely inspired by
+![selenium_ide](https://github.com/sergueik/skdf/blob/master/images/selenium_ide.png)
+
+[Selenium IDE Firefox Add-On](https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/)
+Command, Target, Value columns, with significanylty narrowed choice of commands (Keywords).
+The advantages from taking such approach are discussed many times:
+
   * __Less Technical Expertise__:  manual testers or non technical testers can easily write test scripts for automation using the Framework than code straight.
   * __Easy To Understand__: With no coding is exposed, the test flow is easy to read and understand. Keywords & actions are descriptive.
   * __Early Start__: One can start building Keyword Driven test cases immediately deferring more challenging tasks like Page Object model to a later stage. Keyword steps are quick to identify from requirements documentation or manual test.
@@ -196,6 +205,9 @@ and lists the advantages from taking such approach:
 ### See Also
 
 * [qaf](https://github.com/qmetry/qaf)
+* [NPOI](https://github.com/dotnetcore/NPOI)
+* [ExcelDataReader (.net)](https://github.com/ExcelDataReader/ExcelDataReader)
+* [LinqToExcel](https://github.com/paulyoder/LinqToExcel)
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)

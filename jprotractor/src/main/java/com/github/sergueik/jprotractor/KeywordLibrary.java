@@ -387,7 +387,8 @@ public final class KeywordLibrary {
 			System.err.println("Entering text: " + textData);
 			element.sendKeys(textData);
 			sleep(100);
-			System.err.println("Entered text: " + element.getText());
+			element = _findElement(params);
+			System.err.println("Entered text: " + element.getAttribute("value"));
 			status = "Passed";
 		} else {
 			status = "Failed";

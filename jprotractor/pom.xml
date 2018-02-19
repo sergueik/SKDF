@@ -36,7 +36,7 @@
       <!-- experimental -->
       <groupId>com.github.sergueik.junitparams</groupId>
       <artifactId>junit_params</artifactId>
-      <version>0.0.7-SNAPSHOT</version>
+      <version>0.0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.github.sergueik.jprotractor</groupId>

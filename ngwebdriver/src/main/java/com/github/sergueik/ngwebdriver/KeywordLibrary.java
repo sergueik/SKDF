@@ -396,8 +396,9 @@ public class KeywordLibrary {
 			highlight(element);
 			System.err.println("Entering text: " + textData);
 			element.sendKeys(textData);
-			sleep(1000);
-			System.err.println("Entered text: " + element.getText());
+			sleep(100);
+			element = _findElement(params);
+			System.err.println("Entered text: " + element.getAttribute("value"));
 			status = "Passed";
 		} else {
 			status = "Failed";
@@ -473,6 +474,7 @@ public class KeywordLibrary {
 			status = "Failed";
 	}
 
+	// TODO: fix the method
 	public void verifyTag(Map<String, String> params) {
 		boolean flag = false;
 		expectedTag = params.get("param5");
@@ -493,6 +495,9 @@ public class KeywordLibrary {
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
+			if (debug) {
+				System.err.println("Verifying " + element.getText());
+			}
 			flag = element.getText().equals(expectedText);
 		}
 		if (flag)

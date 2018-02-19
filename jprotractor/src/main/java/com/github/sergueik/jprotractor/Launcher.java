@@ -1,7 +1,5 @@
 package com.github.sergueik.jprotractor;
 
-// 	import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -35,7 +33,13 @@ import com.github.sergueik.jprotractor.KeywordLibrary;
 public class Launcher {
 
 	private static boolean debug = true;
-
+	// set loadEmptyColumns to true when observed
+	// java.lang.NullPointerException or
+	// java.lang.reflect.InvocationTargetException
+	// due to incorrectly loading sparse spreadsheets
+	// NOTE: the loadEmptyColumns attribute is only supported starting with
+	// 0.0.8-SNAPSHOT of com.github.sergueik.junitparams
+	private static boolean loadEmptyColumns = false;
 	private static String defaultTestCase = "TestCase.xls";
 	private static String testCase;
 	private static String suiteName;
@@ -117,8 +121,12 @@ public class Launcher {
 	}
 
 	public static void run(String testCase, int statusColumn) throws IOException {
+		if (debug) {
+			verifyKeywordLibrary();
+		}
+		utils.setDebug(debug);
+		utils.setLoadEmptyColumns(loadEmptyColumns);
 
-		verifyKeywordLibrary();
 		System.err.println("Loading test case from: " + testCase);
 		utils.setSheetName("Index");
 		List<Object[]> result = utils.createDataFromExcel2003(testCase);
@@ -131,7 +139,6 @@ public class Launcher {
 				if (debug) {
 					System.err.println("Loading test suite : " + suiteName);
 				}
-
 				readsuiteTestStepsWIP(suiteName);
 				// TODO: remove legacy code
 				// readsuiteTestSteps(suiteName);
@@ -176,9 +183,7 @@ public class Launcher {
 				if (col == statusColumn) {
 					continue;
 				}
-				// TODO: temporarily ignore the whitespace only columns until the
-				// junitparam is fixed
-				if (row[col] != null && StringUtils.isNotBlank(row[col].toString())) {
+				if (row[col] != null && StringUtils.isNotBlank(row[col].toString().trim())) {
 					String cellValue = row[col].toString();
 					data.put(String.format("param%d", col), cellValue);
 					if (debug) {

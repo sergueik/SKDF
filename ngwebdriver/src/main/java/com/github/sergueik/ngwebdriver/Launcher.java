@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -59,6 +60,14 @@ public class Launcher {
 	private static Utils utils = Utils.getInstance();
 
 	private static boolean debug = false;
+	// set loadEmptyColumns to true when observed
+	// java.lang.NullPointerException or
+	// java.lang.reflect.InvocationTargetException
+	// due to incorrectly loading sparse spreadsheets
+	// NOTE: the loadEmptyColumns attribute is only supported starting with
+	// 0.0.8-SNAPSHOT of com.github.sergueik.junitparams
+	private static boolean loadEmptyColumns = false;
+
 	static Map<String, String> defaultBrowsers = new HashMap<>();
 	static {
 		defaultBrowsers.put("windows", "chrome");
@@ -108,8 +117,13 @@ public class Launcher {
 	}
 
 	public static void run(String testCase, int statusColumn) throws IOException {
-		verifyKeywordLibrary();
+		if (debug) {
+			verifyKeywordLibrary();
+		}
+		utils.setDebug(debug);
+		utils.setLoadEmptyColumns(loadEmptyColumns);
 
+		System.err.println("Loading test case from: " + testCase);
 		utils.setSheetName("Index");
 		List<Object[]> result = utils.createDataFromExcel2003(testCase);
 		String suiteStatus = null;
@@ -181,7 +195,7 @@ public class Launcher {
 	public static void setBrowser(String browser) {
 		System.err.println("Setting browser: " + browser.toLowerCase());
 		for (String x : browserDrivers.keySet()) {
-			System.err.println("Setting browser driv	ers: " + x);
+			System.err.println("Setting browser drivers: " + x);
 
 		}
 		String browserDriver = browserDrivers.get(browser.toLowerCase());
@@ -240,6 +254,7 @@ public class Launcher {
 			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
 					&& stepCell.getCellTypeEnum() != CellType.BLANK
 					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
+
 				data.put("keyword", stepCell.getStringCellValue());
 				for (int col = 1; col < statusColumn; col++) {
 					stepCell = stepRow.getCell(col);
