@@ -481,9 +481,25 @@ public final class KeywordLibrary {
 					String.format("//*[normalize-space(.) = '%s']", selectorValue));
 			break;
 
+		/*
+		 
+		 // alternatives
+		 "//a[text() = '%s']",
+			"//a[normalize-space(.) = '%s']", "//a[normalize-space(text()) = '%s']",
+			"//*[normalize-space(text()) = '%s']",
+			"//a[contains(text()[normalize-space()],'%s')]",
+			"//a[contains(normalize-space(.), '%s')]",
+			// NOTE: the next one is too permissive for a selector
+			"//*[contains(normalize-space(.), '%s')]"
+		 */
+		case "partialLinkText":
+			_elementIDs = session.getObjectIds(String
+					.format("//a[contains(normalize-space(.), '%s')]", selectorValue));
+			break;
+
 		case "linkText":
 			_elementIDs = session.getObjectIds(
-					String.format("//a[normalize-space(.) = '%s']", selectorValue));
+					String.format("//a[normalize-space(text()) = '%s']", selectorValue));
 			break;
 		default:
 			_elementIDs = session.getObjectIds(selectorValue);

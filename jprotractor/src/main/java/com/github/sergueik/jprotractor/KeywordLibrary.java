@@ -60,7 +60,7 @@ public final class KeywordLibrary {
 	private static String status;
 	private static String result;
 	private static String selectorTagName = null;
-	private static String strategy = null;
+	private static String selectorType = null;
 	private static String selectorValue = null;
 	private static String selectorRow = null;
 	private static String selectorColumn = null;
@@ -121,13 +121,13 @@ public final class KeywordLibrary {
 		return KeywordLibrary.methodTable.keySet();
 	}
 
-	private static Map<String, Method> strategies = new HashMap<>();
+	private static Map<String, Method> selectorTypes = new HashMap<>();
 
 	public static Set<String> getLocators() {
 		if (_class == null) {
 			initMethods();
 		}
-		return KeywordLibrary.strategies.keySet();
+		return KeywordLibrary.selectorTypes.keySet();
 	}
 
 	public static void closeBrowser(Map<String, String> params) {
@@ -236,44 +236,44 @@ public final class KeywordLibrary {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
 		try {
-			strategies.put("className",
+			selectorTypes.put("className",
 					By.class.getMethod("className", String.class));
-			strategies.put("css", By.class.getMethod("cssSelector", String.class));
-			strategies.put("id", By.class.getMethod("id", String.class));
-			strategies.put("linkText", By.class.getMethod("linkText", String.class));
-			strategies.put("name", By.class.getMethod("name", String.class));
-			strategies.put("tagName", By.class.getMethod("tagName", String.class));
-			strategies.put("xpath", By.class.getMethod("xpath", String.class));
+			selectorTypes.put("css", By.class.getMethod("cssSelector", String.class));
+			selectorTypes.put("id", By.class.getMethod("id", String.class));
+			selectorTypes.put("linkText", By.class.getMethod("linkText", String.class));
+			selectorTypes.put("name", By.class.getMethod("name", String.class));
+			selectorTypes.put("tagName", By.class.getMethod("tagName", String.class));
+			selectorTypes.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
 		}
 		try {
-			strategies.put("binding", NgBy.class.getMethod("binding", String.class));
-			strategies.put("buttontext",
+			selectorTypes.put("binding", NgBy.class.getMethod("binding", String.class));
+			selectorTypes.put("buttontext",
 					NgBy.class.getMethod("buttonText", String.class));
-			strategies.put("cssContainingText", NgBy.class
+			selectorTypes.put("cssContainingText", NgBy.class
 					.getMethod("cssContainingText", String.class, String.class));
-			strategies.put("model", NgBy.class.getMethod("model", String.class));
-			strategies.put("options", NgBy.class.getMethod("options", String.class));
-			strategies.put("repeater",
+			selectorTypes.put("model", NgBy.class.getMethod("model", String.class));
+			selectorTypes.put("options", NgBy.class.getMethod("options", String.class));
+			selectorTypes.put("repeater",
 					NgBy.class.getMethod("repeater", String.class));
-			strategies.put("repeaterCell", methodMissing);
-			strategies.put("repeaterColumn",
+			selectorTypes.put("repeaterCell", methodMissing);
+			selectorTypes.put("repeaterColumn",
 					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
-			strategies.put("repeaterElement", NgBy.class.getMethod("repeaterElement",
+			selectorTypes.put("repeaterElement", NgBy.class.getMethod("repeaterElement",
 					String.class, Integer.class, String.class));
-			strategies.put("repeaterRow", methodMissing);
+			selectorTypes.put("repeaterRow", methodMissing);
 			// NOTE: plural in the method name
-			strategies.put("repeaterRows",
+			selectorTypes.put("repeaterRows",
 					NgBy.class.getMethod("repeaterRows", String.class, Integer.class));
-			strategies.put("selectedOption",
+			selectorTypes.put("selectedOption",
 					NgBy.class.getMethod("selectedOption", String.class));
-			strategies.put("selectedRepeaterOption",
+			selectorTypes.put("selectedRepeaterOption",
 					NgBy.class.getMethod("selectedRepeaterOption", String.class));
 		} catch (NoSuchMethodException e) {
 			System.out.println("Execption (ignored): " + e.toString());
 		}
 		// put synthetic selectors explicitly
-		strategies.put("text", methodMissing);
+		selectorTypes.put("text", methodMissing);
 	}
 
 	public static void callMethod(String keyword, Map<String, String> params) {
@@ -614,9 +614,9 @@ public final class KeywordLibrary {
 
 	// wrapped in expectedCondition of the appropriate @apply signature
 	public static WebElement _waitFindElement(Map<String, String> params) {
-		strategy = params.get("param1");
-		if (!strategies.containsKey(strategy)) {
-			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		selectorType = params.get("param1");
+		if (!selectorTypes.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
 		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
 		selectorValue = params.get("param2");
@@ -646,9 +646,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(strategy);
+		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
-			switch (strategy) {
+			switch (selectorType) {
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
@@ -682,7 +682,7 @@ public final class KeywordLibrary {
 					Optional<WebElement> e = d.findElements(locator).stream().findFirst();
 					/*
 					if (e.isPresent()) {
-						System.err.println("apply => " + strategy + " => "
+						System.err.println("apply => " + selectorType + " => "
 								+ e.get().getAttribute("outerHTML"));
 					}
 					*/
@@ -693,7 +693,7 @@ public final class KeywordLibrary {
 			  System.err
 					.println("returned from _wait : " + _element.getAttribute("outerHTML"));
 			*/
-		} else if (strategy == "text") {
+		} else if (selectorType == "text") {
 			if (selectorTagName != null) {
 				_element = _wait.until(new ExpectedCondition<WebElement>() {
 
@@ -727,9 +727,9 @@ public final class KeywordLibrary {
 
 	// straight to WebDriver
 	private static WebElement _findElement(Map<String, String> params) {
-		strategy = params.get("param1");
-		if (!strategies.containsKey(strategy)) {
-			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		selectorType = params.get("param1");
+		if (!selectorTypes.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
 
 		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
@@ -749,11 +749,11 @@ public final class KeywordLibrary {
 		}
 		if (debug) {
 			System.err.println(String.format(
-					"strategy: \"%s\", selectorValue: \"%s\"", strategy, selectorValue));
+					"selectorType: \"%s\", selectorValue: \"%s\"", selectorType, selectorValue));
 		}
 		WebElement _element = null;
 		try {
-			switch (strategy) {
+			switch (selectorType) {
 
 			case "binding":
 				// case "exactBinding":
@@ -878,9 +878,9 @@ public final class KeywordLibrary {
 	}
 
 	public static List<WebElement> _findElements(Map<String, String> params) {
-		strategy = params.get("param1");
-		if (!strategies.containsKey(strategy)) {
-			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		selectorType = params.get("param1");
+		if (!selectorTypes.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
 		// TODO: introduce repository of selector aliases:
 		// objectRepo.getProperty(selectorValue) || selectorValue
@@ -894,7 +894,7 @@ public final class KeywordLibrary {
 		}
 		List<WebElement> _elements = new ArrayList<>();
 		try {
-			switch (strategy) {
+			switch (selectorType) {
 
 			case "binding":
 				_elements = ngDriver.findElements(NgBy.binding(selectorValue));
@@ -1005,9 +1005,9 @@ public final class KeywordLibrary {
 
 	// wait for the element to become visible
 	public static void waitVisible(Map<String, String> params) {
-		strategy = params.get("param1");
-		if (!strategies.containsKey(strategy)) {
-			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		selectorType = params.get("param1");
+		if (!selectorTypes.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
 		selectorValue = params.get("param2");
 		WebDriverWait _wait;
@@ -1020,9 +1020,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(strategy.toLowerCase());
+		matcher = pattern.matcher(selectorType.toLowerCase());
 		if (matcher.find()) {
-			switch (strategy) {
+			switch (selectorType) {
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
@@ -1053,9 +1053,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|partialButtonText|model|options)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(strategy);
+		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
-			switch (strategy) {
+			switch (selectorType) {
 			case "binding":
 				locator = NgBy.binding(selectorValue);
 				break;
@@ -1074,32 +1074,18 @@ public final class KeywordLibrary {
 			}
 			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		}
-		if (strategy == "text") {
-			try {
-				_wait.until(new ExpectedCondition<Boolean>() {
-					@Override
-					public Boolean apply(WebDriver d) {
-						String t = d.findElement(By.className("intro-message")).getText();
-						Boolean result = t.contains("Link Successfully clicked");
-						System.err.println(
-								"in apply: Text = " + t + "\nresult = " + result.toString());
-						return result;
-					}
-				});
-			} catch (Exception e) {
-				System.err.println("Exception: " + e.toString());
-				throw new RuntimeException(e);
-			}
-
+		if (selectorType == "text") {
+			_wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(
+					String.format("//*[normalize-space(text()) = '%s']", selectorValue))));
 		}
 	}
 
 	// wait for the element to become clickable
 	public static void waitClickable(Map<String, String> params) {
 
-		strategy = params.get("param1");
-		if (!strategies.containsKey(strategy)) {
-			throw new RuntimeException("Unknown Selector Type: " + strategy);
+		selectorType = params.get("param1");
+		if (!selectorTypes.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
 		}
 		selectorValue = params.get("param2");
 		WebDriverWait _wait;
@@ -1112,9 +1098,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:css|cssSelector|id|linkText|name|partialLinkText|tagName|xpath)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(strategy.toLowerCase());
+		matcher = pattern.matcher(selectorType.toLowerCase());
 		if (matcher.find()) {
-			switch (strategy) {
+			switch (selectorType) {
 			case "css":
 				locator = By.cssSelector(selectorValue);
 				break;
@@ -1146,9 +1132,9 @@ public final class KeywordLibrary {
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|partialButtonText|model|options)",
 				Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(strategy);
+		matcher = pattern.matcher(selectorType);
 		if (matcher.find()) {
-			switch (strategy) {
+			switch (selectorType) {
 			case "binding":
 				locator = NgBy.binding(selectorValue);
 				break;
@@ -1168,15 +1154,20 @@ public final class KeywordLibrary {
 			_wait.until(ExpectedConditions
 					.elementToBeClickable(ngDriver.findElement(locator)));
 		}
-		if (strategy == "text") {
+		if (selectorType == "text") {
+			_wait.until(ExpectedConditions.elementToBeClickable(By.xpath(
+					String.format("//*[normalize-space(.) = '%s']", selectorValue))));
+			/*
 			try {
 				_wait.until(new ExpectedCondition<Boolean>() {
 					@Override
 					public Boolean apply(WebDriver d) {
-						String t = d.findElement(By.className("intro-message")).getText();
-						Boolean result = t.contains("Link Successfully clicked");
-						System.err.println(
-								"in apply: Text = " + t + "\nresult = " + result.toString());
+						WebElement e = d.findElement(By.xpath(String
+								.format("//*[normalize-space(.) = '%s']", selectorValue)));
+						Boolean result = e.isDisplayed();
+						System.err
+								.println("In apply: Element = " + e.getAttribute("outerHTML")
+										+ "\nresult = " + result.toString());
 						return result;
 					}
 				});
@@ -1184,7 +1175,7 @@ public final class KeywordLibrary {
 				System.err.println("Exception: " + e.toString());
 				throw new RuntimeException(e);
 			}
-
+			*/
 		}
 	}
 
