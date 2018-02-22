@@ -33,7 +33,6 @@ public final class KeywordLibrary {
 	public static Session session;
 	private static long timeout;
 
-	private static Properties objectRepo;
 	private static String status;
 	private static String result;
 	private static String selectorType = null;
@@ -42,12 +41,14 @@ public final class KeywordLibrary {
 	private static String textData = null;
 	private static String expectedText = null;
 	private static String attributeName = null;
-	private static String selectorTagName = null;
-	private static String strategy = null;
 	private static String selectorRow = null;
 	private static String selectorColumn = null;
 	private static String selectorContainedText = null;
+	private static String selectorTagName = null;
+	// CDP's `session` supports fewer choices of selectors and does not
+	// enforce strongly-typed wrappers
 
+	private static String _selector = null;
 	private static String elementID;
 	// private static String param3;
 
@@ -55,11 +56,14 @@ public final class KeywordLibrary {
 	public static int stepWait = 150;
 	public static int flexibleWait = 120;
 	public static int implicitWait = 1;
-	public static long pollingInterval = 500;
+	public static int pollingInterval = 500;
+	public static int waitTimeout = 5000;
 
 	private static Map<String, String> methodTable = new HashMap<>();
 	static {
 		methodTable.put("CLICK", "clickElement");
+		methodTable.put("CLICK_BUTTON", "clickElement");
+		methodTable.put("CLICK_LINK", "clickElement");
 		methodTable.put("CLOSE_BROWSER", "closeBrowser");
 		methodTable.put("CREATE_BROWSER", "openBrowser");
 		methodTable.put("ELEMENT_PRESENT", "elementPresent");
@@ -72,6 +76,8 @@ public final class KeywordLibrary {
 		methodTable.put("VERIFY_TEXT", "verifyText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("WAIT", "wait");
+		methodTable.put("WAIT_ELEMENT", "waitClickable");
+		methodTable.put("WAIT_ELEMENT_CLICAKBLE", "waitClickable");
 		methodTable.put("WAIT_URL_CHANGE", "waitURLChange");
 	}
 	private static Map<String, Method> locatorTable = new HashMap<>();
@@ -85,8 +91,12 @@ public final class KeywordLibrary {
 
 	public static void navigateTo(Map<String, String> params) {
 		String url = params.get("param1");
-		System.err.println("Navigate to: " + url);
 		session.navigate(url);
+		System.err.println("Navigate to: " + url);
+		session.waitUntil(s -> s.getLocation().matches(url), waitTimeout,
+				pollingInterval);
+		System.err.println("Navigated to: " + url);
+		//
 	}
 
 	public static String getStatus() {
@@ -108,7 +118,7 @@ public final class KeywordLibrary {
 
 	public static void initMethods() {
 		try {
-			_class = Class.forName("com.github.sergueik.jprotractor.KeywordLibrary");
+			_class = Class.forName("com.github.sergueik.utils.KeywordLibrary");
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -161,8 +171,7 @@ public final class KeywordLibrary {
 			System.out.println("Exception (ignored): " + e.toString());
 		}
 		*/
-		// there is no By's
-		// use phony method
+		// there is no By's in CDP - use the phony method
 		Method methodMissing = null;
 		try {
 			// do we ever want to send correct arguments ?
@@ -224,12 +233,14 @@ public final class KeywordLibrary {
 	}
 
 	public static void enterText(Map<String, String> params) {
-		elementID = _findElement(params);
+		selectorType = params.get("param1");
 		selectorValue = params.get("param2");
 		textData = params.get("param5");
+		elementID = _findElement(params);
 		if (elementID != null) {
-			// highlight(element)
-			session.focus(selectorValue);
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			highlight(_selector);
+			session.focus(_selector);
 			session.sendKeys(textData);
 			status = "Passed";
 		} else {
@@ -238,34 +249,35 @@ public final class KeywordLibrary {
 	}
 
 	public static void clickElement(Map<String, String> params) {
+		selectorType = params.get("param1");
 		selectorValue = params.get("param2");
 		elementID = _findElement(params);
 		if (elementID != null) {
-			highlight(selectorValue);
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			highlight(_selector);
 			System.err.println("click");
-			session.click(selectorValue);
+			// does not work
+			// session.click(_selector);
+			executeScript(session, "function() { this.click(); }", _selector);
 			status = "Passed";
 		} else {
 			System.err.println("Can't click");
 			status = "Failed";
 		}
-		try {
-			Thread.sleep(stepWait);
-		} catch (InterruptedException e) {
-			// System.err.println("Ignored: " + e.toString());
-		}
-
+		sleep(1000);
 	}
 
 	public static void verifyAttribute(Map<String, String> params) {
 		boolean flag = false;
+		selectorType = params.get("param1");
+		selectorValue = params.get("param2");
 		attributeName = params.get("param5");
 		expectedValue = params.get("param6");
-		selectorValue = params.get("param2");
 		elementID = _findElement(params);
 		if (elementID != null) {
-			highlight(selectorValue);
-			flag = session.getAttribute(selectorValue, attributeName)
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			highlight(_selector);
+			flag = session.getAttribute(_selector, attributeName)
 					.equals(expectedValue);
 		}
 		if (flag)
@@ -277,12 +289,14 @@ public final class KeywordLibrary {
 	public static void verifyText(Map<String, String> params) {
 		boolean flag = false;
 
-		expectedText = params.get("param5");
+		selectorType = params.get("param1");
 		selectorValue = params.get("param2");
+		expectedText = params.get("param5");
 		elementID = _findElement(params);
 		if (elementID != null) {
-			highlight(selectorValue);
-			flag = session.getText(selectorValue).equals(expectedText);
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			highlight(_selector);
+			flag = session.getText(_selector).equals(expectedText);
 		}
 		if (flag)
 			status = "Passed";
@@ -292,12 +306,14 @@ public final class KeywordLibrary {
 
 	public static void getElementText(Map<String, String> params) {
 		String text = null;
-		selectorValue = params.get("param2");
 		String value = null;
+		selectorType = params.get("param1");
+		selectorValue = params.get("param2");
 		elementID = _findElement(params);
 		if (elementID != null) {
-			highlight(selectorValue);
-			value = session.getText(selectorValue);
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			highlight(_selector);
+			value = session.getText(_selector);
 			status = "Passed";
 			result = text;
 			System.err.println(
@@ -308,13 +324,18 @@ public final class KeywordLibrary {
 	}
 
 	public static void getElementAttribute(Map<String, String> params) {
-		attributeName = params.get("param5");
+		selectorType = params.get("param1");
 		selectorValue = params.get("param2");
+		attributeName = params.get("param5");
 		String value = null;
+		// NOTE: the elementID is no longer needed to get element Attribute,
+		// but is handy to control the test execution
 		elementID = _findElement(params);
 		if (elementID != null) {
-			highlight(selectorValue);
-			value = session.getAttribute(selectorValue, attributeName);
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			highlight(_selector);
+			// TODO: handle 'text' here
+			value = session.getAttribute(_selector, attributeName);
 			status = "Passed";
 			result = value;
 			System.err.println(
@@ -326,19 +347,70 @@ public final class KeywordLibrary {
 
 	public static void elementPresent(Map<String, String> params) {
 		Boolean flag = false;
+		selectorType = params.get("param1");
 		selectorValue = params.get("param2");
 		elementID = _findElement(params);
 		if (elementID != null) {
-			flag = isVisible(selectorValue);
+			_selector = _convertSelectorValues(selectorType, selectorValue);
+			flag = isVisible(_selector);
+			if (flag) {
+				highlight(_selector);
+				status = "Passed";
+				result = "true";
+			} else {
+				status = "Failed";
+				result = "false";
+			}
+		} else {
+			status = "Failed";
+			result = "false";
 		}
+	}
+
+	public static String _convertSelectorValues(String selectorType,
+			String selectorValue) {
+		String selector = null;
+		switch (selectorType) {
+		case "cssContainingText":
+			// TODO:
+			break;
+		case "text":
+			selector = String.format("//*[normalize-space(.) = '%s']", selectorValue);
+			break;
+		case "id":
+			// convert to CSS
+			selector = String.format("#%s", selectorValue);
+			break;
+		default:
+			selector = selectorValue;
+			break;
+		}
+
+		return selector;
+	}
+
+	public static void waitClickable(Map<String, String> params) {
+		Boolean flag = false;
+		selectorValue = params.get("param2");
+		selectorType = params.get("param1");
+		_selector = _convertSelectorValues(selectorType, selectorValue);
+		elementID = _findElement(params);
+		if (elementID != null) {
+			System.err.println("Element ID:  " + elementID);
+			flag = isVisible(_selector);
+		} else {
+			System.err.println("Nothing found for:  " + _selector);
+		}
+
 		if (flag) {
-			highlight(selectorValue);
+			highlight(_selector);
 			status = "Passed";
 			result = "true";
 		} else {
 			status = "Failed";
 			result = "false";
 		}
+
 	}
 
 	public static String _findElement(Map<String, String> params) {
@@ -361,9 +433,13 @@ public final class KeywordLibrary {
 			// TODO:
 			break;
 		case "text":
-			// TODO:
+			_elementID = session.getObjectId(
+					String.format("//*[normalize-space(.) = '%s']", selectorValue));
 			break;
-
+		case "id":
+			// convert to CSS
+			_elementID = session.getObjectId(String.format("#%s", selectorValue));
+			break;
 		default:
 			_elementID = session.getObjectId(selectorValue);
 			break;
@@ -390,10 +466,25 @@ public final class KeywordLibrary {
 		case "cssContainingText":
 			// TODO:
 			break;
+		case "id":
+			// convert to CSS
+			_elementIDs = session.getObjectIds(String.format("#%s", selectorValue));
 		case "text":
-			// TODO:
+			/*
+			session
+					.waitUntil(_session -> _session
+							.getObjectIds(String.format(
+									"//*[normalize-space(.) = '%s']/text()", selectorValue))
+							.size() > 0, waitTimeout, pollingInterval);
+							*/
+			_elementIDs = session.getObjectIds(
+					String.format("//*[normalize-space(.) = '%s']", selectorValue));
 			break;
 
+		case "linkText":
+			_elementIDs = session.getObjectIds(
+					String.format("//a[normalize-space(.) = '%s']", selectorValue));
+			break;
 		default:
 			_elementIDs = session.getObjectIds(selectorValue);
 			break;
@@ -401,14 +492,14 @@ public final class KeywordLibrary {
 		return _elementIDs;
 	}
 
-	// wait for the page url to change to contain expectedURL
+	// wait for the page url to change to specific URL
 	public static void waitURLChange(Map<String, String> params) {
 		final String expectedURL = params.get("param1");
 		final int timeout = (int) (Float.parseFloat(params.get("param7")));
 		session.waitUntil(o -> {
 			String url = o.getLocation();
 			return (boolean) url.matches(String.format("^%s.*", expectedURL));
-		}, timeout, 100);
+		}, timeout == 0 ? waitTimeout : timeout, pollingInterval);
 	}
 
 	public static void wait(Map<String, String> params) {
@@ -471,8 +562,9 @@ public final class KeywordLibrary {
 		RemoteObject result = null;
 		Object value = null;
 		try {
+			// NOTE: ObjectId must not be specified together with executionContextId
 			functionResult = session.getCommand().getRuntime().callFunctionOn(script,
-					objectId, null, null, null, null, null, null, nodeId, null);
+					objectId, null, null, null, null, null, null, null, null);
 			if (functionResult != null) {
 				result = functionResult.getResult();
 				if (result != null) {
