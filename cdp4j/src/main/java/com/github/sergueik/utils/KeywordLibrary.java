@@ -45,10 +45,10 @@ public final class KeywordLibrary {
 	private static String selectorColumn = null;
 	private static String selectorContainedText = null;
 	private static String selectorTagName = null;
-	// CDP's `session` supports fewer choices of selectors and does not
-	// enforce strongly-typed wrappers
+	// CDP's `session` supports fewer choices of selectors than Selenium
+	// but does not enforce strongly-typed wrappers
 
-	private static String _selector = null;
+	private static String selector = null;
 	private static String elementID;
 	// private static String param3;
 
@@ -233,14 +233,11 @@ public final class KeywordLibrary {
 	}
 
 	public static void enterText(Map<String, String> params) {
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
+		selector = _convertSelectorValues(params);
 		textData = params.get("param5");
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			highlight(_selector);
-			session.focus(_selector);
+		if (_findElement(selector)) {
+			highlight(selector);
+			session.focus(selector);
 			session.sendKeys(textData);
 			status = "Passed";
 		} else {
@@ -249,16 +246,13 @@ public final class KeywordLibrary {
 	}
 
 	public static void clickElement(Map<String, String> params) {
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			highlight(_selector);
+		selector = _convertSelectorValues(params);
+		if (_findElement(selector)) {
+			highlight(selector);
 			System.err.println("click");
 			// does not work
-			// session.click(_selector);
-			executeScript(session, "function() { this.click(); }", _selector);
+			// session.click(selector);
+			executeScript(session, "function() { this.click(); }", selector);
 			status = "Passed";
 		} else {
 			System.err.println("Can't click");
@@ -269,15 +263,12 @@ public final class KeywordLibrary {
 
 	public static void verifyAttribute(Map<String, String> params) {
 		boolean flag = false;
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
+		selector = _convertSelectorValues(params);
 		attributeName = params.get("param5");
 		expectedValue = params.get("param6");
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			highlight(_selector);
-			flag = session.getAttribute(_selector, attributeName)
+		if (_findElement(selector)) {
+			highlight(selector);
+			flag = session.getAttribute(selector, attributeName)
 					.equals(expectedValue);
 		}
 		if (flag)
@@ -288,15 +279,11 @@ public final class KeywordLibrary {
 
 	public static void verifyText(Map<String, String> params) {
 		boolean flag = false;
-
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
 		expectedText = params.get("param5");
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			highlight(_selector);
-			flag = session.getText(_selector).equals(expectedText);
+		selector = _convertSelectorValues(params);
+		if (_findElement(selector)) {
+			highlight(selector);
+			flag = session.getText(selector).equals(expectedText);
 		}
 		if (flag)
 			status = "Passed";
@@ -307,13 +294,10 @@ public final class KeywordLibrary {
 	public static void getElementText(Map<String, String> params) {
 		String text = null;
 		String value = null;
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			highlight(_selector);
-			value = session.getText(_selector);
+		selector = _convertSelectorValues(params);
+		if (_findElement(selector)) {
+			highlight(selector);
+			value = session.getText(selector);
 			status = "Passed";
 			result = text;
 			System.err.println(
@@ -324,18 +308,15 @@ public final class KeywordLibrary {
 	}
 
 	public static void getElementAttribute(Map<String, String> params) {
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
 		attributeName = params.get("param5");
-		String value = null;
 		// NOTE: the elementID is no longer needed to get element Attribute,
 		// but is handy to control the test execution
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			highlight(_selector);
+		selector = _convertSelectorValues(params);
+		String value = null;
+		if (_findElement(selector)) {
+			highlight(selector);
 			// TODO: handle 'text' here
-			value = session.getAttribute(_selector, attributeName);
+			value = session.getAttribute(selector, attributeName);
 			status = "Passed";
 			result = value;
 			System.err.println(
@@ -347,14 +328,11 @@ public final class KeywordLibrary {
 
 	public static void elementPresent(Map<String, String> params) {
 		Boolean flag = false;
-		selectorType = params.get("param1");
-		selectorValue = params.get("param2");
-		elementID = _findElement(params);
-		if (elementID != null) {
-			_selector = _convertSelectorValues(selectorType, selectorValue);
-			flag = isVisible(_selector);
+		selector = _convertSelectorValues(params);
+		if (_findElement(selector)) {
+			flag = isVisible(selector);
 			if (flag) {
-				highlight(_selector);
+				highlight(selector);
 				status = "Passed";
 				result = "true";
 			} else {
@@ -367,8 +345,34 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static String _convertSelectorValues(String selectorType,
-			String selectorValue) {
+	public static void waitClickable(Map<String, String> params) {
+		Boolean flag = false;
+		selector = _convertSelectorValues(params);
+		if (_findElement(selector)) {
+			System.err.println("Element ID:  " + elementID);
+			flag = isVisible(selector);
+		} else {
+			System.err.println("Nothing found for:  " + selector);
+		}
+
+		if (flag) {
+			highlight(selector);
+			status = "Passed";
+			result = "true";
+		} else {
+			status = "Failed";
+			result = "false";
+		}
+
+	}
+
+	public static String _convertSelectorValues(Map<String, String> params) {
+
+		selectorType = params.get("param1");
+		if (!locatorTable.containsKey(selectorType)) {
+			throw new RuntimeException("Unknown Selector Type: " + selectorType);
+		}
+		selectorValue = params.get("param2");
 		String selector = null;
 		switch (selectorType) {
 		case "cssContainingText":
@@ -376,6 +380,25 @@ public final class KeywordLibrary {
 			break;
 		case "text":
 			selector = String.format("//*[normalize-space(.) = '%s']", selectorValue);
+			break;
+		// possible alternatives
+		/*
+		"//a[text() = '%s']",
+		"//a[normalize-space(.) = '%s']", "//a[normalize-space(text()) = '%s']",
+		"//*[normalize-space(text()) = '%s']",
+		"//a[contains(text()[normalize-space()],'%s')]",
+		"//a[contains(normalize-space(.), '%s')]",
+		// NOTE: the next one is too permissive for a selector
+		"//*[contains(normalize-space(.), '%s')]"
+		*/
+		case "partialLinkText":
+			selector = String.format("//a[contains(normalize-space(.), '%s')]",
+					selectorValue);
+			break;
+
+		case "linkText":
+			selector = String.format("//a[normalize-space(text()) = '%s']",
+					selectorValue);
 			break;
 		case "id":
 			// convert to CSS
@@ -386,125 +409,36 @@ public final class KeywordLibrary {
 			break;
 		}
 
+		if (params.containsKey("param0")) {
+			params.replace("param0", selector);
+		} else {
+			params.put("param0", selector);
+		}
 		return selector;
-	}
-
-	public static void waitClickable(Map<String, String> params) {
-		Boolean flag = false;
-		selectorValue = params.get("param2");
-		selectorType = params.get("param1");
-		_selector = _convertSelectorValues(selectorType, selectorValue);
-		elementID = _findElement(params);
-		if (elementID != null) {
-			System.err.println("Element ID:  " + elementID);
-			flag = isVisible(_selector);
-		} else {
-			System.err.println("Nothing found for:  " + _selector);
-		}
-
-		if (flag) {
-			highlight(_selector);
-			status = "Passed";
-			result = "true";
-		} else {
-			status = "Failed";
-			result = "false";
-		}
 
 	}
 
-	public static String _findElement(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
-		}
-		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
-		selectorValue = params.get("param2");
-		if (params.containsKey("param5")) {
-			selectorContainedText = params.get("param5");
-		}
-		if (params.containsKey("param6")) {
-			selectorTagName = params.get("param6");
-		}
-
-		String _elementID = null;
-		switch (selectorType) {
-		case "cssContainingText":
-			// TODO:
-			break;
-		case "text":
-			_elementID = session.getObjectId(
-					String.format("//*[normalize-space(.) = '%s']", selectorValue));
-			break;
-		case "id":
-			// convert to CSS
-			_elementID = session.getObjectId(String.format("#%s", selectorValue));
-			break;
-		default:
-			_elementID = session.getObjectId(selectorValue);
-			break;
-		}
-		return _elementID;
-	}
-
-	public static List<String> _findElements(Map<String, String> params) {
-		selectorType = params.get("param1");
-		if (!locatorTable.containsKey(selectorType)) {
-			throw new RuntimeException("Unknown Selector Type: " + selectorType);
-		}
-		/* TODO: objectRepo.getProperty(selectorValue) || selectorValue */
-		selectorValue = params.get("param2");
-		if (params.containsKey("param5")) {
-			selectorContainedText = params.get("param5");
-		}
-		if (params.containsKey("param6")) {
-			selectorTagName = params.get("param6");
-		}
-
-		List<String> _elementIDs = new ArrayList<>();
-		switch (selectorType) {
-		case "cssContainingText":
-			// TODO:
-			break;
-		case "id":
-			// convert to CSS
-			_elementIDs = session.getObjectIds(String.format("#%s", selectorValue));
-		case "text":
-			/*
-			session
-					.waitUntil(_session -> _session
-							.getObjectIds(String.format(
-									"//*[normalize-space(.) = '%s']/text()", selectorValue))
-							.size() > 0, waitTimeout, pollingInterval);
-							*/
-			_elementIDs = session.getObjectIds(
-					String.format("//*[normalize-space(.) = '%s']", selectorValue));
-			break;
-
+	// TODO: resume using param0
+	public static boolean _findElement(String selector) {
 		/*
-		 
-		 // alternatives
-		 "//a[text() = '%s']",
-			"//a[normalize-space(.) = '%s']", "//a[normalize-space(text()) = '%s']",
-			"//*[normalize-space(text()) = '%s']",
-			"//a[contains(text()[normalize-space()],'%s')]",
-			"//a[contains(normalize-space(.), '%s')]",
-			// NOTE: the next one is too permissive for a selector
-			"//*[contains(normalize-space(.), '%s')]"
-		 */
-		case "partialLinkText":
-			_elementIDs = session.getObjectIds(String
-					.format("//a[contains(normalize-space(.), '%s')]", selectorValue));
-			break;
-
-		case "linkText":
-			_elementIDs = session.getObjectIds(
-					String.format("//a[normalize-space(text()) = '%s']", selectorValue));
-			break;
-		default:
-			_elementIDs = session.getObjectIds(selectorValue);
-			break;
+		selector = params.get("param1");
+		if (params.containsKey("param5")) {
+			selectorContainedText = params.get("param5");
 		}
+		if (params.containsKey("param6")) {
+			selectorTagName = params.get("param6");
+		}
+		// TODO(?): objectRepo.getProperty(selectorValue) || selectorValue
+		selectorValue = params.get("param2");
+		
+		 */
+
+		String _elementID = session.getObjectId(selectorValue);
+		return (_elementID != null);
+	}
+
+	public static List<String> _findElements(String selector) {
+		List<String> _elementIDs = session.getObjectIds(selectorValue);
 		return _elementIDs;
 	}
 
