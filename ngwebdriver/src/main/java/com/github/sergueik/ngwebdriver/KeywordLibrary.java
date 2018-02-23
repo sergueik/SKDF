@@ -474,14 +474,13 @@ public class KeywordLibrary {
 			status = "Failed";
 	}
 
-	// TODO: fix the method
 	public void verifyTag(Map<String, String> params) {
 		boolean flag = false;
 		expectedTag = params.get("param5");
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
-			flag = element.getText().equals(expectedText);
+			flag = element.getTagName().equals(expectedTag);
 		}
 		if (flag)
 			status = "Passed";

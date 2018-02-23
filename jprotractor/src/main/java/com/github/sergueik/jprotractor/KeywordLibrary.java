@@ -240,27 +240,30 @@ public final class KeywordLibrary {
 					By.class.getMethod("className", String.class));
 			selectorTypes.put("css", By.class.getMethod("cssSelector", String.class));
 			selectorTypes.put("id", By.class.getMethod("id", String.class));
-			selectorTypes.put("linkText", By.class.getMethod("linkText", String.class));
+			selectorTypes.put("linkText",
+					By.class.getMethod("linkText", String.class));
 			selectorTypes.put("name", By.class.getMethod("name", String.class));
 			selectorTypes.put("tagName", By.class.getMethod("tagName", String.class));
 			selectorTypes.put("xpath", By.class.getMethod("xpath", String.class));
 		} catch (NoSuchMethodException e) {
 		}
 		try {
-			selectorTypes.put("binding", NgBy.class.getMethod("binding", String.class));
+			selectorTypes.put("binding",
+					NgBy.class.getMethod("binding", String.class));
 			selectorTypes.put("buttontext",
 					NgBy.class.getMethod("buttonText", String.class));
 			selectorTypes.put("cssContainingText", NgBy.class
 					.getMethod("cssContainingText", String.class, String.class));
 			selectorTypes.put("model", NgBy.class.getMethod("model", String.class));
-			selectorTypes.put("options", NgBy.class.getMethod("options", String.class));
+			selectorTypes.put("options",
+					NgBy.class.getMethod("options", String.class));
 			selectorTypes.put("repeater",
 					NgBy.class.getMethod("repeater", String.class));
 			selectorTypes.put("repeaterCell", methodMissing);
 			selectorTypes.put("repeaterColumn",
 					NgBy.class.getMethod("repeaterColumn", String.class, String.class));
-			selectorTypes.put("repeaterElement", NgBy.class.getMethod("repeaterElement",
-					String.class, Integer.class, String.class));
+			selectorTypes.put("repeaterElement", NgBy.class.getMethod(
+					"repeaterElement", String.class, Integer.class, String.class));
 			selectorTypes.put("repeaterRow", methodMissing);
 			// NOTE: plural in the method name
 			selectorTypes.put("repeaterRows",
@@ -479,7 +482,7 @@ public final class KeywordLibrary {
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
-			flag = element.getText().equals(expectedText);
+			flag = element.getTagName().equals(expectedTag);
 		}
 		if (flag)
 			status = "Passed";
@@ -748,8 +751,9 @@ public final class KeywordLibrary {
 			selectorTagName = params.get("param6");
 		}
 		if (debug) {
-			System.err.println(String.format(
-					"selectorType: \"%s\", selectorValue: \"%s\"", selectorType, selectorValue));
+			System.err
+					.println(String.format("selectorType: \"%s\", selectorValue: \"%s\"",
+							selectorType, selectorValue));
 		}
 		WebElement _element = null;
 		try {
@@ -1075,8 +1079,8 @@ public final class KeywordLibrary {
 			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		}
 		if (selectorType == "text") {
-			_wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(
-					String.format("//*[normalize-space(text()) = '%s']", selectorValue))));
+			_wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(String
+					.format("//*[normalize-space(text()) = '%s']", selectorValue))));
 		}
 	}
 
