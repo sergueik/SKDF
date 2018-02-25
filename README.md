@@ -208,6 +208,7 @@ The advantages from taking such approach are discussed many times:
 * [NPOI](https://github.com/dotnetcore/NPOI)
 * [ExcelDataReader (.net)](https://github.com/ExcelDataReader/ExcelDataReader)
 * [LinqToExcel](https://github.com/paulyoder/LinqToExcel)
+* [save-selenium-webdriver-testng-result-excel](http://www.techbeamers.com/save-selenium-webdriver-testng-result-excel/)
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
