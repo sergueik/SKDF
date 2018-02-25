@@ -33,6 +33,7 @@ import com.github.sergueik.junitparams.Utils;
 
 /**
  * Standalone Launcher for Selenium WebDriver Keyword Driven Library
+ * 
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 
@@ -100,21 +101,18 @@ public class Launcher {
 
 	public static void main(String[] args) throws IOException {
 
-		propertiesMap = PropertiesParser
-				.getProperties(String.format("%s/src/main/resources/%s",
-						System.getProperty("user.dir"), propertiesFileName));
-		String browser = (propertiesMap.get("browser") != null)
-				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
+		propertiesMap = PropertiesParser.getProperties(
+				String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
+		String browser = (propertiesMap.get("browser") != null) ? propertiesMap.get("browser")
+				: defaultBrowsers.get(osName);
 
 		keywordLibrary = KeywordLibrary.Instance();
 		setBrowser(browser);
-		statusColumn = (propertiesMap.get("statusColumn") != null)
-				? Integer.parseInt(propertiesMap.get("statusColumn"))
+		statusColumn = (propertiesMap.get("statusColumn") != null) ? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
-		testCase = (propertiesMap.get("testCase") != null)
-				? propertiesMap.get("testCase")
-				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
-						System.getenv("USERPROFILE"), defaultTestCase));
+		testCase = (propertiesMap.get("testCase") != null) ? propertiesMap.get("testCase")
+				: getPropertyEnv("testCase",
+						String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), defaultTestCase));
 
 		run(testCase, statusColumn);
 
@@ -282,8 +280,7 @@ public class Launcher {
 
 
 	@SuppressWarnings("deprecation")
-	public static void writeStatus(String sheetName, int rowNumber)
-			throws IOException {
+	public static void writeStatus(String sheetName, int rowNumber) throws IOException {
 		File file = new File(testCase);
 
 		FileInputStream istream = new FileInputStream(file);
@@ -296,10 +293,8 @@ public class Launcher {
 		// https://stackoverflow.com/questions/10912578/apache-poi-xssfcolor-from-hex-code
 		// https://github.com/rahulrathore44/ExcelReportGenerator
 		HSSFCellStyle cellStyle = workbook.createCellStyle();
-		cellStyle.setFillForegroundColor(
-				(status.matches("(?i:Passed)")) ? HSSFColor.BRIGHT_GREEN.index
-						: (status.matches("(?i:Failed)")) ? HSSFColor.RED.index
-								: HSSFColor.WHITE.index);
+		cellStyle.setFillForegroundColor((status.matches("(?i:Passed)")) ? HSSFColor.BRIGHT_GREEN.index
+				: (status.matches("(?i:Failed)")) ? HSSFColor.RED.index : HSSFColor.WHITE.index);
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		cell.setCellStyle(cellStyle);
 
@@ -343,8 +338,7 @@ public class Launcher {
 		case ERROR:
 			throw new RuntimeException("Cell has an error");
 		default:
-			throw new IllegalStateException(
-					"Cell type: " + type + " is not supported");
+			throw new IllegalStateException("Cell type: " + type + " is not supported");
 		}
 		return (result == null) ? null : result.toString();
 	}
