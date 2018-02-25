@@ -1080,11 +1080,33 @@ public class KeywordLibrary {
 						+ " is not implemented yet");
 			}
 			try {
+				_wait.until(new ExpectedCondition<Boolean>() {
+					@Override
+					public Boolean apply(WebDriver d) {
+						WebElement e = d.findElement(locator);
+						Boolean result = e.isDisplayed();
+						System.err
+								.println("In apply: Element = " + e.getAttribute("outerHTML")
+										+ "\nresult = " + result.toString());
+						return result;
+					}
+				});
+				status = "Passed";
+			} catch (Exception e) {
+				System.err.println("Exception: " + e.toString());
+				status = "Failed";
+				// throw new RuntimeException(e);
+			}
+
+			/*
+			try {
 				_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 				status = "Passed";
 			} catch (TimeoutException e) {
 				status = "Failed";
 			}
+			*/
+
 		}
 		if (selectorType == "text") {
 			try {
@@ -1186,13 +1208,35 @@ public class KeywordLibrary {
 				throw new RuntimeException("wait code for Selector type " + selectorType
 						+ " is not implemented yet");
 			}
+
 			try {
-				_wait.until(ExpectedConditions
-						.elementToBeClickable(driver.findElement(locator)));
+				_wait.until(new ExpectedCondition<Boolean>() {
+					@Override
+					public Boolean apply(WebDriver d) {
+						WebElement e = d.findElement(locator);
+						Boolean result = e.isDisplayed();
+						System.err
+								.println("In apply: Element = " + e.getAttribute("outerHTML")
+										+ "\nresult = " + result.toString());
+						return result;
+					}
+				});
 				status = "Passed";
-			} catch (NoSuchElementException e) {
+			} catch (Exception e) {
+				System.err.println("Exception: " + e.toString());
 				status = "Failed";
+				// throw new RuntimeException(e);
 			}
+
+			/*
+						try {
+							_wait.until(ExpectedConditions
+									.elementToBeClickable(driver.findElement(locator)));
+							status = "Passed";
+						} catch (NoSuchElementException e) {
+							status = "Failed";
+						}
+						*/
 		}
 		if (selectorType == "text") {
 			try {
