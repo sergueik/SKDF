@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -75,6 +77,7 @@ public class KeywordLibrary {
 	public WebDriverWait wait;
 	public Actions actions;
 	private String browser = "chrome";
+	private static String baseURL = "about:blank";
 	private String osName = getOsName();
 	private String chromeDriverPath = null;
 	private String geckoDriverPath = null;
@@ -256,7 +259,8 @@ public class KeywordLibrary {
 					By.class.getMethod("className", String.class));
 			selectorTypes.put("css", By.class.getMethod("cssSelector", String.class));
 			selectorTypes.put("id", By.class.getMethod("id", String.class));
-			selectorTypes.put("linkText", By.class.getMethod("linkText", String.class));
+			selectorTypes.put("linkText",
+					By.class.getMethod("linkText", String.class));
 			selectorTypes.put("name", By.class.getMethod("name", String.class));
 			selectorTypes.put("tagName", By.class.getMethod("tagName", String.class));
 			selectorTypes.put("xpath", By.class.getMethod("xpath", String.class));
@@ -293,7 +297,8 @@ public class KeywordLibrary {
 					ByAngular.class.getMethod("exactBinding", String.class));
 			selectorTypes.put("exactRepeater",
 					ByAngular.class.getMethod("exactRepeater", String.class));
-			selectorTypes.put("model", ByAngular.class.getMethod("model", String.class));
+			selectorTypes.put("model",
+					ByAngular.class.getMethod("model", String.class));
 			selectorTypes.put("options",
 					ByAngular.class.getMethod("options", String.class));
 			selectorTypes.put("partialButtonText",
@@ -380,10 +385,18 @@ public class KeywordLibrary {
 				System.err.println("Open: " + this.getBrowser());
 			}
 			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
+			status = "Passed";
 			// TODO: pass from launcher
 			// driver.get(config.getProperty("url"));
-			driver.manage().window().maximize();
-			status = "Passed";
+			try {
+				// TODO: pass from launcher
+				driver.get(baseURL);
+				driver.manage().window().maximize();
+			} catch (WebDriverException e1) {
+				// disconnected: unable to connect to renderer
+				System.err
+						.println("Exception in openBrowser (ignored): " + e1.toString());
+			}
 		} catch (Exception e) {
 			status = "Failed";
 		}
@@ -393,13 +406,17 @@ public class KeywordLibrary {
 		element = _findElement(params);
 		textData = params.get("param5");
 		if (element != null) {
-			highlight(element);
-			System.err.println("Entering text: " + textData);
-			element.sendKeys(textData);
-			sleep(100);
-			element = _findElement(params);
-			System.err.println("Entered text: " + element.getAttribute("value"));
-			status = "Passed";
+			try {
+				highlight(element);
+				System.err.println("Entering text: " + textData);
+				element.sendKeys(textData);
+				sleep(100);
+				element = _findElement(params);
+				System.err.println("Entered text: " + element.getAttribute("value"));
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		} else {
 			status = "Failed";
 		}
@@ -411,15 +428,21 @@ public class KeywordLibrary {
 			Thread.sleep(secondsLong);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			status = "Failed";
 		}
+		status = "Passed";
 	}
 
 	public void clickButton(Map<String, String> params) {
 		element = _findElement(params);
 		if (element != null) {
-			highlight(element);
-			element.click();
-			status = "Passed";
+			try {
+				highlight(element);
+				element.click();
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		} else {
 			status = "Failed";
 		}
@@ -428,9 +451,14 @@ public class KeywordLibrary {
 	public void clickLink(Map<String, String> params) {
 		element = _findElement(params);
 		if (element != null) {
-			highlight(element);
-			element.click();
-			status = "Passed";
+			try {
+				highlight(element);
+				System.err.println("click");
+				element.click();
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		} else {
 			status = "Failed";
 		}
@@ -456,6 +484,7 @@ public class KeywordLibrary {
 				status = "Failed";
 			}
 		} else {
+			System.err.println("element not found");
 			status = "Failed";
 		}
 	}
@@ -471,7 +500,8 @@ public class KeywordLibrary {
 		if (flag)
 			status = "Passed";
 		else
-			status = "Failed";
+			System.err.println("element not found");
+		status = "Failed";
 	}
 
 	public void verifyTag(Map<String, String> params) {
@@ -556,8 +586,13 @@ public class KeywordLibrary {
 		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 			if (element != null) {
-				highlight(element);
-				element.click();
+				try {
+					highlight(element);
+					element.click();
+					status = "Passed";
+				} catch (NoSuchElementException e) {
+					status = "Failed";
+				}
 			}
 		} else {
 			expectedValue = params.get("param5");
@@ -569,9 +604,13 @@ public class KeywordLibrary {
 			}
 		}
 		if (element != null) {
-			highlight(element);
-			element.click();
-			status = "Passed";
+			try {
+				highlight(element);
+				element.click();
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		} else {
 			status = "Failed";
 		}
@@ -590,9 +629,13 @@ public class KeywordLibrary {
 			}
 		}
 		if (element != null) {
-			highlight(element);
-			element.click();
-			status = "Passed";
+			try {
+				highlight(element);
+				element.click();
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		} else {
 			status = "Failed";
 		}
@@ -911,7 +954,7 @@ public class KeywordLibrary {
 		return _elements;
 	}
 
-	// wait for the page url to change to contain expectedURL
+	// wait for the page url to change to contain expected url
 	public void waitURLChange(Map<String, String> params) {
 		WebDriverWait _wait;
 		try {
@@ -919,6 +962,7 @@ public class KeywordLibrary {
 			_wait = new WebDriverWait(driver, timeout);
 		} catch (java.lang.NumberFormatException e) {
 			_wait = wait;
+			status = "Failed";
 		}
 		final String expectedURL = params.get("param1"); // was: param8
 		// NOTE: cannot change: the code below would lead
@@ -940,7 +984,12 @@ public class KeywordLibrary {
 			}
 			return (boolean) url.matches(String.format("^%s.*", expectedURL));
 		};
-		_wait.until(urlChange);
+		try {
+			_wait.until(urlChange);
+			status = "Passed";
+		} catch (TimeoutException e) {
+			status = "Failed";
+		}
 	}
 
 	// wait for the element to become visible
@@ -991,7 +1040,12 @@ public class KeywordLibrary {
 				locator = By.xpath(selectorValue);
 				break;
 			}
-			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+			try {
+				_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+				status = "Passed";
+			} catch (TimeoutException e) {
+				status = "Failed";
+			}
 		}
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|exactBinding|cssContainingText|model|options|partialButtonText)",
@@ -1025,11 +1079,21 @@ public class KeywordLibrary {
 				throw new RuntimeException("wait code for Selector type " + selectorType
 						+ " is not implemented yet");
 			}
-			_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+			try {
+				_wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+				status = "Passed";
+			} catch (TimeoutException e) {
+				status = "Failed";
+			}
 		}
 		if (selectorType == "text") {
-			_wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(
-					String.format("//*[normalize-space(.) = '%s']", selectorValue))));
+			try {
+				_wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(
+						String.format("//*[normalize-space(.) = '%s']", selectorValue))));
+				status = "Passed";
+			} catch (TimeoutException e) {
+				status = "Failed";
+			}
 		}
 	}
 
@@ -1082,8 +1146,13 @@ public class KeywordLibrary {
 				locator = By.xpath(selectorValue);
 				break;
 			}
-			_wait.until(
-					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+			try {
+				_wait.until(ExpectedConditions
+						.elementToBeClickable(driver.findElement(locator)));
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		}
 		pattern = Pattern.compile(
 				"(?:binding|buttonText|exactBinding|cssContainingText|model|options|partialButtonText)",
@@ -1117,12 +1186,22 @@ public class KeywordLibrary {
 				throw new RuntimeException("wait code for Selector type " + selectorType
 						+ " is not implemented yet");
 			}
-			_wait.until(
-					ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
+			try {
+				_wait.until(ExpectedConditions
+						.elementToBeClickable(driver.findElement(locator)));
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		}
 		if (selectorType == "text") {
-			_wait.until(ExpectedConditions.elementToBeClickable(By.xpath(
-					String.format("//*[normalize-space(.) = '%s']", selectorValue))));
+			try {
+				_wait.until(ExpectedConditions.elementToBeClickable(By.xpath(
+						String.format("//*[normalize-space(.) = '%s']", selectorValue))));
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
 		}
 	}
 
