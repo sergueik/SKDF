@@ -1,6 +1,6 @@
 package com.github.sergueik.ngwebdriver;
 /**
- * Copyright 2017 Serguei Kouzmine
+ * Copyright 2017,2018 Serguei Kouzmine
  */
 
 // 	import static org.hamcrest.Matchers.hasItems;
@@ -33,6 +33,7 @@ import com.github.sergueik.ngwebdriver.KeywordLibrary;
 
 /**
  * Test for Launcher for Selenium WebDriver Keyword Driven Library
+ * 
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 
@@ -69,26 +70,23 @@ public class KeywordLibraryTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		// Load property file from project directory (not from the jar)
-		propertiesMap = PropertiesParser
-				.getProperties(String.format("%s/src/main/resources/%s",
-						System.getProperty("user.dir"), propertiesFileName));
-		String browser = (propertiesMap.get("browser") != null)
-				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
+		propertiesMap = PropertiesParser.getProperties(
+				String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
+		String browser = (propertiesMap.get("browser") != null) ? propertiesMap.get("browser")
+				: defaultBrowsers.get(osName);
 
-		statusColumn = (propertiesMap.get("statusColumn") != null)
-				? Integer.parseInt(propertiesMap.get("statusColumn"))
+		statusColumn = (propertiesMap.get("statusColumn") != null) ? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
-		testCase = (propertiesMap.get("testCase") != null)
-				? propertiesMap.get("testCase")
-				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
-						System.getenv("USERPROFILE"), defaultTestCase));
+		testCase = (propertiesMap.get("testCase") != null) ? propertiesMap.get("testCase")
+				: getPropertyEnv("testCase",
+						String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), defaultTestCase));
 		keywordLibrary = KeywordLibrary.Instance();
 		Launcher.setKeywordLibrary(keywordLibrary);
-		Launcher.setBrowser(browser);
+		Launcher.setPropertiesMap(propertiesMap);
 		Launcher.setOsName(osName);
+		Launcher.setBrowser(browser);
 		Launcher.setTestCase(testCase);
 		Launcher.setStatusColumn(statusColumn);
-		Launcher.setPropertiesMap(propertiesMap);
 	}
 
 	public static String getPropertyEnv(String name, String defaultValue) {

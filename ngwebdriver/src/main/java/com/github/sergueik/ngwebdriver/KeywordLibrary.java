@@ -109,10 +109,10 @@ public class KeywordLibrary {
 	private String param1;
 	private String param2;
 	private String param3;
-	public int scriptTimeout = 5;
+	public int scriptTimeout = 30;
 	public int stepWait = 150;
 	public int flexibleWait = 120;
-	public int implicitWait = 1;
+	public int implicitWait = 10;
 	public long pollingInterval = 500;
 
 	private Map<String, String> methodTable = new HashMap<>();
@@ -384,6 +384,8 @@ public class KeywordLibrary {
 			if (debug) {
 				System.err.println("Open: " + this.getBrowser());
 			}
+			wait = new WebDriverWait(driver, flexibleWait);
+			wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
 			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
 			status = "Passed";
 			// TODO: pass from launcher
@@ -398,6 +400,8 @@ public class KeywordLibrary {
 						.println("Exception in openBrowser (ignored): " + e1.toString());
 			}
 		} catch (Exception e) {
+			System.err
+			.println("Exception in openBrowser: " + e.toString());
 			status = "Failed";
 		}
 	}
@@ -823,7 +827,7 @@ public class KeywordLibrary {
 				break;
 			}
 		} catch (Exception e) {
-			System.err.println("Exception: " + e.toString());
+			System.err.println("Exception in _findElement: " + e.toString());
 		}
 		return _element;
 	}

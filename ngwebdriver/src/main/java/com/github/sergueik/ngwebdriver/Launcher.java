@@ -142,27 +142,40 @@ public class Launcher {
 				readsuiteTestSteps(suiteName);
 			}
 		}
-
-		FileInputStream file = new FileInputStream(testCase);
-		HSSFWorkbook workbook = new HSSFWorkbook(file);
-		HSSFSheet indexSheet = workbook.getSheet("Index");
-		for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
-			Row indexRow = indexSheet.getRow(row);
-			suiteName = safeCellToString(indexRow.getCell(0));
-			suiteStatus = safeCellToString(indexRow.getCell(1));
-			if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
-				if (debug) {
-					System.err.println("Reading suite: " + suiteName);
-				}
-				readsuiteTestSteps(suiteName);
-			}
-		}
-		workbook.close();
 		if (debug) {
 			System.err.println("Done");
 		}
 	}
 
+	private static void readsuiteTestSteps(String suiteName) throws IOException {
+		utils.setSheetName(suiteName);
+		List<Object[]> steps = utils.createDataFromExcel2003(testCase);
+		for (int step = 0; step < steps.size(); step++) {
+			Object[] row = steps.get(step);
+			Map<String, String> data = new HashMap<String, String>();
+			String keyword = (String) row[0];
+			if (debug) {
+				System.err.println("Keyword:" + keyword);
+			}
+			for (int col = 1; col < row.length; col++) {
+				if (col == statusColumn) {
+					continue;
+				}
+				if (row[col] != null
+						&& StringUtils.isNotBlank(row[col].toString().trim())) {
+					String cellValue = row[col].toString();
+					data.put(String.format("param%d", col), cellValue);
+					if (debug) {
+						System.err.println("Column[param" + col + "] = " + cellValue);
+					}
+				}
+			}
+			keywordLibrary.callMethod(keyword, data);
+			writeStatus(suiteName, step + 1);
+		}
+	}
+
+	/*
 	private static void readsuiteTestSteps(String suiteName) throws IOException {
 		Map<Integer, Map<String, String>> steps = readSteps(suiteName);
 		for (int step = 0; step < steps.size(); step++) {
@@ -177,12 +190,60 @@ public class Launcher {
 			writeStatus(suiteName, step + 1);
 		}
 	}
-
+	// reads the spreadsheet into a hash of step keywords and parameters indexed
+	// by column number and step number
+	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
+			throws IOException {
+		Map<String, String> data = new HashMap<>();
+		Map<Integer, Map<String, String>> stepDataMap = new HashMap<>();
+		FileInputStream file = new FileInputStream(testCase);
+	
+		HSSFWorkbook workbook = new HSSFWorkbook(file);
+		HSSFSheet testcaseSheet = workbook.getSheet(sheetName);
+		Row stepRow;
+		Cell stepCell;
+		for (int row = 1; row <= testcaseSheet.getLastRowNum(); row++) {
+			if (debug) {
+				System.err.println("Row: " + row);
+			}
+			data = new HashMap<>();
+			stepRow = testcaseSheet.getRow(row);
+			stepCell = stepRow.getCell(0);
+			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
+					&& stepCell.getCellTypeEnum() != CellType.BLANK
+					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
+	
+				data.put("keyword", stepCell.getStringCellValue());
+				for (int col = 1; col < statusColumn; col++) {
+					stepCell = stepRow.getCell(col);
+					String cellValue = null;
+					try {
+						cellValue = safeCellToString(stepCell);
+					} catch (NullPointerException | IllegalStateException e) {
+						// TODO: observed Exception (ignored):
+						// java.lang.IllegalStateException: The formula cell is not
+						// supported
+						System.err.println("Exception (ignored): " + e.toString());
+						cellValue = "";
+					}
+					if (debug) {
+						System.err.println("Column[" + col + "] = " + cellValue);
+					}
+					data.put(String.format("param%d", col), cellValue);
+				}
+				stepDataMap.put(row - 1, data);
+			}
+		}
+		workbook.close();
+		return stepDataMap;
+	}
+	
+	
 	// TODO
 	private void readTestCase() {
-
+	
 	}
-
+	*/
 	private static void verifyKeywordLibrary() {
 		String[] expected = new String[] { "VERIFY_TAG" };
 		Set<String> result = new HashSet<>();
@@ -197,27 +258,28 @@ public class Launcher {
 	}
 
 	public static void setBrowser(String browser) {
-		System.err.println("Setting browser: " + browser.toLowerCase());
-		for (String x : browserDrivers.keySet()) {
-			System.err.println("Setting browser drivers: " + x);
-
-		}
+		// TODO: debug
 		String browserDriver = browserDrivers.get(browser.toLowerCase());
-		keywordLibrary.setBrowser(browser);
-
+		String browserDriverPath = propertiesMap.get(browserDriver);
+		Launcher.keywordLibrary.setBrowser(browser);
+		if (debug) {
+			System.err
+					.println(String.format("Setting browser driver path: %s \"%s\"", browserDriver, browserDriverPath));
+		}
 		if (browser.matches("chrome")) {
-			keywordLibrary.setChromeDriverPath(propertiesMap.get(browserDriver));
+			keywordLibrary.setChromeDriverPath(browserDriverPath);
 		}
 		if (browser.matches("firefox")) {
-			keywordLibrary.setGeckoDriverPath(propertiesMap.get(browserDriver));
+			keywordLibrary.setGeckoDriverPath(browserDriverPath);
 		}
 		if (browser.matches("edge")) {
-			keywordLibrary.setEdgeDriverPath(propertiesMap.get(browserDriver));
+			keywordLibrary.setEdgeDriverPath(browserDriverPath);
 		}
 		if (browser.matches("ie")) {
-			keywordLibrary.setIeDriverPath(propertiesMap.get(browserDriver));
+			keywordLibrary.setIeDriverPath(browserDriverPath);
 		}
 	}
+
 
 	@SuppressWarnings("deprecation")
 	public static void writeStatus(String sheetName, int rowNumber)
@@ -250,54 +312,6 @@ public class Launcher {
 		} catch (FileNotFoundException e) {
 			System.err.println("Exception (ignored) " + e.toString());
 		}
-	}
-
-	// reads the spreadsheet into a hash of step keywords and parameters indexed
-	// by column number and step number
-	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
-			throws IOException {
-		Map<String, String> data = new HashMap<>();
-		Map<Integer, Map<String, String>> stepDataMap = new HashMap<>();
-		FileInputStream file = new FileInputStream(testCase);
-
-		HSSFWorkbook workbook = new HSSFWorkbook(file);
-		HSSFSheet testcaseSheet = workbook.getSheet(sheetName);
-		Row stepRow;
-		Cell stepCell;
-		for (int row = 1; row <= testcaseSheet.getLastRowNum(); row++) {
-			if (debug) {
-				System.err.println("Row: " + row);
-			}
-			data = new HashMap<>();
-			stepRow = testcaseSheet.getRow(row);
-			stepCell = stepRow.getCell(0);
-			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
-					&& stepCell.getCellTypeEnum() != CellType.BLANK
-					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
-
-				data.put("keyword", stepCell.getStringCellValue());
-				for (int col = 1; col < statusColumn; col++) {
-					stepCell = stepRow.getCell(col);
-					String cellValue = null;
-					try {
-						cellValue = safeCellToString(stepCell);
-					} catch (NullPointerException | IllegalStateException e) {
-						// TODO: observed Exception (ignored):
-						// java.lang.IllegalStateException: The formula cell is not
-						// supported
-						System.err.println("Exception (ignored): " + e.toString());
-						cellValue = "";
-					}
-					if (debug) {
-						System.err.println("Column[" + col + "] = " + cellValue);
-					}
-					data.put(String.format("param%d", col), cellValue);
-				}
-				stepDataMap.put(row - 1, data);
-			}
-		}
-		workbook.close();
-		return stepDataMap;
 	}
 
 	// Safe conversion of type Excel cell object to String value

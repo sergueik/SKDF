@@ -78,10 +78,10 @@ public final class KeywordLibrary {
 	private static String param2;
 	private static String param3;
 
-	public static int scriptTimeout = 5;
+	public static int scriptTimeout = 30;
 	public static int stepWait = 150;
 	public static int flexibleWait = 120;
-	public static int implicitWait = 1;
+	public static int implicitWait = 10;
 	public static long pollingInterval = 500;
 
 	private static String browser = "chrome";
@@ -356,11 +356,13 @@ public final class KeywordLibrary {
 			if (debug) {
 				System.err.println("Open: " + KeywordLibrary.getBrowser());
 			}
+			driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 			wait = new WebDriverWait(driver, flexibleWait);
 			wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
 			ngDriver = new NgWebDriver(driver);
 			status = "Passed";
 			try {
+				// TODO: pass from launcher
 				driver.get(baseURL);
 				driver.manage().window().maximize();
 			} catch (WebDriverException e1) {
@@ -369,8 +371,7 @@ public final class KeywordLibrary {
 						.println("Exception in openBrowser (ignored): " + e1.toString());
 			}
 		} catch (Exception e) {
-			System.err
-			.println("Exception in openBrowser: " + e.toString());
+			System.err.println("Exception in openBrowser: " + e.toString());
 			status = "Failed";
 		}
 	}
@@ -424,14 +425,13 @@ public final class KeywordLibrary {
 	public static void clickButton(Map<String, String> params) {
 		element = _findElement(params);
 		if (element != null) {
-			highlight(element);
 			try {
+				highlight(element);
 				element.click();
 				status = "Passed";
 			} catch (NoSuchElementException e) {
 				status = "Failed";
 			}
-
 		} else {
 			status = "Failed";
 		}
@@ -442,9 +442,9 @@ public final class KeywordLibrary {
 		// experimental
 		// element = _waitFindElement(params);
 		if (element != null) {
-			highlight(element);
-			System.err.println("click");
 			try {
+				highlight(element);
+				System.err.println("click");
 				element.click();
 				status = "Passed";
 			} catch (NoSuchElementException e) {
@@ -496,16 +496,22 @@ public final class KeywordLibrary {
 
 	public static void verifyText(Map<String, String> params) {
 		boolean flag = false;
+		String elementText = null;
 		expectedText = params.get("param5");
 		element = _findElement(params);
 		if (element != null) {
 			highlight(element);
-			flag = element.getText().contains((CharSequence) expectedText);
+			elementText = element.getText().trim();
+			flag = elementText.contains((CharSequence) expectedText);
 		}
-		if (flag)
+		if (flag) {
+			System.err.println("Verified: " + elementText);
 			status = "Passed";
-		else
+		} else {
+			System.err.println(String.format("Mismatch: actual: '%s' expected: '%s'",
+					elementText, expectedText));
 			status = "Failed";
+		}
 	}
 
 	public static void verifyTag(Map<String, String> params) {
@@ -575,8 +581,8 @@ public final class KeywordLibrary {
 		if (!params.containsKey("param5")) {
 			element = _findElement(params);
 			if (element != null) {
-				highlight(element);
 				try {
+					highlight(element);
 					element.click();
 					status = "Passed";
 				} catch (NoSuchElementException e) {
@@ -593,8 +599,8 @@ public final class KeywordLibrary {
 			}
 		}
 		if (element != null) {
-			highlight(element);
 			try {
+				highlight(element);
 				element.click();
 				status = "Passed";
 			} catch (NoSuchElementException e) {
@@ -618,8 +624,8 @@ public final class KeywordLibrary {
 			}
 		}
 		if (element != null) {
-			highlight(element);
 			try {
+				highlight(element);
 				element.click();
 				status = "Passed";
 			} catch (NoSuchElementException e) {
@@ -1036,7 +1042,7 @@ public final class KeywordLibrary {
 		return _elements;
 	}
 
-	// wait for the page url to change to contain expectedURL
+	// wait for the page url to change to contain expected url
 	public static void waitURLChange(Map<String, String> params) {
 		WebDriverWait _wait;
 		try {

@@ -144,36 +144,17 @@ public class Launcher {
 				if (debug) {
 					System.err.println("Loading test suite : " + suiteName);
 				}
-				readsuiteTestStepsWIP(suiteName);
-				// TODO: remove legacy code
-				// readsuiteTestSteps(suiteName);
+				readsuiteTestSteps(suiteName);
 			}
 		}
-		/*
-				FileInputStream file = new FileInputStream(testCase);
-				HSSFWorkbook workbook = new HSSFWorkbook(file);
-				HSSFSheet indexSheet = workbook.getSheet("Index");
-				for (int row = 1; row <= indexSheet.getLastRowNum(); row++) {
-					Row indexRow = indexSheet.getRow(row);
-					suiteName = safeCellToString(indexRow.getCell(0));
-					suiteStatus = safeCellToString(indexRow.getCell(1));
-					if (suiteStatus.equalsIgnoreCase("yes") && !suiteName.isEmpty()) {
-						if (debug) {
-							System.err.println("Reading suite: " + suiteName);
-						}
-						readsuiteTestSteps(suiteName);
-					}
-				}
-				workbook.close();
-		*/
 		if (debug) {
 			System.err.println("Done");
 		}
 
 	}
 
-	// WIP
-	private static void readsuiteTestStepsWIP(String suiteName)
+	// NOTE: renamed from readsuiteTestStepsWIP
+	private static void readsuiteTestSteps(String suiteName)
 			throws IOException {
 		utils.setSheetName(suiteName);
 		List<Object[]> steps = utils.createDataFromExcel2003(testCase);
@@ -197,22 +178,6 @@ public class Launcher {
 					}
 				}
 			}
-			KeywordLibrary.callMethod(keyword, data);
-			writeStatus(suiteName, step + 1);
-		}
-	}
-
-	private static void readsuiteTestSteps(String suiteName) throws IOException {
-		Map<Integer, Map<String, String>> steps = readSteps(suiteName);
-
-		for (int step = 0; step < steps.size(); step++) {
-			Map<String, String> data = steps.get(step);
-			for (String param : new ArrayList<String>(data.keySet())) {
-				if (data.get(param) == null) {
-					data.remove(param);
-				}
-			}
-			String keyword = data.get("keyword");
 			KeywordLibrary.callMethod(keyword, data);
 			writeStatus(suiteName, step + 1);
 		}
@@ -290,94 +255,6 @@ public class Launcher {
 		} catch (FileNotFoundException e) {
 			System.err.println("Exception (ignored) " + e.toString());
 		}
-	}
-
-	// reads the spreadsheet into a hash of step keywords and parameters indexed
-	// by column number and step number
-	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
-			throws IOException {
-		Map<String, String> data = new HashMap<>();
-		Map<Integer, Map<String, String>> stepDataMap = new HashMap<>();
-		System.err.println("Reading test case: " + testCase);
-		FileInputStream file = new FileInputStream(testCase);
-
-		HSSFWorkbook workbook = new HSSFWorkbook(file);
-		HSSFSheet testcaseSheet = workbook.getSheet(sheetName);
-		Row stepRow;
-		Cell stepCell;
-		for (int row = 1; row <= testcaseSheet.getLastRowNum(); row++) {
-			if (debug) {
-				System.err.println("Row: " + row);
-			}
-			data = new HashMap<>();
-			stepRow = testcaseSheet.getRow(row);
-			stepCell = stepRow.getCell(0);
-			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
-					&& stepCell.getCellTypeEnum() != CellType.BLANK
-					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
-				data.put("keyword", stepCell.getStringCellValue());
-				if (debug) {
-					System.err.println("Keyword:" + stepCell.getStringCellValue());
-				}
-				for (int col = 1; col < statusColumn; col++) {
-					stepCell = stepRow.getCell(col);
-					if (col == statusColumn) {
-						continue;
-					}
-					String cellValue = null;
-					try {
-						cellValue = safeCellToString(stepCell);
-					} catch (NullPointerException | IllegalStateException e) {
-						System.err.println("Exception (ignored): " + e.toString());
-						cellValue = "";
-					}
-					if (cellValue != null) {
-						if (debug) {
-							System.err.println("Column[param" + col + "] = " + cellValue);
-						}
-						data.put(String.format("param%d", col), cellValue);
-					}
-				}
-				stepDataMap.put(row - 1, data);
-			}
-		}
-		workbook.close();
-		return stepDataMap;
-	}
-
-	// Safe conversion of type Excel cell object to String value
-	public static String safeCellToString(org.apache.poi.ss.usermodel.Cell cell) {
-
-		if (cell == null) {
-			return null;
-		}
-		CellType type = cell.getCellTypeEnum();
-		Object result;
-		switch (type) {
-		case _NONE:
-			result = null;
-			break;
-		case NUMERIC:
-			result = cell.getNumericCellValue();
-			break;
-		case STRING:
-			result = cell.getStringCellValue();
-			break;
-		case FORMULA:
-			throw new IllegalStateException("The formula cell is not supported");
-		case BLANK:
-			result = null;
-			break;
-		case BOOLEAN:
-			result = cell.getBooleanCellValue();
-			break;
-		case ERROR:
-			throw new RuntimeException("Cell has an error");
-		default:
-			throw new IllegalStateException(
-					"Cell type: " + type + " is not supported");
-		}
-		return (result == null) ? null : result.toString();
 	}
 
 	public static String getPropertyEnv(String name, String defaultValue) {
