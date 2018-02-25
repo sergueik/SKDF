@@ -398,6 +398,8 @@ public class KeywordLibrary {
 						.println("Exception in openBrowser (ignored): " + e1.toString());
 			}
 		} catch (Exception e) {
+			System.err
+			.println("Exception in openBrowser: " + e.toString());
 			status = "Failed";
 		}
 	}
