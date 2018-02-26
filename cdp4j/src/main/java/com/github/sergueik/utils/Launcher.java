@@ -1,4 +1,7 @@
 package com.github.sergueik.utils;
+/**
+ * Copyright 2018 Serguei Kouzmine
+ */
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +24,7 @@ import org.apache.poi.ss.usermodel.Row;
 import com.github.sergueik.utils.KeywordLibrary;
 
 /**
- * Standalone Launcher for Selenium WebDriver Keyword Driven Library
+ * Standalone Launcher for CDP4J Keyword Driven Library
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 

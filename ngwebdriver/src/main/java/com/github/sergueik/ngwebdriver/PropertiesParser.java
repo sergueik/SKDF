@@ -1,5 +1,7 @@
 package com.github.sergueik.ngwebdriver;
-
+/**
+ * Copyright 2017,2018 Serguei Kouzmine
+ */
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

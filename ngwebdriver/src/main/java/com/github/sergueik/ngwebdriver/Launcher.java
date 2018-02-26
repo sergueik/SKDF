@@ -1,5 +1,7 @@
 package com.github.sergueik.ngwebdriver;
-
+/**
+ * Copyright 2017,2018 Serguei Kouzmine
+ */
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -101,18 +103,21 @@ public class Launcher {
 
 	public static void main(String[] args) throws IOException {
 
-		propertiesMap = PropertiesParser.getProperties(
-				String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
-		String browser = (propertiesMap.get("browser") != null) ? propertiesMap.get("browser")
-				: defaultBrowsers.get(osName);
+		propertiesMap = PropertiesParser
+				.getProperties(String.format("%s/src/main/resources/%s",
+						System.getProperty("user.dir"), propertiesFileName));
+		String browser = (propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
 
 		keywordLibrary = KeywordLibrary.Instance();
 		setBrowser(browser);
-		statusColumn = (propertiesMap.get("statusColumn") != null) ? Integer.parseInt(propertiesMap.get("statusColumn"))
+		statusColumn = (propertiesMap.get("statusColumn") != null)
+				? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
-		testCase = (propertiesMap.get("testCase") != null) ? propertiesMap.get("testCase")
-				: getPropertyEnv("testCase",
-						String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), defaultTestCase));
+		testCase = (propertiesMap.get("testCase") != null)
+				? propertiesMap.get("testCase")
+				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
+						System.getenv("USERPROFILE"), defaultTestCase));
 
 		run(testCase, statusColumn);
 
@@ -173,75 +178,6 @@ public class Launcher {
 		}
 	}
 
-	/*
-	private static void readsuiteTestSteps(String suiteName) throws IOException {
-		Map<Integer, Map<String, String>> steps = readSteps(suiteName);
-		for (int step = 0; step < steps.size(); step++) {
-			Map<String, String> data = steps.get(step);
-			for (String param : new ArrayList<String>(data.keySet())) {
-				if (data.get(param) == null) {
-					data.remove(param);
-				}
-			}
-			String keyword = data.get("keyword");
-			keywordLibrary.callMethod(keyword, data);
-			writeStatus(suiteName, step + 1);
-		}
-	}
-	// reads the spreadsheet into a hash of step keywords and parameters indexed
-	// by column number and step number
-	public static Map<Integer, Map<String, String>> readSteps(String sheetName)
-			throws IOException {
-		Map<String, String> data = new HashMap<>();
-		Map<Integer, Map<String, String>> stepDataMap = new HashMap<>();
-		FileInputStream file = new FileInputStream(testCase);
-	
-		HSSFWorkbook workbook = new HSSFWorkbook(file);
-		HSSFSheet testcaseSheet = workbook.getSheet(sheetName);
-		Row stepRow;
-		Cell stepCell;
-		for (int row = 1; row <= testcaseSheet.getLastRowNum(); row++) {
-			if (debug) {
-				System.err.println("Row: " + row);
-			}
-			data = new HashMap<>();
-			stepRow = testcaseSheet.getRow(row);
-			stepCell = stepRow.getCell(0);
-			if (stepCell != null && stepCell.getCellTypeEnum() != CellType._NONE
-					&& stepCell.getCellTypeEnum() != CellType.BLANK
-					&& !stepRow.getCell(0).getStringCellValue().trim().isEmpty()) {
-	
-				data.put("keyword", stepCell.getStringCellValue());
-				for (int col = 1; col < statusColumn; col++) {
-					stepCell = stepRow.getCell(col);
-					String cellValue = null;
-					try {
-						cellValue = safeCellToString(stepCell);
-					} catch (NullPointerException | IllegalStateException e) {
-						// TODO: observed Exception (ignored):
-						// java.lang.IllegalStateException: The formula cell is not
-						// supported
-						System.err.println("Exception (ignored): " + e.toString());
-						cellValue = "";
-					}
-					if (debug) {
-						System.err.println("Column[" + col + "] = " + cellValue);
-					}
-					data.put(String.format("param%d", col), cellValue);
-				}
-				stepDataMap.put(row - 1, data);
-			}
-		}
-		workbook.close();
-		return stepDataMap;
-	}
-	
-	
-	// TODO
-	private void readTestCase() {
-	
-	}
-	*/
 	private static void verifyKeywordLibrary() {
 		String[] expected = new String[] { "VERIFY_TAG" };
 		Set<String> result = new HashSet<>();
@@ -261,8 +197,8 @@ public class Launcher {
 		String browserDriverPath = propertiesMap.get(browserDriver);
 		Launcher.keywordLibrary.setBrowser(browser);
 		if (debug) {
-			System.err
-					.println(String.format("Setting browser driver path: %s \"%s\"", browserDriver, browserDriverPath));
+			System.err.println(String.format("Setting browser driver path: %s \"%s\"",
+					browserDriver, browserDriverPath));
 		}
 		if (browser.matches("chrome")) {
 			keywordLibrary.setChromeDriverPath(browserDriverPath);
@@ -278,9 +214,9 @@ public class Launcher {
 		}
 	}
 
-
 	@SuppressWarnings("deprecation")
-	public static void writeStatus(String sheetName, int rowNumber) throws IOException {
+	public static void writeStatus(String sheetName, int rowNumber)
+			throws IOException {
 		File file = new File(testCase);
 
 		FileInputStream istream = new FileInputStream(file);
@@ -293,8 +229,10 @@ public class Launcher {
 		// https://stackoverflow.com/questions/10912578/apache-poi-xssfcolor-from-hex-code
 		// https://github.com/rahulrathore44/ExcelReportGenerator
 		HSSFCellStyle cellStyle = workbook.createCellStyle();
-		cellStyle.setFillForegroundColor((status.matches("(?i:Passed)")) ? HSSFColor.BRIGHT_GREEN.index
-				: (status.matches("(?i:Failed)")) ? HSSFColor.RED.index : HSSFColor.WHITE.index);
+		cellStyle.setFillForegroundColor(
+				(status.matches("(?i:Passed)")) ? HSSFColor.BRIGHT_GREEN.index
+						: (status.matches("(?i:Failed)")) ? HSSFColor.RED.index
+								: HSSFColor.WHITE.index);
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		cell.setCellStyle(cellStyle);
 
@@ -338,7 +276,8 @@ public class Launcher {
 		case ERROR:
 			throw new RuntimeException("Cell has an error");
 		default:
-			throw new IllegalStateException("Cell type: " + type + " is not supported");
+			throw new IllegalStateException(
+					"Cell type: " + type + " is not supported");
 		}
 		return (result == null) ? null : result.toString();
 	}

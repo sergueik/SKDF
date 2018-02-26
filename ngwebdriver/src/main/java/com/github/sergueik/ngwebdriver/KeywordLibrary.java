@@ -1,4 +1,7 @@
 package com.github.sergueik.ngwebdriver;
+/**
+ * Copyright 2017,2018 Serguei Kouzmine
+ */
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,6 +68,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Keyword Driven Library for Selenium WebDriver
+ * 
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 
@@ -386,6 +390,7 @@ public class KeywordLibrary {
 			}
 			wait = new WebDriverWait(driver, flexibleWait);
 			wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
+			driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
 			status = "Passed";
 			// TODO: pass from launcher
@@ -400,8 +405,6 @@ public class KeywordLibrary {
 						.println("Exception in openBrowser (ignored): " + e1.toString());
 			}
 		} catch (Exception e) {
-			System.err
-			.println("Exception in openBrowser: " + e.toString());
 			status = "Failed";
 		}
 	}

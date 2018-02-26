@@ -1,4 +1,7 @@
 package com.github.sergueik.jprotractor;
+/**
+ * Copyright 2017,2018 Serguei Kouzmine
+ */
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

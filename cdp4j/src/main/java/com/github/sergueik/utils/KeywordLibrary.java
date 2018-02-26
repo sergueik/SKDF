@@ -1,4 +1,7 @@
 package com.github.sergueik.utils;
+/**
+ * Copyright 2018 Serguei Kouzmine
+ */
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -158,19 +161,7 @@ public final class KeywordLibrary {
 		} catch (ClassNotFoundException | SecurityException e) {
 		}
 		*/
-		/*
-		// optional: list all methods
-		try {
-			Class<?> _locatorHelper = Class.forName("com.jprotractor.NgBy");
-			Method[] _locatorMethods = _locatorHelper.getMethods();
-			for (Method _locatorMethod : _locatorMethods) {
-				System.err.println("Adding locator of com.jprotractor.NgBy:"
-						+ _locatorMethod.toString());
-			}
-		} catch (ClassNotFoundException | SecurityException e) {
-			System.out.println("Exception (ignored): " + e.toString());
-		}
-		*/
+
 		// there is no By's in CDP - use the phony method
 		Method methodMissing = null;
 		try {

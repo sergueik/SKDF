@@ -70,16 +70,19 @@ public class KeywordLibraryTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		// Load property file from project directory (not from the jar)
-		propertiesMap = PropertiesParser.getProperties(
-				String.format("%s/src/main/resources/%s", System.getProperty("user.dir"), propertiesFileName));
-		String browser = (propertiesMap.get("browser") != null) ? propertiesMap.get("browser")
-				: defaultBrowsers.get(osName);
+		propertiesMap = PropertiesParser
+				.getProperties(String.format("%s/src/main/resources/%s",
+						System.getProperty("user.dir"), propertiesFileName));
+		String browser = (propertiesMap.get("browser") != null)
+				? propertiesMap.get("browser") : defaultBrowsers.get(osName);
 
-		statusColumn = (propertiesMap.get("statusColumn") != null) ? Integer.parseInt(propertiesMap.get("statusColumn"))
+		statusColumn = (propertiesMap.get("statusColumn") != null)
+				? Integer.parseInt(propertiesMap.get("statusColumn"))
 				: defaultStatusColumn;
-		testCase = (propertiesMap.get("testCase") != null) ? propertiesMap.get("testCase")
-				: getPropertyEnv("testCase",
-						String.format("%s\\Desktop\\%s", System.getenv("USERPROFILE"), defaultTestCase));
+		testCase = (propertiesMap.get("testCase") != null)
+				? propertiesMap.get("testCase")
+				: getPropertyEnv("testCase", String.format("%s\\Desktop\\%s",
+						System.getenv("USERPROFILE"), defaultTestCase));
 		keywordLibrary = KeywordLibrary.Instance();
 		Launcher.setKeywordLibrary(keywordLibrary);
 		Launcher.setPropertiesMap(propertiesMap);

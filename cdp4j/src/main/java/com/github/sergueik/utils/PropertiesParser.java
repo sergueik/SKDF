@@ -1,4 +1,7 @@
 package com.github.sergueik.utils;
+/**
+ * Copyright 2018 Serguei Kouzmine
+ */
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Property file Reader for Selenium WebDriver Keyword Driven Library
+ * Property file Reader for CDP4J sKeyword Driven Library
  * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
  */
 
