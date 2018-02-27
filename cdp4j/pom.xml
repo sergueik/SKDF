@@ -28,18 +28,17 @@
     <json.version>20170516</json.version>
     <junit.version>4.12</junit.version>
     <log4j.version>2.5</log4j.version>
-    <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
-    <testng.version>6.9.10</testng.version>
     <poi.version>3.17</poi.version>
     <poiooxml.version>3.17</poiooxml.version>
-    <testng.version>6.9.10</testng.version>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <testng.version>6.11</testng.version>
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
@@ -47,11 +46,6 @@
       <groupId>io.webfolder</groupId>
       <artifactId>cdp4j</artifactId>
       <version>${cdp4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
