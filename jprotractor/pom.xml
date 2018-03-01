@@ -28,7 +28,6 @@
     <poiooxml.version>3.17</poiooxml.version>
     <selenium.firefox-driver.version>3.5.1</selenium.firefox-driver.version>
     <selenium.version>3.5.1</selenium.version>
-    <testng.version>6.11</testng.version>
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
