@@ -21,8 +21,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -128,8 +130,11 @@ public class KeywordLibrary {
 		methodTable.put("CLICK_LINK", "clickLink");
 		methodTable.put("CLICK_RADIO", "clickRadioButton");
 		methodTable.put("CLOSE_BROWSER", "closeBrowser");
+		methodTable.put("CONFIRM_ALERT", "confirmAlert");
 		methodTable.put("CREATE_BROWSER", "openBrowser");
+		methodTable.put("DISMISS_ALERT", "dismissAlert");
 		methodTable.put("ELEMENT_PRESENT", "elementPresent");
+		methodTable.put("FILL_ALERT_PROMPT", "fillAlertPrompt");
 		methodTable.put("GET_ATTR", "getElementAttribute");
 		methodTable.put("GET_TEXT", "getElementText");
 		methodTable.put("GOTO_URL", "navigateTo");
@@ -959,6 +964,59 @@ public class KeywordLibrary {
 			// TODO: logging
 		}
 		return _elements;
+	}
+
+	public void fillAlertPrompt(Map<String, String> params) {
+		textData = params.get("param5");
+		try {
+			// fill the data in the alert
+			Alert alert = driver.switchTo().alert();
+			System.err.println("In alert " + alert.toString());
+			alert.sendKeys(textData);
+			alert.accept();
+			status = "Passed";
+		} catch (NoAlertPresentException ex) {
+			// Alert not present - ignore
+			status = "Failed";
+		} catch (WebDriverException ex) {
+			System.err
+					.println("Alert was not handled : " + ex.getStackTrace().toString());
+			status = "Failed";
+			return;
+		}
+	}
+
+	public void confirmAlert(Map<String, String> params) {
+		try {
+			// confirm alert
+			driver.switchTo().alert().accept();
+			status = "Passed";
+		} catch (NoAlertPresentException ex) {
+			// Alert not present - ignore
+			status = "Passed";
+		} catch (WebDriverException ex) {
+			status = "Failed";
+			System.err
+					.println("Alert was not handled : " + ex.getStackTrace().toString());
+			return;
+		}
+	}
+
+	public void dismissAlert(Map<String, String> params) {
+		try {
+			// dismiss alert
+			driver.switchTo().alert().dismiss();
+			status = "Passed";
+		} catch (NoAlertPresentException ex) {
+			// Alert not present - ignore
+			status = "Passed";
+		} catch (WebDriverException ex) {
+			status = "Failed";
+			System.err
+					.println("Alert was not handled : " + ex.getStackTrace().toString());
+			return;
+		}
+
 	}
 
 	// wait for the page url to change to contain expected url
