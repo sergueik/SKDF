@@ -23,7 +23,6 @@
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
     <ngwebdriver.version>1.1.2</ngwebdriver.version>
-    <phantomjsdriver.version>1.2.1</phantomjsdriver.version>
     <poi.version>3.17</poi.version>
     <poiooxml.version>3.17</poiooxml.version>
     <selenium.firefox-driver.version>3.5.1</selenium.firefox-driver.version>
@@ -106,12 +105,6 @@
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-support</artifactId>
       <version>${selenium.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.codeborne</groupId>
-      <artifactId>phantomjsdriver</artifactId>
-      <version>${phantomjsdriver.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
