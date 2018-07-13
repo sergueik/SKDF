@@ -211,8 +211,6 @@ public final class KeywordLibrary {
 			SessionFactory factory = launcher.launch();
 			session = factory.create();
 			status = "Passed";
-			session.installSizzle();
-			session.useSizzle();
 			session.clearCookies();
 			session.clearCache();
 			session.setUserAgent(
