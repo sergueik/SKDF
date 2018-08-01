@@ -112,7 +112,7 @@ public final class KeywordLibrary {
 		methodTable.put("CREATE_BROWSER", "openBrowser");
 		methodTable.put("DISMISS_ALERT", "dismissAlert");
 		methodTable.put("ELEMENT_PRESENT", "elementPresent");
-		methodTable.put("FILL_ALERT_PROMPT", "fillAlertPrompt");
+		methodTable.put("SENT_KEYS_ALERT", "sendKeysAlert");
 		methodTable.put("GET_ATTR", "getElementAttribute");
 		methodTable.put("GET_TEXT", "getElementText");
 		methodTable.put("GOTO_URL", "navigateTo");
@@ -1281,7 +1281,7 @@ public final class KeywordLibrary {
 		}
 	}
 
-	public static void fillAlertPrompt(Map<String, String> params) {
+	public static void sendKeysAlert(Map<String, String> params) {
 		textData = params.get("param5");
 		try {
 			// fill the data in the alert
