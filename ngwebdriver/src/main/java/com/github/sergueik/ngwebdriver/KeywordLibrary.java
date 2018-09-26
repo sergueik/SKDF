@@ -6,9 +6,12 @@ package com.github.sergueik.ngwebdriver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import java.time.Duration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,7 +122,7 @@ public class KeywordLibrary {
 	public int stepWait = 150;
 	public int flexibleWait = 120;
 	public int implicitWait = 10;
-	public long pollingInterval = 500;
+	public int pollingInterval = 500;
 
 	private Map<String, String> methodTable = new HashMap<>();
 	{
@@ -134,7 +137,7 @@ public class KeywordLibrary {
 		methodTable.put("CREATE_BROWSER", "openBrowser");
 		methodTable.put("DISMISS_ALERT", "dismissAlert");
 		methodTable.put("ELEMENT_PRESENT", "elementPresent");
-		methodTable.put("SENT_KEYS_ALERT", "sendKeysAlert");
+		methodTable.put("SEND_KEYS_ALERT", "sendKeysAlert");
 		methodTable.put("GET_ATTR", "getElementAttribute");
 		methodTable.put("GET_TEXT", "getElementText");
 		methodTable.put("GOTO_URL", "navigateTo");
@@ -164,6 +167,15 @@ public class KeywordLibrary {
 	public void closeBrowser(Map<String, String> params) {
 		driver.quit();
 	}
+
+	public void setPollingInterval(long value) {
+		this.pollingInterval = (int) value;
+	}
+
+	public void setPollingInterval(int value) {
+		this.pollingInterval = value;
+	}
+
 
 	public void navigateTo(Map<String, String> params) {
 		String url = params.get("param1");
@@ -394,7 +406,7 @@ public class KeywordLibrary {
 				System.err.println("Open: " + this.getBrowser());
 			}
 			wait = new WebDriverWait(driver, flexibleWait);
-			wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
+			wait.pollingEvery(Duration.ofMillis(pollingInterval));
 			driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
 			status = "Passed";
@@ -1331,7 +1343,7 @@ public class KeywordLibrary {
 		if (wait == null) {
 			wait = new WebDriverWait(driver, flexibleWait);
 		}
-		wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
+		wait.pollingEvery(Duration.ofMillis(pollingInterval));
 		try {
 			wait.until(ExpectedConditions.visibilityOf(element));
 			if (driver instanceof JavascriptExecutor) {

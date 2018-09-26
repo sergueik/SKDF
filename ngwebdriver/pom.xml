@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.ngwebdriver</groupId>
   <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.6-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -25,8 +25,8 @@
     <ngwebdriver.version>1.1.4</ngwebdriver.version>
     <poi.version>3.17</poi.version>
     <poiooxml.version>3.17</poiooxml.version>
-    <selenium.firefox-driver.version>3.5.1</selenium.firefox-driver.version>
-    <selenium.version>3.5.1</selenium.version>
+    <selenium.version>3.13.0</selenium.version>
+    <selenium.firefox-driver.version>${selenium.version}</selenium.firefox-driver.version>
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
@@ -40,6 +40,17 @@
       <groupId>com.paulhammant</groupId>
       <artifactId>ngwebdriver</artifactId>
       <version>${ngwebdriver.version}</version>
+      <exclusions>
+        <!-- exclude alternative versions of  Selenium jar -->
+        <exclusion>
+          <groupId>org.seleniumhq.selenium</groupId>
+          <artifactId>selenium-java</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.seleniumhq.selenium</groupId>
+          <artifactId>selenium-server</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>

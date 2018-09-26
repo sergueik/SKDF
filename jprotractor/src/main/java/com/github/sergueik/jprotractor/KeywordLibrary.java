@@ -6,9 +6,12 @@ package com.github.sergueik.jprotractor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import java.time.Duration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +90,7 @@ public final class KeywordLibrary {
 	public static int stepWait = 150;
 	public static int flexibleWait = 120;
 	public static int implicitWait = 10;
-	public static long pollingInterval = 500;
+	public static int pollingInterval = 500;
 
 	private static String browser = "chrome";
 	private static String baseURL = "about:blank";
@@ -112,7 +115,7 @@ public final class KeywordLibrary {
 		methodTable.put("CREATE_BROWSER", "openBrowser");
 		methodTable.put("DISMISS_ALERT", "dismissAlert");
 		methodTable.put("ELEMENT_PRESENT", "elementPresent");
-		methodTable.put("SENT_KEYS_ALERT", "sendKeysAlert");
+		methodTable.put("SEND_KEYS_ALERT", "sendKeysAlert");
 		methodTable.put("GET_ATTR", "getElementAttribute");
 		methodTable.put("GET_TEXT", "getElementText");
 		methodTable.put("GOTO_URL", "navigateTo");
@@ -177,6 +180,15 @@ public final class KeywordLibrary {
 	private KeywordLibrary() { // private constructor
 		_class = null;
 	}
+
+	public static void setPollingInterval(long value) {
+		KeywordLibrary.pollingInterval = (int) value;
+	}
+
+	public static void setPollingInterval(int value) {
+		KeywordLibrary.pollingInterval = value;
+	}
+
 
 	public static void initMethods() {
 		try {
@@ -366,7 +378,7 @@ public final class KeywordLibrary {
 			}
 			driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 			wait = new WebDriverWait(driver, flexibleWait);
-			wait.pollingEvery(pollingInterval, TimeUnit.MILLISECONDS);
+			wait.pollingEvery(Duration.ofMillis(pollingInterval));
 			ngDriver = new NgWebDriver(driver);
 			status = "Passed";
 			try {
