@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.ngwebdriver</groupId>
   <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.6-SNAPSHOT</version>
+  <version>0.10-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -41,7 +41,6 @@
       <artifactId>ngwebdriver</artifactId>
       <version>${ngwebdriver.version}</version>
       <exclusions>
-        <!-- exclude alternative versions of  Selenium jar -->
         <exclusion>
           <groupId>org.seleniumhq.selenium</groupId>
           <artifactId>selenium-java</artifactId>

@@ -46,7 +46,6 @@
      <systemPath>${project.basedir}/src/main/resources/jprotractor-${jprotractor.version}.jar</systemPath>
 -->
       <exclusions>
-        <!-- exclude alternative versions of  Selenium jar -->
         <exclusion>
           <groupId>org.seleniumhq.selenium</groupId>
           <artifactId>selenium-java</artifactId>
