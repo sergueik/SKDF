@@ -6,7 +6,7 @@ package com.github.sergueik.jprotractor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -103,6 +103,7 @@ public final class KeywordLibrary {
 
 	private static Map<String, String> methodTable = new HashMap<>();
 	static {
+		methodTable.put("FAST_ENTER_TEXT", "fastEnterText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("CLICK", "clickButton");
 		methodTable.put("CLICK_BUTTON", "clickButton");
@@ -188,7 +189,6 @@ public final class KeywordLibrary {
 	public static void setPollingInterval(int value) {
 		KeywordLibrary.pollingInterval = value;
 	}
-
 
 	public static void initMethods() {
 		try {
@@ -341,7 +341,10 @@ public final class KeywordLibrary {
 										? "C:\\java\\selenium\\chromedriver.exe"
 										: "/var/run/chromedriver"
 								: chromeDriverPath).getAbsolutePath());
+				System.err.println("Launching Chrome");
 				driver = new ChromeDriver();
+				System.err.println(
+						driver == null ? "Failed to launch Chrome" : "Launched Chrome");
 				break;
 			case "firefox":
 				System.setProperty("webdriver.gecko.driver",
@@ -440,6 +443,27 @@ public final class KeywordLibrary {
 		} else {
 			status = "Failed";
 		}
+	}
+
+	public static void fastEnterText(Map<String, String> params) {
+		element = _findElement(params);
+		textData = params.get("param5");
+		if (element != null) {
+			highlight(element);
+			System.err.println("Entering text: " + textData);
+			try {
+				fastSetText(element, textData);
+				sleep(100);
+				element = _findElement(params);
+				System.err.println("Entered text: " + element.getAttribute("value"));
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
+		} else {
+			status = "Failed";
+		}
+
 	}
 
 	public static void clickButton(Map<String, String> params) {
@@ -1361,16 +1385,61 @@ public final class KeywordLibrary {
 	public static void highlight(WebElement element, long highlight_interval) {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(element));
-			if (driver instanceof JavascriptExecutor) {
-				((JavascriptExecutor) driver).executeScript(
-						"arguments[0].style.border='3px solid yellow'", element);
-			}
+			executeScript("arguments[0].style.border='3px solid yellow'", element);
 			Thread.sleep(highlight_interval);
-			if (driver instanceof JavascriptExecutor) {
-				((JavascriptExecutor) driver)
-						.executeScript("arguments[0].style.border=''", element);
-			}
+			executeScript("arguments[0].style.border=''", element);
 		} catch (InterruptedException e) {
+			System.err.println("Ignored: " + e.toString());
+		}
+	}
+
+	// http://www.javawithus.com/tutorial/using-ellipsis-to-accept-variable-number-of-arguments
+	public static Object executeScript(String script, Object... arguments) {
+		if (driver instanceof JavascriptExecutor) {
+			JavascriptExecutor javascriptExecutor = JavascriptExecutor.class
+					.cast(driver);
+			return javascriptExecutor.executeScript(script, arguments);
+		} else {
+			throw new RuntimeException("Script execution failed.");
+		}
+	}
+
+	private static String getScriptContent(String scriptName) {
+		try {
+			final InputStream stream = KeywordLibrary.class.getClassLoader()
+					.getResourceAsStream(scriptName);
+			final byte[] bytes = new byte[stream.available()];
+			stream.read(bytes);
+			return new String(bytes, "UTF-8");
+		} catch (IOException e) {
+			throw new RuntimeException(scriptName);
+		}
+	}
+
+	public static void fastSetText(String selectorOfElement, String text) {
+		fastSetText(selectorOfElement, text, 0);
+	}
+
+	public static void fastSetText(String selector, String text, long interval) {
+		String script = getScriptContent("setValueWithSelector.js");
+		try {
+			executeScript(script, selector, text);
+		} catch (Exception e) {
+			System.err.println("Ignored: " + e.toString());
+		}
+	}
+
+	public static void fastSetText(WebElement element, String text) {
+		fastSetText(element, text, 0);
+	}
+
+	public static void fastSetText(WebElement element, String text,
+			long interval) {
+		String script = getScriptContent("setValue.js");
+		try {
+			wait.until(ExpectedConditions.visibilityOf(element));
+			executeScript(script, element, text);
+		} catch (Exception e) {
 			System.err.println("Ignored: " + e.toString());
 		}
 	}

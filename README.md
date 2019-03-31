@@ -9,12 +9,15 @@ The project builds two runnable jars (`com.github.sergueik.jprotractor` and `com
 ```bash
 cp TestCase.xls ~/Desktop
 pushd jprotractor
-mvn clean install
-java -jar target/skdf_jprotractor-0.9-SNAPSHOT.jar
+mvn  -Pdevelop -DskipTests -Dmaven.test.skip=true install
+REM java -jar target/skdf_jprotractor-develop.jar
+REM alternatively
+java -cp target\skdf_jprotractor-develop.jar;target\lib\* com.github.sergueik.jprotractor.Launcher
 popd
 pushd ngwebdriver
 mvn clean install
-java -jar target/skdf_ngwebdriver-0.5-SNAPSHOT.jar
+REM java -jar target/skdf_ngwebdriver-develop.jar
+java -cp target\skdf_ngwebdriver-develop.jar;target\lib\* com.github.sergueik.ngwebdriver.Launcher
 popd
 ```
 The launcher uses reflection to associate _keywords_ with *class methods*
@@ -210,6 +213,11 @@ The advantages from taking such approach are discussed many times:
  * [LinqToExcel](https://github.com/paulyoder/LinqToExcel)
  * [save-selenium-webdriver-testng-result-excel](http://www.techbeamers.com/save-selenium-webdriver-testng-result-excel/)
  * [DataProvider - Data Driven Testing with Selenium and TestNG](http://functionaltestautomation.blogspot.in/2009/10/dataprovider-data-driven-testing-with.html)
+ * [Excel Java poi helpers](https://github.com/Crab2died/Excel4J) 
+ * [Fast Excel poi-clean Java implementation](https://github.com/dhatim/fastexcel)
+
+### License
+This project is licensed under the terms of the MIT license.
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)

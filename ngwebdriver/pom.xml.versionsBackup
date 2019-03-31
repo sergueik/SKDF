@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.github.sergueik.jprotractor</groupId>
-  <artifactId>skdf_jprotractor</artifactId>
+  <groupId>com.github.sergueik.ngwebdriver</groupId>
+  <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.11-SNAPSHOT</version>
+  <version>0.6-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -15,7 +15,6 @@
     <commons-lang3.version>3.0.1</commons-lang3.version>
     <guava.version>21.0</guava.version>
     <java.version>1.8</java.version>
-    <jprotractor.version>1.3-SNAPSHOT</jprotractor.version>
     <json.version>20170516</json.version>
     <junit.version>4.12</junit.version>
     <log4j.version>2.5</log4j.version>
@@ -23,6 +22,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
+    <ngwebdriver.version>1.1.4</ngwebdriver.version>
     <poi.version>3.17</poi.version>
     <poiooxml.version>3.17</poiooxml.version>
     <selenium.version>3.13.0</selenium.version>
@@ -37,15 +37,11 @@
       <version>0.0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.github.sergueik.jprotractor</groupId>
-      <artifactId>jprotractor</artifactId>
-      <version>${jprotractor.version}</version>
-      <!--
- installing to system scope is not sufficient
-     <scope>system</scope>
-     <systemPath>${project.basedir}/src/main/resources/jprotractor-${jprotractor.version}.jar</systemPath>
--->
+      <groupId>com.paulhammant</groupId>
+      <artifactId>ngwebdriver</artifactId>
+      <version>${ngwebdriver.version}</version>
       <exclusions>
+        <!-- exclude alternative versions of  Selenium jar -->
         <exclusion>
           <groupId>org.seleniumhq.selenium</groupId>
           <artifactId>selenium-java</artifactId>
@@ -174,7 +170,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.github.sergueik.jprotractor.Launcher</mainClass>
+              <mainClass>com.github.sergueik.ngwebdriver.Launcher</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -231,38 +227,4 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-  </distributionManagement>
-  <profiles>
-    <profile>
-      <id>release</id>
-      <!-- keys -->
-      <activation>
-        <os>
-          <family>windows</family>
-          <arch>amd64</arch>
-        </os>
-      </activation>
-      <build>
-        <finalName>${artifactId}-${version}</finalName>
-      </build>
-      <properties>
-      </properties>
-    </profile>
-    <profile>
-      <id>develop</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-      </properties>
-      <build>
-        <finalName>${artifactId}-develop</finalName>
-      </build>
-    </profile>
-  </profiles>
 </project>

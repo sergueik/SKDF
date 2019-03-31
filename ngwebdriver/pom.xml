@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.ngwebdriver</groupId>
   <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.10-SNAPSHOT</version>
+  <version>0.11-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -226,4 +226,32 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <!-- keys -->
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <build>
+        <finalName>${artifactId}-${version}</finalName>
+      </build>
+      <properties>
+      </properties>
+    </profile>
+    <profile>
+      <id>develop</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+      </properties>
+      <build>
+        <finalName>${artifactId}-develop</finalName>
+      </build>
+    </profile>
+  </profiles>
 </project>

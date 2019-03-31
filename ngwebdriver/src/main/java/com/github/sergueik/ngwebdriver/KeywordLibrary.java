@@ -6,7 +6,7 @@ package com.github.sergueik.ngwebdriver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -46,6 +46,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 // NOTE: eclipse appears to be removing these imports
 import com.paulhammant.ngwebdriver.NgWebDriver;
+
 import com.paulhammant.ngwebdriver.ByAngular;
 import com.paulhammant.ngwebdriver.ByAngularBinding;
 import com.paulhammant.ngwebdriver.ByAngularButtonText;
@@ -126,6 +127,7 @@ public class KeywordLibrary {
 
 	private Map<String, String> methodTable = new HashMap<>();
 	{
+		methodTable.put("FAST_ENTER_TEXT", "fastEnterText");
 		methodTable.put("CLEAR_TEXT", "clearText");
 		methodTable.put("CLICK", "clickButton");
 		methodTable.put("CLICK_BUTTON", "clickButton");
@@ -175,7 +177,6 @@ public class KeywordLibrary {
 	public void setPollingInterval(int value) {
 		this.pollingInterval = value;
 	}
-
 
 	public void navigateTo(Map<String, String> params) {
 		String url = params.get("param1");
@@ -370,7 +371,15 @@ public class KeywordLibrary {
 										? "C:\\java\\selenium\\chromedriver.exe"
 										: "/var/run/chromedriver"
 								: chromeDriverPath).getAbsolutePath());
-				driver = new ChromeDriver();
+				System.err.println("Launching Chrome");
+				try {
+					driver = new ChromeDriver();
+				} catch (Exception e) {
+					System.err
+							.println("Exception when launching Chrome: " + e.toString());
+				}
+				System.err.println(
+						driver == null ? "Failed to launch Chrome" : "Launched Chrome");
 				break;
 			case "firefox":
 				System.setProperty("webdriver.gecko.driver",
@@ -455,6 +464,27 @@ public class KeywordLibrary {
 			status = "Failed";
 		}
 		status = "Passed";
+	}
+
+	public void fastEnterText(Map<String, String> params) {
+		element = _findElement(params);
+		textData = params.get("param5");
+		if (element != null) {
+			highlight(element);
+			System.err.println("Entering text: " + textData);
+			try {
+				fastSetText(element, textData);
+				sleep(100);
+				element = _findElement(params);
+				System.err.println("Entered text: " + element.getAttribute("value"));
+				status = "Passed";
+			} catch (NoSuchElementException e) {
+				status = "Failed";
+			}
+		} else {
+			status = "Failed";
+		}
+
 	}
 
 	public void clickButton(Map<String, String> params) {
@@ -1340,22 +1370,62 @@ public class KeywordLibrary {
 	}
 
 	public void highlight(WebElement element, long highlight_interval) {
-		if (wait == null) {
-			wait = new WebDriverWait(driver, flexibleWait);
-		}
-		wait.pollingEvery(Duration.ofMillis(pollingInterval));
 		try {
 			wait.until(ExpectedConditions.visibilityOf(element));
-			if (driver instanceof JavascriptExecutor) {
-				((JavascriptExecutor) driver).executeScript(
-						"arguments[0].style.border='3px solid yellow'", element);
-			}
+			executeScript("arguments[0].style.border='3px solid yellow'", element);
 			Thread.sleep(highlight_interval);
-			if (driver instanceof JavascriptExecutor) {
-				((JavascriptExecutor) driver)
-						.executeScript("arguments[0].style.border=''", element);
-			}
+			executeScript("arguments[0].style.border=''", element);
 		} catch (InterruptedException e) {
+			System.err.println("Ignored: " + e.toString());
+		}
+	}
+
+	// http://www.javawithus.com/tutorial/using-ellipsis-to-accept-variable-number-of-arguments
+	public Object executeScript(String script, Object... arguments) {
+		if (driver instanceof JavascriptExecutor) {
+			JavascriptExecutor javascriptExecutor = JavascriptExecutor.class
+					.cast(driver);
+			return javascriptExecutor.executeScript(script, arguments);
+		} else {
+			throw new RuntimeException("Script execution failed.");
+		}
+	}
+
+	private String getScriptContent(String scriptName) {
+		try {
+			final InputStream stream = KeywordLibrary.class.getClassLoader()
+					.getResourceAsStream(scriptName);
+			final byte[] bytes = new byte[stream.available()];
+			stream.read(bytes);
+			return new String(bytes, "UTF-8");
+		} catch (IOException e) {
+			throw new RuntimeException(scriptName);
+		}
+	}
+
+	public void fastSetText(String selectorOfElement, String text) {
+		fastSetText(selectorOfElement, text, 0);
+	}
+
+	public void fastSetText(String selector, String text, long interval) {
+		String script = getScriptContent("setValueWithSelector.js");
+		try {
+			executeScript(script, selector, text);
+		} catch (Exception e) {
+			System.err.println("Ignored: " + e.toString());
+		}
+	}
+
+	public void fastSetText(WebElement element, String text) {
+		fastSetText(element, text, 0);
+	}
+
+	public void fastSetText(WebElement element, String text, long interval) {
+		String script = getScriptContent("setValue.js");
+		try {
+			wait.until(ExpectedConditions.visibilityOf(element));
+			executeScript(script, element, text);
+		} catch (Exception e) {
 			System.err.println("Ignored: " + e.toString());
 		}
 	}
