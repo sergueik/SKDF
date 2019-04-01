@@ -157,8 +157,7 @@ public class Launcher {
 	}
 
 	// NOTE: renamed from readsuiteTestStepsWIP
-	private static void readsuiteTestSteps(String suiteName)
-			throws IOException {
+	private static void readsuiteTestSteps(String suiteName) throws IOException {
 		utils.setSheetName(suiteName);
 		List<Object[]> steps = utils.createDataFromExcel2003(testCase);
 		for (int step = 0; step < steps.size(); step++) {
@@ -174,7 +173,10 @@ public class Launcher {
 				}
 				if (row[col] != null
 						&& StringUtils.isNotBlank(row[col].toString().trim())) {
-					String cellValue = row[col].toString();
+					// TODO: full coverage of
+					// https://en.wikipedia.org/wiki/Quotation_mark#Summary_table
+					String cellValue = row[col].toString().replaceAll("”", "\"")
+							.replaceAll("’", "'");
 					data.put(String.format("param%d", col), cellValue);
 					if (debug) {
 						System.err.println("Column[param" + col + "] = " + cellValue);

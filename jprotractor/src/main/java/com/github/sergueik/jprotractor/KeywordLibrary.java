@@ -88,9 +88,9 @@ public final class KeywordLibrary {
 
 	public static int scriptTimeout = 30;
 	public static int stepWait = 150;
-	public static int flexibleWait = 120;
+	public static int flexibleWait = 30;
 	public static int implicitWait = 10;
-	public static int pollingInterval = 500;
+	public static int pollingInterval = 100;
 
 	private static String browser = "chrome";
 	private static String baseURL = "about:blank";
@@ -381,6 +381,7 @@ public final class KeywordLibrary {
 			}
 			driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 			wait = new WebDriverWait(driver, flexibleWait);
+			actions = new Actions(driver);
 			wait.pollingEvery(Duration.ofMillis(pollingInterval));
 			ngDriver = new NgWebDriver(driver);
 			status = "Passed";
@@ -449,10 +450,12 @@ public final class KeywordLibrary {
 		element = _findElement(params);
 		textData = params.get("param5");
 		if (element != null) {
+			actions.moveToElement(element).build().perform();
 			highlight(element);
 			System.err.println("Entering text: " + textData);
 			try {
 				fastSetText(element, textData);
+				highlight(element);
 				sleep(100);
 				element = _findElement(params);
 				System.err.println("Entered text: " + element.getAttribute("value"));
@@ -771,7 +774,10 @@ public final class KeywordLibrary {
 				locator = By.xpath(selectorValue);
 				break;
 			}
+
 			// TODO: add Angular locators
+			System.err.println("Starting wait using " + locator.getClass().toString()
+					+ " " + selectorValue);
 			_element = _wait.until(new ExpectedCondition<WebElement>() {
 
 				@Override
