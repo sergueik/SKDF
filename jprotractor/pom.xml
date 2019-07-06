@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.jprotractor</groupId>
   <artifactId>skdf_jprotractor</artifactId>
   <packaging>jar</packaging>
-  <version>0.12-SNAPSHOT</version>
+  <version>0.13-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -15,9 +15,11 @@
     <commons-lang3.version>3.0.1</commons-lang3.version>
     <guava.version>21.0</guava.version>
     <java.version>1.8</java.version>
-    <jprotractor.version>1.3-SNAPSHOT</jprotractor.version>
+    <jprotractor.version>1.12-SNAPSHOT</jprotractor.version>
     <json.version>20170516</json.version>
     <junit.version>4.12</junit.version>
+    <junit.version>4.12</junit.version>
+    <junit_params.version>0.0.14-SNAPSHOT</junit_params.version>
     <log4j.version>2.5</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -34,7 +36,7 @@
       <!-- experimental -->
       <groupId>com.github.sergueik.junitparams</groupId>
       <artifactId>junit_params</artifactId>
-      <version>0.0.8-SNAPSHOT</version>
+      <version>${junit_params.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.sergueik.jprotractor</groupId>
