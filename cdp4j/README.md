@@ -1,7 +1,7 @@
 ### Info
 
-This directory contains experimental port of the SKDF to [CDP 4 Java client library](https://github.com/webfolderio/cdp4j) backend.
-The [Chrome Devtools Protocol](https://github.com/ChromeDevTools/devtools-protocol) is an entirely different API stack than [Selenium / JSONWireProtocol protocol](https://w3c.github.io/webdriver/webdriver-spec.html`). In partiular it no longer uses strongly typed locators, and number of methods belong to `session` rather then `element`.
+This directory contains experimental port of the SKDF to [CDP 4 Java client library](https://github.com/webfolderio/cdp4j) backend.(NOTE: in July 2019 the project owner (WebFolder OÜ) has restricted the source code public github access, most likely still offering it to paying customers only).
+The [Chrome Devtools Protocol](https://github.com/ChromeDevTools/devtools-protocol) is an entirely different API stack than [Selenium JSON Wire protocol](https://w3c.github.io/webdriver/webdriver-spec.html`). In partiular it no longer uses strongly typed locators, and number of methods belong to `session` rather then `element`.
 For example the basic test
 ```java
 import org.openqa.selenium.WebDriver;
