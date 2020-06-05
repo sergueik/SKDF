@@ -189,7 +189,7 @@ identifying few columns (not necessarily exactly four, though).
   * __Summary__: *brief description of the step*
   * __Target__: *name of the Web Page object/element, like "Link" or "Input"*
   * __Action__: *name of the action, which will be performed on Target Element such as click, open browser, input text etc.*
-  * __Data__: *any value which is needed by the Object to perform any action, like text value for input field.
+  * __Data__: *any value which is needed by the Object to perform any action, like text value for input field.*
 
 
 It is very likely inspired by
@@ -204,6 +204,15 @@ The advantages from taking such approach are discussed many times:
   * __Early Start__: One can start building Keyword Driven test cases immediately deferring more challenging tasks like Page Object model to a later stage. Keyword steps are quick to identify from requirements documentation or manual test.
   * __Re-usability__: With implementing modularization in Keyword Driven, Re-usability can be further increased. Equipped with a stable and powerful Execution Engine in Keyword Driven Framework, it encourage extreme code re-usability.
   * __Automation__: Excel file is (a lot) easier to produce by a recording tool than a full blown program.
+
+### Work in Progress
+
+Adding 
+
+* [ahajamit/chrome-devtools-webdriver-integration](https://github.com/sahajamit/chrome-devtools-webdriver-integration) Selenium 3.x compatible Chrome Devtool Selenium extension project that exposes whole set of [Chrome DevTools Protocol automation API](https://chromedevtools.github.io/devtools-protocol/) to Selenium in similar fashion Selenium 4 is doing (Selenum 4 is currently in alpha) as __cdp\_integration__
+* [sukgu/shadow-automation-selenium](https://github.com/sukgu/shadow-automation-selenium) shadow ROOT DOM automation javascript API wrapper project, which offrs custom API as __shadow\_automation__
+
+No keywords defined for any of those yet.
 
 ### See Also
 
