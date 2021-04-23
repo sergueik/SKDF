@@ -15,7 +15,7 @@
     <commons-lang3.version>3.0.1</commons-lang3.version>
     <guava.version>21.0</guava.version>
     <java.version>1.8</java.version>
-    <jprotractor.version>1.12-SNAPSHOT</jprotractor.version>
+    <jprotractor.version>1.13-SNAPSHOT</jprotractor.version>
     <json.version>20170516</json.version>
     <junit.version>4.13.2</junit.version>
     <junit_params.version>0.0.14-SNAPSHOT</junit_params.version>
