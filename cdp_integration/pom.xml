@@ -22,7 +22,7 @@ Chrome DevTools WebDriver integration project that is not yet published to maven
     <json.version>20170516</json.version>
     <junit.version>4.12</junit.version>
     <junit_params.version>0.0.14-SNAPSHOT</junit_params.version>
-    <log4j.version>2.15.0</log4j.version>
+    <log4j.version>2.16.0</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
