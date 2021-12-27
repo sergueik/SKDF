@@ -255,7 +255,7 @@
         </os>
       </activation>
       <build>
-        <finalName>${artifactId}-${version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
       </build>
       <properties>
       </properties>
@@ -268,7 +268,7 @@
       <properties>
       </properties>
       <build>
-        <finalName>${artifactId}-develop</finalName>
+        <finalName>${project.artifactId}-develop</finalName>
       </build>
     </profile>
   </profiles>
