@@ -19,7 +19,7 @@
     <json.version>20170516</json.version>
     <junit.version>4.13.2</junit.version>
     <junit_params.version>0.0.14-SNAPSHOT</junit_params.version>
-    <log4j.version>2.17.0</log4j.version>
+    <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
