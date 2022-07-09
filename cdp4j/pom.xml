@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.utils</groupId>
   <artifactId>skdf_cdp4j</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.3-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <developers>
@@ -32,8 +32,10 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
-    <poi.version>3.17</poi.version>
-    <poiooxml.version>3.17</poiooxml.version>
+    <poi.version>4.1.2</poi.version>
+    <!-- 3.17 is the last stable poi.version this project was verified -->
+    <poiooxml.version>4.1.2</poiooxml.version>
+    <!-- 3.17 is the last stable poiooxml.version this project was verified  -->
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
