@@ -214,6 +214,15 @@ Adding
 
 No keywords defined for any of those yet.
 
+### Note
+
+the urls `http://www.seleniumeasy.com/test/basic-first-form-demo.html` and `https://www.seleniumeasy.com/test/input-form-demo.html` no longer exist on `http://www.seleniumeasy.com` though the former is still referenced in documentation for Python testers.
+
+These pages were apparently mirrored on `https://demo.anhtester.com`
+The directory `http://www.seleniumeasy.com/test/` is also gone and there is no mirror
+The update of test material is a work in progress. The sheets `KeywordFramework` are curently disabled.
+The `Alert` sheet is updated and enabled (it had a typo in the custom method name for processing the alert popup)
+
 ### See Also
 
  * [qaf](https://github.com/qmetry/qaf)
