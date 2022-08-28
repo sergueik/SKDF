@@ -8,7 +8,6 @@
   <url>http://maven.apache.org</url>
   <name>root app module</name>
   <modules>
-    <!-- <module>cdp4j</module>-->
     <module>jprotractor</module>
     <module>ngwebdriver</module>
     <module>cdp4j</module>

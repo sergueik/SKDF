@@ -23,12 +23,18 @@
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
     <ngwebdriver.version>1.1.6</ngwebdriver.version>
+    <!-- NOTE:  cannot upgrade to 1.2 - starting with this version the ngwebdriver is compiled with JDK 11: a.k.a. maven.compiler.source  = 1.8 vs. maven.compiler.source = 11
+this leading to a build error:
+Compilation failure: cannot access com.paulhammant.ngwebdriver.NgWebDriver
+[ERROR] bad class file: .m2/repository/com/paulhammant/ngwebdriver/1.2/ngwebdriver-1.2.jar(com/paulhammant/ngwebdriver/NgWebDriver.class)
+class file has wrong version 55.0, should be 52.0
+	    -->
     <poi.version>4.1.2</poi.version>
     <!-- 3.17 is the last stable poi.version this project was verified -->
     <poiooxml.version>4.1.2</poiooxml.version>
     <!-- 3.17 is the last stable poiooxml.version this project was verified  -->
     <poi-excelant.version>4.1.2</poi-excelant.version>
-     <!-- 3.17 is the last stable poi-excelant.version this project was verified -->
+    <!-- 3.17 is the last stable poi-excelant.version this project was verified -->
     <selenium.version>3.141.59</selenium.version>
     <selenium.version>3.13.0</selenium.version>
     <selenium.firefox-driver.version>${selenium.version}</selenium.firefox-driver.version>
