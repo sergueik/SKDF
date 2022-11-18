@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.utils</groupId>
   <artifactId>skdf_cdp4j</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.4-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <developers>

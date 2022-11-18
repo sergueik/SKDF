@@ -95,9 +95,9 @@ public class Launcher {
 		String status = KeywordLibrary.getStatus();
 		cell.setCellValue(status);
 		cellStyle.setFillForegroundColor(
-				(status.matches("(?i:Passed)")) ? HSSFColor.BRIGHT_GREEN.index
-						: (status.matches("(?i:Failed)")) ? HSSFColor.RED.index
-								: HSSFColor.WHITE.index);
+				(status.matches("(?i:Passed)")) ? HSSFColor.HSSFColorPredefined.BRIGHT_GREEN.getIndex()
+						: (status.matches("(?i:Failed)")) ? HSSFColor.HSSFColorPredefined.RED.getIndex()
+								: HSSFColor.HSSFColorPredefined.WHITE.getIndex());
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		cell.setCellStyle(cellStyle);
 		try {

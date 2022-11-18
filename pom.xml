@@ -4,11 +4,10 @@
   <groupId>com.github.sergueik.utils</groupId>
   <artifactId>skdf</artifactId>
   <packaging>pom</packaging>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.4-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <name>root app module</name>
   <modules>
-    <!-- <module>cdp4j</module>-->
     <module>jprotractor</module>
     <module>ngwebdriver</module>
     <module>cdp4j</module>
