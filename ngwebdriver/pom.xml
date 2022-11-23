@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.ngwebdriver</groupId>
   <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.13-SNAPSHOT</version>
+  <version>0.14-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -35,8 +35,7 @@ class file has wrong version 55.0, should be 52.0
     <!-- 3.17 is the last stable poiooxml.version this project was verified  -->
     <poi-excelant.version>4.1.2</poi-excelant.version>
     <!-- 3.17 is the last stable poi-excelant.version this project was verified -->
-    <selenium.version>3.141.59</selenium.version>
-    <selenium.version>3.13.0</selenium.version>
+    <selenium.version>4.5.3</selenium.version>
     <selenium.firefox-driver.version>${selenium.version}</selenium.firefox-driver.version>
     <browser.name>chrome</browser.name>
   </properties>
@@ -101,11 +100,12 @@ class file has wrong version 55.0, should be 52.0
       <artifactId>selenium-java</artifactId>
       <version>${selenium.version}</version>
     </dependency>
+<!--
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-server</artifactId>
       <version>${selenium.version}</version>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>

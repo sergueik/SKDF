@@ -29,6 +29,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -388,11 +389,15 @@ public class KeywordLibrary {
 										? "c:/java/selenium/geckodriver.exe"
 										: "/var/run/geckodriver"
 								: geckoDriverPath).getAbsolutePath());
-				DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-
+				// DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+				DesiredCapabilities capabilities = new DesiredCapabilities("firefox",
+						"", Platform.ANY);
 				// TODO: switch to Selenium 3.X+
 				capabilities.setCapability("marionette", false);
-				driver = new FirefoxDriver(capabilities);
+				// TODO: recover the code
+				// https://stackoverflow.com/questions/25616227/chrome-driver-with-selenium-no-suitable-constructor-found-for-remotewebdriver
+				// driver = new FirefoxDriver(capabilities);
+				driver = new FirefoxDriver();
 				break;
 			case "ie":
 				System.setProperty("webdriver.ie.driver",
@@ -414,9 +419,11 @@ public class KeywordLibrary {
 			if (debug) {
 				System.err.println("Open: " + this.getBrowser());
 			}
-			wait = new WebDriverWait(driver, flexibleWait);
+			wait = new WebDriverWait(driver, Duration.ofSeconds(flexibleWait));
 			wait.pollingEvery(Duration.ofMillis(pollingInterval));
-			driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
+			driver.manage().timeouts()
+			.implicitlyWait(Duration.ofSeconds(implicitWait));
+
 			ngDriver = new NgWebDriver((JavascriptExecutor) driver);
 			status = "Passed";
 			// TODO: pass from launcher
@@ -1066,7 +1073,7 @@ public class KeywordLibrary {
 		WebDriverWait _wait;
 		try {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
-			_wait = new WebDriverWait(driver, timeout);
+			_wait = new WebDriverWait(driver, Duration.ofMillis(timeout));
 		} catch (java.lang.NumberFormatException e) {
 			_wait = wait;
 			status = "Failed";
@@ -1112,7 +1119,7 @@ public class KeywordLibrary {
 		WebDriverWait _wait;
 		if (params.containsKey("param7")) {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
-			_wait = new WebDriverWait(driver, timeout);
+			_wait = new WebDriverWait(driver, Duration.ofMillis(timeout));
 		} else {
 			_wait = wait;
 		}
@@ -1240,7 +1247,7 @@ public class KeywordLibrary {
 		WebDriverWait _wait;
 		if (params.containsKey("param7")) {
 			timeout = (long) (Float.parseFloat(params.get("param7")));
-			_wait = new WebDriverWait(driver, timeout);
+			_wait = new WebDriverWait(driver, Duration.ofMillis(timeout));
 		} else {
 			_wait = wait;
 		}

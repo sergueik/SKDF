@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.jprotractor</groupId>
   <artifactId>skdf_jprotractor</artifactId>
   <packaging>jar</packaging>
-  <version>0.16-SNAPSHOT</version>
+  <version>0.17-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -28,11 +28,7 @@
     <!-- 3.17 is the last stable poi.version this project was verified -->
     <poiooxml.version>4.1.2</poiooxml.version>
     <!-- 3.17 is the last stable poiooxml.version this project was verified  -->
-    <selenium.version>3.141.59</selenium.version>
-    <!-- 3.141.59 - is the last 3.x version as of 8/1/2019 -->
-    <selenium.version>3.13.0</selenium.version>
-<!--
-    <selenium.version>4.5.3</selenium.version> -->
+    <selenium.version>4.5.3</selenium.version>
     <selenium.firefox-driver.version>${selenium.version}</selenium.firefox-driver.version>
     <browser.name>chrome</browser.name>
   </properties>
