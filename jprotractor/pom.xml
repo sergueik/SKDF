@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.jprotractor</groupId>
   <artifactId>skdf_jprotractor</artifactId>
   <packaging>jar</packaging>
-  <version>0.17-SNAPSHOT</version>
+  <version>0.18-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -18,7 +18,7 @@
     <jprotractor.version>2.0-SNAPSHOT</jprotractor.version>
     <json.version>20170516</json.version>
     <junit.version>4.13.2</junit.version>
-    <junit_params.version>0.0.14-SNAPSHOT</junit_params.version>
+    <junit_dataproviders.version>0.22.0-SNAPSHOT</junit_dataproviders.version>
     <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -33,11 +33,11 @@
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
+    <!-- TODO: move the utility class into the project and remove dependency -->
     <dependency>
-      <!-- experimental -->
       <groupId>com.github.sergueik.junitparams</groupId>
-      <artifactId>junit_params</artifactId>
-      <version>${junit_params.version}</version>
+      <artifactId>junit_dataproviders</artifactId>
+      <version>${junit_dataproviders.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.sergueik.jprotractor</groupId>
@@ -98,7 +98,7 @@
       <artifactId>selenium-java</artifactId>
       <version>${selenium.version}</version>
     </dependency>
-<!--
+    <!--
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-server</artifactId>

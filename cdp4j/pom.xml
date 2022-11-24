@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.utils</groupId>
   <artifactId>skdf_cdp4j</artifactId>
   <packaging>jar</packaging>
-  <version>0.4-SNAPSHOT</version>
+  <version>0.5-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <developers>
@@ -27,6 +27,7 @@
     <java.version>1.8</java.version>
     <json.version>20170516</json.version>
     <junit.version>4.13.2</junit.version>
+    <junit_dataproviders.version>0.22.0-SNAPSHOT</junit_dataproviders.version>
     <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -39,6 +40,12 @@
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
+    <!-- TODO: move the utility class into the project and remove dependency -->
+    <dependency>
+      <groupId>com.github.sergueik.junitparams</groupId>
+      <artifactId>junit_dataproviders</artifactId>
+      <version>${junit_dataproviders.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.webfolder</groupId>
       <artifactId>cdp4j</artifactId>

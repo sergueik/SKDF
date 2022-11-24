@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.shadow_root</groupId>
   <artifactId>skdf_cdp_integration</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.3-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -21,7 +21,7 @@ Chrome DevTools WebDriver integration project that is not yet published to maven
     <chrome-devtools-webdriver-integration.version>0.6.0-SNAPSHOT</chrome-devtools-webdriver-integration.version>
     <json.version>20170516</json.version>
     <junit.version>4.13.1</junit.version>
-    <junit_params.version>0.0.14-SNAPSHOT</junit_params.version>
+    <junit_dataproviders.version>0.22.0-SNAPSHOT</junit_dataproviders.version>
     <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -36,11 +36,11 @@ Chrome DevTools WebDriver integration project that is not yet published to maven
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
+    <!-- TODO: move the utility class into the project and remove dependency -->
     <dependency>
-      <!-- experimental -->
       <groupId>com.github.sergueik.junitparams</groupId>
-      <artifactId>junit_params</artifactId>
-      <version>${junit_params.version}</version>
+      <artifactId>junit_dataproviders</artifactId>
+      <version>${junit_dataproviders.version}</version>
     </dependency>
     <dependency>
       <groupId>example</groupId>
