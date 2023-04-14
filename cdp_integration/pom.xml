@@ -19,7 +19,7 @@
 Chrome DevTools WebDriver integration project that is not yet published to maven central
  -->
     <chrome-devtools-webdriver-integration.version>0.6.0-SNAPSHOT</chrome-devtools-webdriver-integration.version>
-    <json.version>20170516</json.version>
+    <json.version>20230227</json.version>
     <junit.version>4.13.1</junit.version>
     <junit_dataproviders.version>0.22.0-SNAPSHOT</junit_dataproviders.version>
     <log4j.version>2.17.1</log4j.version>
