@@ -3,7 +3,7 @@
 ![TestCase.xls](https://github.com/sergueik/skdf/blob/master/images/testcase_selenium.png)
 
 This directory contains a skeleton [Keyword-Driven Framework](http://toolsqa.com/selenium-webdriver/keyword-driven-framework/introduction/) project based on
-[ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [selenium-webdriver-software-testing/keyword-driven-framework](https://github.com/selenium-webdriver-software-testing/keyword-driven-framework)
+[ashokkhape/automation_framework_selenium](https://github.com/ashokkhape/automation_framework_selenium) and [selenium-webdriver-software-testing/keyword-driven-framework](https://github.com/selenium-webdriver-software-testing/keyword-driven-framework)
 
 The project builds two runnable jars (`com.github.sergueik.jprotractor` and `com.github.sergueik.ngwebdriver` group id namespaces):
 ```bash

@@ -4,7 +4,7 @@
   <groupId>com.github.sergueik.ngwebdriver</groupId>
   <artifactId>skdf_ngwebdriver</artifactId>
   <packaging>jar</packaging>
-  <version>0.13-SNAPSHOT</version>
+  <version>0.15-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -15,8 +15,9 @@
     <commons-lang3.version>3.0.1</commons-lang3.version>
     <guava.version>21.0</guava.version>
     <java.version>1.8</java.version>
-    <json.version>20170516</json.version>
+    <json.version>20231013</json.version>
     <junit.version>4.13.2</junit.version>
+    <junit_dataproviders.version>0.22.0-SNAPSHOT</junit_dataproviders.version>
     <log4j.version>2.17.1</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -35,17 +36,16 @@ class file has wrong version 55.0, should be 52.0
     <!-- 3.17 is the last stable poiooxml.version this project was verified  -->
     <poi-excelant.version>4.1.2</poi-excelant.version>
     <!-- 3.17 is the last stable poi-excelant.version this project was verified -->
-    <selenium.version>3.141.59</selenium.version>
-    <selenium.version>3.13.0</selenium.version>
+    <selenium.version>4.10.0</selenium.version>
     <selenium.firefox-driver.version>${selenium.version}</selenium.firefox-driver.version>
     <browser.name>chrome</browser.name>
   </properties>
   <dependencies>
+    <!-- TODO: move the utility class into the project and remove dependency -->
     <dependency>
-      <!-- experimental -->
       <groupId>com.github.sergueik.junitparams</groupId>
-      <artifactId>junit_params</artifactId>
-      <version>0.0.8-SNAPSHOT</version>
+      <artifactId>junit_dataproviders</artifactId>
+      <version>${junit_dataproviders.version}</version>
     </dependency>
     <dependency>
       <groupId>com.paulhammant</groupId>
@@ -101,11 +101,12 @@ class file has wrong version 55.0, should be 52.0
       <artifactId>selenium-java</artifactId>
       <version>${selenium.version}</version>
     </dependency>
+<!--
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-server</artifactId>
       <version>${selenium.version}</version>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
